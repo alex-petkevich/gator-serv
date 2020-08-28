@@ -45,6 +45,16 @@ public class CacheConfiguration {
             createCache(cm, by.homesite.gator.domain.User.class.getName() + ".authorities");
             createCache(cm, by.homesite.gator.domain.PersistentToken.class.getName());
             createCache(cm, by.homesite.gator.domain.User.class.getName() + ".persistentTokens");
+            createCache(cm, by.homesite.gator.domain.Item.class.getName());
+            createCache(cm, by.homesite.gator.domain.Item.class.getName() + ".sites");
+            createCache(cm, by.homesite.gator.domain.Category.class.getName());
+            createCache(cm, by.homesite.gator.domain.Category.class.getName() + ".sites");
+            createCache(cm, by.homesite.gator.domain.Site.class.getName());
+            createCache(cm, by.homesite.gator.domain.UserProperties.class.getName());
+            createCache(cm, by.homesite.gator.domain.Properties.class.getName());
+            createCache(cm, by.homesite.gator.domain.Site.class.getName() + ".users");
+            createCache(cm, by.homesite.gator.domain.Category.class.getName() + ".items");
+            createCache(cm, by.homesite.gator.domain.Site.class.getName() + ".categories");
             // jhipster-needle-ehcache-add-entry
         };
     }
