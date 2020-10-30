@@ -1,10 +1,13 @@
 package by.homesite.gator.service.impl;
 
+import by.homesite.gator.repository.CategoryRepository;
+import by.homesite.gator.service.CategoryService;
 import by.homesite.gator.service.ItemService;
 import by.homesite.gator.domain.Item;
 import by.homesite.gator.repository.ItemRepository;
 import by.homesite.gator.repository.search.ItemSearchRepository;
 import by.homesite.gator.service.dto.ItemDTO;
+import by.homesite.gator.service.mapper.CategoryMapper;
 import by.homesite.gator.service.mapper.ItemMapper;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -14,6 +17,7 @@ import org.springframework.data.domain.Pageable;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
+import java.time.ZonedDateTime;
 import java.util.Optional;
 
 import static org.elasticsearch.index.query.QueryBuilders.*;
@@ -33,10 +37,16 @@ public class ItemServiceImpl implements ItemService {
 
     private final ItemSearchRepository itemSearchRepository;
 
-    public ItemServiceImpl(ItemRepository itemRepository, ItemMapper itemMapper, ItemSearchRepository itemSearchRepository) {
+    private final CategoryService categoryService;
+
+    private final CategoryMapper categoryMapper;
+
+    public ItemServiceImpl(ItemRepository itemRepository, ItemMapper itemMapper, ItemSearchRepository itemSearchRepository, CategoryService categoryService, CategoryMapper categoryMapper) {
         this.itemRepository = itemRepository;
         this.itemMapper = itemMapper;
         this.itemSearchRepository = itemSearchRepository;
+        this.categoryService = categoryService;
+        this.categoryMapper = categoryMapper;
     }
 
     /**
@@ -49,6 +59,13 @@ public class ItemServiceImpl implements ItemService {
     public ItemDTO save(ItemDTO itemDTO) {
         log.debug("Request to save Item : {}", itemDTO);
         Item item = itemMapper.toEntity(itemDTO);
+        if (itemDTO.getCategoryId() != null) {
+            item.setCategory(categoryMapper.toEntity(categoryService.findOne(itemDTO.getCategoryId()).get()));
+        }
+        if (item.getCreatedAt() == null)
+            item.setCreatedAt(ZonedDateTime.now());
+        if (item.getUpdatedAt() == null)
+            item.setUpdatedAt(ZonedDateTime.now());
         item = itemRepository.save(item);
         ItemDTO result = itemMapper.toDto(item);
         itemSearchRepository.save(item);
