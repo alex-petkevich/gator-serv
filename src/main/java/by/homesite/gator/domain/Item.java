@@ -60,6 +60,9 @@ public class Item implements Serializable {
     @Column(name = "deleted_at")
     private ZonedDateTime deletedAt;
 
+    @Column(name = "native_id")
+    private Long nativeId;
+
     @ManyToOne
     @JsonIgnoreProperties("items")
     private Category category;
@@ -229,6 +232,15 @@ public class Item implements Serializable {
         this.category = category;
     }
     // jhipster-needle-entity-add-getters-setters - JHipster will add getters and setters here, do not remove
+
+
+    public Long getNativeId() {
+        return nativeId;
+    }
+
+    public void setNativeId(Long nativeId) {
+        this.nativeId = nativeId;
+    }
 
     @Override
     public boolean equals(Object o) {

@@ -34,10 +34,11 @@ public class ItemDTO implements Serializable {
 
     private ZonedDateTime deletedAt;
 
-
     private Long categoryId;
 
     private String categoryName;
+
+    private Long nativeId;
 
     public Long getId() {
         return id;
@@ -149,6 +150,14 @@ public class ItemDTO implements Serializable {
 
     public void setCategoryName(String categoryName) {
         this.categoryName = categoryName;
+    }
+
+    public Long getNativeId() {
+        return nativeId;
+    }
+
+    public void setNativeId(Long nativeId) {
+        this.nativeId = nativeId;
     }
 
     @Override
