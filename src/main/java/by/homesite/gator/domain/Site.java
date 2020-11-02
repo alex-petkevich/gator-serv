@@ -36,6 +36,9 @@ public class Site implements Serializable {
     @Column(name = "active")
     private Boolean active;
 
+    @Column(name = "name")
+    private String name;
+
     @ManyToOne
     @JsonIgnoreProperties("sites")
     private User user;
@@ -101,6 +104,16 @@ public class Site implements Serializable {
         this.user = user;
     }
     // jhipster-needle-entity-add-getters-setters - JHipster will add getters and setters here, do not remove
+
+    public String getName()
+    {
+        return name;
+    }
+
+    public void setName(String name)
+    {
+        this.name = name;
+    }
 
     @Override
     public boolean equals(Object o) {

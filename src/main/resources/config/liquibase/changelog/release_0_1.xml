@@ -20,4 +20,13 @@
         </addColumn>
     </changeSet>
 
+    <changeSet id="02" author="alexP">
+        <addColumn tableName="site" >
+            <column name="name"
+                    type="varchar(255)">
+                <constraints nullable="true" />
+            </column>
+        </addColumn>
+    </changeSet>
+
 </databaseChangeLog>

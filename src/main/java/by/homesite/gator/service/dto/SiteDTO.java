@@ -18,6 +18,7 @@ public class SiteDTO implements Serializable {
 
     private Boolean active;
 
+    private String name;
 
     private Long userId;
 
@@ -69,6 +70,16 @@ public class SiteDTO implements Serializable {
 
     public void setUserLogin(String userLogin) {
         this.userLogin = userLogin;
+    }
+
+    public String getName()
+    {
+        return name;
+    }
+
+    public void setName(String name)
+    {
+        this.name = name;
     }
 
     @Override
