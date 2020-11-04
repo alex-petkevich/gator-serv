@@ -21,7 +21,7 @@ import java.net.UnknownHostException;
 import java.util.Arrays;
 import java.util.Collection;
 
-@SpringBootApplication
+@SpringBootApplication(scanBasePackages = {"by.homesite.gator"})
 @EnableScheduling
 @EnableConfigurationProperties({LiquibaseProperties.class, ApplicationProperties.class})
 public class GatorApp implements InitializingBean {

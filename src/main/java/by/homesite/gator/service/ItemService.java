@@ -5,6 +5,7 @@ import by.homesite.gator.service.dto.ItemDTO;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
 
+import java.time.Duration;
 import java.util.Optional;
 
 /**
@@ -48,9 +49,11 @@ public interface ItemService {
      * Search for the item corresponding to the query.
      *
      * @param query the query of the search.
-     * 
+     *
      * @param pageable the pagination information.
      * @return the list of entities.
      */
     Page<ItemDTO> search(String query, Pageable pageable);
+
+    void deleteOldItems(int days);
 }

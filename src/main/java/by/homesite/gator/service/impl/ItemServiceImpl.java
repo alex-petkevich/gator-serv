@@ -1,6 +1,5 @@
 package by.homesite.gator.service.impl;
 
-import by.homesite.gator.repository.CategoryRepository;
 import by.homesite.gator.service.CategoryService;
 import by.homesite.gator.service.ItemService;
 import by.homesite.gator.domain.Item;
@@ -9,6 +8,8 @@ import by.homesite.gator.repository.search.ItemSearchRepository;
 import by.homesite.gator.service.dto.ItemDTO;
 import by.homesite.gator.service.mapper.CategoryMapper;
 import by.homesite.gator.service.mapper.ItemMapper;
+import io.swagger.models.auth.In;
+
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -17,7 +18,10 @@ import org.springframework.data.domain.Pageable;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
+import java.time.Duration;
+import java.time.LocalDate;
 import java.time.ZonedDateTime;
+import java.util.List;
 import java.util.Optional;
 
 import static org.elasticsearch.index.query.QueryBuilders.*;
@@ -126,5 +130,13 @@ public class ItemServiceImpl implements ItemService {
         log.debug("Request to search for a page of Items for query {}", query);
         return itemSearchRepository.search(queryStringQuery(query), pageable)
             .map(itemMapper::toDto);
+    }
+
+    @Override
+    public void deleteOldItems(int days)
+    {
+        log.debug("Request to delete old items");
+        List<Integer> deletedItems = itemRepository.deleteOldItems(LocalDate.now().minusDays(days));
+        deletedItems.forEach(el -> itemSearchRepository.deleteById(el.longValue()));
     }
 }
