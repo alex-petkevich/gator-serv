@@ -1,7 +1,9 @@
 package by.homesite.gator.scheduler;
 
 import java.time.Duration;
+import java.util.List;
 import java.util.MissingResourceException;
+import java.util.concurrent.ExecutionException;
 
 import by.homesite.gator.config.Constants;
 import by.homesite.gator.parser.ParseFactory;
@@ -35,9 +37,14 @@ public class CrawlerScheduled {
     }
 
     @Scheduled(fixedRate = Constants.PARSE_ITEMS_PERIOD)
-    public void parseSites() {
+    public void parseSites() throws ExecutionException, InterruptedException
+    {
 
-        categoryService.search("active:true").forEach(this::processCategoryLink);
+        List<CategoryDTO> categories = categoryService.search("active:true");
+        for (CategoryDTO category : categories)
+        {
+            processCategoryLink(category);
+        }
 
     }
 
@@ -46,14 +53,15 @@ public class CrawlerScheduled {
         itemService.deleteOldItems(Constants.TTL_ITEMS_DAYS);
     }
 
-    private void processCategoryLink(CategoryDTO category)
+    private void processCategoryLink(CategoryDTO category) throws ExecutionException, InterruptedException
     {
         SiteDTO site = siteService.findOne(category.getSiteId()).get();
 
         Parser parser = ParseFactory.getParser(site.getName());
 
         if (parser != null) {
-            parser.parseItems(category);
+            int parsed = parser.parseItems(category).get();
+            log.info("Parsed {} items: {}", site.getTitle(), parsed);
         } else {
             log.error("Parser not found: {}", site.getTitle());
         }

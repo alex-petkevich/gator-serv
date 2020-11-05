@@ -1,4 +1,4 @@
-package by.homesite.gator.parser;
+package by.homesite.gator.parser.util;
 
 import static by.homesite.gator.config.Constants.CONNECT_TIMEOUT;
 
@@ -16,8 +16,8 @@ import org.springframework.web.client.RestTemplate;
 @Component
 public class WebClient
 {
-    private HttpHeaders headers;
-    private RestTemplate restTemplate;
+    private final HttpHeaders headers;
+    private final RestTemplate restTemplate;
     private HttpStatus status;
 
     public WebClient(RestTemplateBuilder builder)

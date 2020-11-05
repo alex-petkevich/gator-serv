@@ -1,4 +1,4 @@
-package by.homesite.gator.parser;
+package by.homesite.gator.parser.util;
 
 import java.net.MalformedURLException;
 import java.net.URL;

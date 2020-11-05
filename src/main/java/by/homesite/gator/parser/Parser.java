@@ -1,8 +1,10 @@
 package by.homesite.gator.parser;
 
+import java.util.concurrent.CompletableFuture;
+
 import by.homesite.gator.service.dto.CategoryDTO;
 
 public interface Parser
 {
-    void parseItems(CategoryDTO categoryDTO);
+    CompletableFuture<Integer> parseItems(CategoryDTO categoryDTO);
 }
