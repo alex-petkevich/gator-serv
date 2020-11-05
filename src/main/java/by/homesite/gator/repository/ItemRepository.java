@@ -1,13 +1,13 @@
 package by.homesite.gator.repository;
 
-import java.time.Duration;
-import java.time.LocalDate;
+import java.time.ZonedDateTime;
 import java.util.List;
 
 import by.homesite.gator.domain.Item;
 import org.springframework.data.jpa.repository.*;
 import org.springframework.data.repository.query.Param;
 import org.springframework.stereotype.Repository;
+import org.springframework.transaction.annotation.Transactional;
 
 
 /**
@@ -17,7 +17,11 @@ import org.springframework.stereotype.Repository;
 @Repository
 public interface ItemRepository extends JpaRepository<Item, Long> {
 
+    @Transactional
     @Modifying
-    @Query("delete from Item i where i.updatedAt > :date")
-	List<Integer> deleteOldItems(@Param("date") LocalDate date);
+    @Query("delete from Item i where i.updatedAt < :date")
+	void deleteOldItems(@Param("date") ZonedDateTime date);
+
+    @Query("select i from Item i where i.updatedAt < :date")
+    List<Item> findOldItems(@Param("date") ZonedDateTime date);
 }

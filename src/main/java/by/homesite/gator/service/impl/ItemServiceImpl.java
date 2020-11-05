@@ -136,7 +136,8 @@ public class ItemServiceImpl implements ItemService {
     public void deleteOldItems(int days)
     {
         log.debug("Request to delete old items");
-        List<Integer> deletedItems = itemRepository.deleteOldItems(LocalDate.now().minusDays(days));
-        deletedItems.forEach(el -> itemSearchRepository.deleteById(el.longValue()));
+        List<Item> deletedItems = itemRepository.findOldItems(ZonedDateTime.now().minusDays(days));
+        itemRepository.deleteOldItems(ZonedDateTime.now().minusDays(days));
+        deletedItems.forEach(el -> itemSearchRepository.deleteById(el.getId()));
     }
 }
