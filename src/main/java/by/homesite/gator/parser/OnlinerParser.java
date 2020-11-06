@@ -1,11 +1,13 @@
 package by.homesite.gator.parser;
 
+import static by.homesite.gator.config.Constants.*;
 import static by.homesite.gator.parser.util.ParserUtil.getAbsLink;
 
 import java.util.concurrent.CompletableFuture;
 
 import org.jsoup.Jsoup;
 import org.jsoup.nodes.Document;
+import org.jsoup.nodes.Element;
 import org.jsoup.select.Elements;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -92,6 +94,27 @@ public class OnlinerParser implements Parser
                             }
                             item.setCategoryId(categoryDTO.getId());
                             item.setActive(true);
+
+                            int type = 0;
+                            Elements eltypes = el.getElementsByClass("ba-label");
+                            for(Element eltype: eltypes) {
+                                if (eltype.hasClass("ba-label-1"))
+                                    type = ITEM_TYPE_IMPORTANT;
+                                if (eltype.hasClass("ba-label-2"))
+                                    type = ITEM_TYPE_SELL;
+                                if (eltype.hasClass("ba-label-3"))
+                                    type = ITEM_TYPE_BUY;
+                                if (eltype.hasClass("ba-label-4"))
+                                    type = ITEM_TYPE_CHANGE;
+                                if (eltype.hasClass("ba-label-6"))
+                                    type = ITEM_TYPE_RENT;
+                                if (eltype.hasClass("ba-label-5"))
+                                    type = ITEM_TYPE_SERVICE;
+                                if (eltype.hasClass("ba-label-7"))
+                                    type = ITEM_TYPE_CLOSED;
+                            }
+                            item.setType(type);
+
                             itemService.save(item);
                             result[0]++;
                             log.debug("ad title: {}", title);

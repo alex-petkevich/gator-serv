@@ -19,6 +19,14 @@ public final class Constants {
     public static final int PURGE_ITEMS_PERIOD = 24*60*60000;
     public static final int TTL_ITEMS_DAYS = 7;
 
+    public static final int ITEM_TYPE_SELL = 0;
+    public static final int ITEM_TYPE_BUY = 1;
+    public static final int ITEM_TYPE_CHANGE = 2;
+    public static final int ITEM_TYPE_SERVICE = 3;
+    public static final int ITEM_TYPE_RENT = 4;
+    public static final int ITEM_TYPE_IMPORTANT = 5;
+    public static final int ITEM_TYPE_CLOSED = 6;
+
     private Constants() {
     }
 }

@@ -63,6 +63,9 @@ public class Item implements Serializable {
     @Column(name = "native_id")
     private Long nativeId;
 
+    @Column(name = "type")
+    private Integer type;
+
     @ManyToOne
     @JsonIgnoreProperties("items")
     private Category category;
@@ -242,6 +245,14 @@ public class Item implements Serializable {
         this.nativeId = nativeId;
     }
 
+    public Integer getType() {
+        return type;
+    }
+
+    public void setType(Integer type) {
+        this.type = type;
+    }
+
     @Override
     public boolean equals(Object o) {
         if (this == o) {
@@ -273,6 +284,8 @@ public class Item implements Serializable {
             ", createdAt='" + getCreatedAt() + "'" +
             ", updatedAt='" + getUpdatedAt() + "'" +
             ", deletedAt='" + getDeletedAt() + "'" +
+            ", native_id='" + getNativeId() + "'" +
+            ", type='" + getType() + "'" +
             "}";
     }
 }

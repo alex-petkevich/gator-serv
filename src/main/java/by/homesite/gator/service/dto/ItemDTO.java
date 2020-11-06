@@ -40,6 +40,8 @@ public class ItemDTO implements Serializable {
 
     private Long nativeId;
 
+    private Integer type;
+
     public Long getId() {
         return id;
     }
@@ -152,6 +154,14 @@ public class ItemDTO implements Serializable {
         this.categoryName = categoryName;
     }
 
+    public Integer getType() {
+        return type;
+    }
+
+    public void setType(Integer type) {
+        this.type = type;
+    }
+
     public Long getNativeId() {
         return nativeId;
     }
@@ -198,6 +208,8 @@ public class ItemDTO implements Serializable {
             ", deletedAt='" + getDeletedAt() + "'" +
             ", category=" + getCategoryId() +
             ", category='" + getCategoryName() + "'" +
+            ", nativeId='" + getNativeId() + "'" +
+            ", type='" + getType() + "'" +
             "}";
     }
 }

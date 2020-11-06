@@ -29,4 +29,12 @@
         </addColumn>
     </changeSet>
 
+    <changeSet id="03" author="alexP">
+        <addColumn tableName="item" >
+            <column name="type" type="int" defaultValue="0">
+                <constraints nullable="false" />
+            </column>
+        </addColumn>
+    </changeSet>
+
 </databaseChangeLog>
