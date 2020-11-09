@@ -37,4 +37,8 @@
         </addColumn>
     </changeSet>
 
+    <changeSet id="04" author="alexP">
+        <modifyDataType tableName="item" columnName="description" newDataType="varchar(1000)" />
+    </changeSet>
+
 </databaseChangeLog>
