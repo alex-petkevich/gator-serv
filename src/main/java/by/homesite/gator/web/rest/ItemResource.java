@@ -160,11 +160,15 @@ public class ItemResource {
      * @return the result of the search.
      */
     @GetMapping("/_search/all")
-    public ResponseEntity<List<ItemDTO>> searchAll(@RequestParam String query, Pageable pageable) {
+    public ResponseEntity<List<ItemDTO>> searchAll(@RequestParam String query, @RequestParam String category, Pageable pageable) {
         StringBuilder inputQuery = new StringBuilder("active:true");
 
         if (!StringUtils.isEmpty(query)) {
             inputQuery.append(" AND (title:").append(query).append(" OR description:").append(query).append(")");
+        }
+
+        if (!StringUtils.isEmpty(category) && !"0".equals(category)) {
+            inputQuery.append(" AND categoryId:").append(category);
         }
 
         log.debug("REST request to search for a page of All items for query {}", query);
