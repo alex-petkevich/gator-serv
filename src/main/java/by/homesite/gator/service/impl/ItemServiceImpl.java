@@ -8,7 +8,6 @@ import by.homesite.gator.repository.search.ItemSearchRepository;
 import by.homesite.gator.service.dto.ItemDTO;
 import by.homesite.gator.service.mapper.CategoryMapper;
 import by.homesite.gator.service.mapper.ItemMapper;
-import io.swagger.models.auth.In;
 
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -18,8 +17,6 @@ import org.springframework.data.domain.Pageable;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
-import java.time.Duration;
-import java.time.LocalDate;
 import java.time.ZonedDateTime;
 import java.util.List;
 import java.util.Optional;

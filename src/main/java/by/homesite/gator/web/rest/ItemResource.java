@@ -168,7 +168,7 @@ public class ItemResource {
         }
 
         if (!StringUtils.isEmpty(category) && !"0".equals(category)) {
-            inputQuery.append(" AND categoryId:").append(category);
+            inputQuery.append(" AND category.id:" + category);
         }
 
         log.debug("REST request to search for a page of All items for query {}", query);
