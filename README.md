@@ -38,6 +38,27 @@ To launch your application's tests, run:
 
 For more information, refer to the [Running tests page][].
 
+## setting up as debian daemon
+mcedit /etc/systemd/system/gator.service
+
+[Unit]
+Description=gator
+After=syslog.target
+
+[Service]
+User=gator
+ExecStart=/mnt/vol1/www/gator/gator.jar
+SuccessExitStatus=143
+StandardOutput=append:/var/log/gator/output.log
+StandardError=append:/var/log/gator/error.log
+
+[Install]
+WantedBy=multi-user.target
+
+## Elasticsearch
+
+version 6.4.3 required (run under  java 8/10)
+
 ### Code quality
 
 Sonar is used to analyse code quality. You can start a local Sonar server (accessible on http://localhost:9001) with:

@@ -132,7 +132,7 @@ public class ElasticsearchIndexService {
                 .filter(field -> field.getAnnotation(JsonIgnore.class) == null)
                 .map(field -> {
                     try {
-                        return new PropertyDescriptor(field.getName(), entityClass).getReadMethod();
+                        return new PropertyDescriptor((String)field.getName(), entityClass).getReadMethod();
                     } catch (IntrospectionException e) {
                         log.error("Error retrieving getter for class {}, field {}. Field will NOT be indexed",
                             entityClass.getSimpleName(), field.getName(), e);
