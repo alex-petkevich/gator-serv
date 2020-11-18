@@ -61,7 +61,7 @@ public class CrawlerScheduled {
 
         if (parser != null) {
             int parsed = parser.parseItems(category).get();
-            log.info("Parsed {} items: {}", site.getTitle(), parsed);
+            log.info("Parsed {} items in {}", parsed, category.getName());
         } else {
             log.error("Parser not found: {}", site.getTitle());
         }
