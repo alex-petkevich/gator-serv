@@ -1,8 +1,8 @@
 #!/bin/bash
 
-chown gator.gator ${WORKSPACE}/target/gator-1.0-beta.jar
-chmod u+x ${WORKSPACE}/target/gator-1.0-beta.jar
+chown gator.gator ./target/gator-1.0-beta.jar
+chmod u+x ./target/gator-1.0-beta.jar
 systemctl gator stop
 sleep 3
-cp ${WORKSPACE}/target/gator-1.0-beta.jar /mnt/vol1/www/gator/gator.jar
+cp ./target/gator-1.0-beta.jar /mnt/vol1/www/gator/gator.jar
 systemctl gator start
