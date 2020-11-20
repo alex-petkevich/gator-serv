@@ -2,6 +2,8 @@
 <!DOCTYPE configuration>
 
 <configuration scan="true">
+    <property name="LOG_TEMP" value="./logs"/>
+
     <include resource="org/springframework/boot/logging/logback/base.xml"/>
 
     <logger name="by.homesite.gator" level="INFO"/>

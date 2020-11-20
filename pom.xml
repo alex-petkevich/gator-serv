@@ -5,7 +5,7 @@
 
     <groupId>by.homesite.gator</groupId>
     <artifactId>gator</artifactId>
-    <version>0.0.1-SNAPSHOT</version>
+    <version>1.0-beta</version>
     <packaging>jar</packaging>
     <name>Gator</name>
 

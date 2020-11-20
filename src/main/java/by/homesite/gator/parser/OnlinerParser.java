@@ -38,7 +38,7 @@ public class OnlinerParser implements Parser
     @Async
     public CompletableFuture<Integer> parseItems(CategoryDTO categoryDTO)
     {
-        log.info("Starting Onliner parser for {}", categoryDTO.getLink());
+        log.debug("Starting Onliner parser for {}", categoryDTO.getLink());
         final int[] result = { 0 };
 
         String response = webClient.get(categoryDTO.getLink());
