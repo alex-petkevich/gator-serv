@@ -55,6 +55,7 @@ public class CacheConfiguration {
             createCache(cm, by.homesite.gator.domain.Site.class.getName() + ".users");
             createCache(cm, by.homesite.gator.domain.Category.class.getName() + ".items");
             createCache(cm, by.homesite.gator.domain.Site.class.getName() + ".categories");
+            createCache(cm, by.homesite.gator.domain.Rate.class.getName());
             // jhipster-needle-ehcache-add-entry
         };
     }

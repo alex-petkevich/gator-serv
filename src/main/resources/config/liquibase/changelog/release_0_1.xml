@@ -41,4 +41,42 @@
         <modifyDataType tableName="item" columnName="description" newDataType="varchar(1000)" />
     </changeSet>
 
+    <changeSet id="05" author="alexP">
+        <addColumn tableName="user_properties" >
+            <column name="property_id" type="int" defaultValue="0">
+                <constraints nullable="false" />
+            </column>
+        </addColumn>
+    </changeSet>
+
+    <changeSet id="06" author="alexP">
+        <createTable tableName="rate">
+            <column name="id" type="int" autoIncrement="${autoIncrement}">
+                <constraints primaryKey="true" nullable="false"/>
+            </column>
+            <column name="name" type="varchar(255)">
+                <constraints nullable="true" />
+            </column>
+            <column name="code" type="varchar(255)">
+                <constraints nullable="false" />
+            </column>
+            <column name="rate" type="float">
+                <constraints nullable="false" />
+            </column>
+            <column name="created_at" type="datetime">
+                <constraints nullable="true" />
+            </column>
+            <column name="updated_at" type="datetime">
+                <constraints nullable="true" />
+            </column>
+            <column name="deleted_at" type="datetime">
+                <constraints nullable="true" />
+            </column>
+            <column name="active" type="boolean">
+                <constraints nullable="true" />
+            </column>
+        </createTable>
+
+    </changeSet>
+
 </databaseChangeLog>

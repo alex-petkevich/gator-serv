@@ -16,8 +16,10 @@ public final class Constants {
 
     public static final int PARSE_ITEMS_PERIOD = 60000;
 
-    public static final int PURGE_ITEMS_PERIOD = 24*60*60000;
+    public static final int PURGE_ITEMS_PERIOD = 5*24*60*60000;
     public static final int TTL_ITEMS_DAYS = 7;
+
+    public static final int RATES_FETCH_PERIOD = 24*60*60000;
 
     public static final int ITEM_TYPE_SELL = 0;
     public static final int ITEM_TYPE_BUY = 1;
