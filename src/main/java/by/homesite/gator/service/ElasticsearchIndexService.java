@@ -65,9 +65,6 @@ public class ElasticsearchIndexService {
     private final UserSearchRepository userSearchRepository;
 
     private final ElasticsearchOperations elasticsearchTemplate;
-    private final RateRepository rateRepository;
-
-    private RateSearchRepository rateSearchRepository;
 
     public ElasticsearchIndexService(
         UserRepository userRepository,
@@ -82,7 +79,6 @@ public class ElasticsearchIndexService {
         SiteSearchRepository siteSearchRepository,
         UserPropertiesRepository userPropertiesRepository,
         UserPropertiesSearchRepository userPropertiesSearchRepository,
-        RateRepository  rateRepository,
         ElasticsearchOperations elasticsearchTemplate) {
         this.userRepository = userRepository;
         this.userSearchRepository = userSearchRepository;
@@ -97,7 +93,6 @@ public class ElasticsearchIndexService {
         this.userPropertiesRepository = userPropertiesRepository;
         this.userPropertiesSearchRepository = userPropertiesSearchRepository;
         this.elasticsearchTemplate = elasticsearchTemplate;
-        this.rateRepository = rateRepository;
     }
 
     @Async
@@ -111,7 +106,6 @@ public class ElasticsearchIndexService {
                 reindexForClass(Site.class, siteRepository, siteSearchRepository);
                 reindexForClass(UserProperties.class, userPropertiesRepository, userPropertiesSearchRepository);
                 reindexForClass(User.class, userRepository, userSearchRepository);
-                reindexForClass(Rate.class, rateRepository, rateSearchRepository);
 
                 log.info("Elasticsearch: Successfully performed reindexing");
             } finally {
