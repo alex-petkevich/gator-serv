@@ -32,6 +32,9 @@ public class Rate implements Serializable {
     @Column(name = "code")
     private String code;
 
+    @Column(name = "mark")
+    private String mark;
+
     @Column(name = "rate", precision = 8, scale = 2)
     private Float rate;
 
@@ -132,6 +135,14 @@ public class Rate implements Serializable {
         this.deletedAt = deletedAt;
     }
 
+    public String getMark() {
+        return mark;
+    }
+
+    public void setMark(String mark) {
+        this.mark = mark;
+    }
+
     // jhipster-needle-entity-add-getters-setters - JHipster will add getters and setters here, do not remove
 
     @Override
@@ -156,6 +167,7 @@ public class Rate implements Serializable {
             "id=" + getId() +
             ", idname='" + getName() + "'" +
             ", code='" + getCode() + "'" +
+            ", mark='" + getMark() + "'" +
             ", rate=" + getRate() +
             ", active='" + getActive() + "'" +
             "}";

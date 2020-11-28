@@ -76,7 +76,14 @@
                 <constraints nullable="true" />
             </column>
         </createTable>
+    </changeSet>
 
+    <changeSet id="07" author="alexP">
+        <addColumn tableName="rate" >
+            <column name="mark" type="varchar(255)" defaultValue="">
+                <constraints nullable="true" />
+            </column>
+        </addColumn>
     </changeSet>
 
 </databaseChangeLog>

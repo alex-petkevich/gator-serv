@@ -14,6 +14,8 @@ public class RateDTO implements Serializable {
 
     private String code;
 
+    private String mark;
+
     private BigDecimal rate;
 
     private Boolean active;
@@ -58,6 +60,14 @@ public class RateDTO implements Serializable {
         this.active = active;
     }
 
+    public String getMark() {
+        return mark;
+    }
+
+    public void setMark(String mark) {
+        this.mark = mark;
+    }
+
     @Override
     public boolean equals(Object o) {
         if (this == o) {
@@ -86,6 +96,7 @@ public class RateDTO implements Serializable {
             ", idname='" + getName() + "'" +
             ", code='" + getCode() + "'" +
             ", rate=" + getRate() +
+            ", mark=" + getMark() +
             ", active='" + getActive() + "'" +
             "}";
     }

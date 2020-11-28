@@ -45,14 +45,5 @@ public interface RateService {
      */
     void delete(Long id);
 
-    /**
-     * Search for the rate corresponding to the query.
-     *
-     * @param query the query of the search.
-     *
-     * @return the list of entities.
-     */
-    List<RateDTO> search(String query);
-
     void fetchRates();
 }

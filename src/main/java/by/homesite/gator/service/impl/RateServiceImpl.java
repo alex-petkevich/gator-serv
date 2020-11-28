@@ -28,6 +28,12 @@ import static org.elasticsearch.index.query.QueryBuilders.*;
 @Transactional
 public class RateServiceImpl implements RateService {
 
+    public static final Map<String, String> CURRENCIES = Map.of(
+        "usd", "$",
+        "rub", "₽",
+        "eur", "€"
+    );
+
     private final Logger log = LoggerFactory.getLogger(RateServiceImpl.class);
 
     private final RateRepository rateRepository;
@@ -108,26 +114,10 @@ public class RateServiceImpl implements RateService {
         rateSearchRepository.deleteById(id);
     }
 
-    /**
-     * Search for the rate corresponding to the query.
-     *
-     * @param query the query of the search.
-     * @return the list of entities.
-     */
-    @Override
-    @Transactional(readOnly = true)
-    public List<RateDTO> search(String query) {
-        log.debug("Request to search Rates for query {}", query);
-        return StreamSupport
-            .stream(rateSearchRepository.search(queryStringQuery(query)).spliterator(), false)
-            .map(rateMapper::toDto)
-            .collect(Collectors.toList());
-    }
-
     @Override
     public void fetchRates()  {
         try {
-            Map<String, String> rates = currencyParser.getCurrency(Set.of("usd", "rub", "eur"));
+            Map<String, String> rates = currencyParser.getCurrency(CURRENCIES.keySet());
             for(String rate: rates.keySet()) {
                 Rate rateItem = rateRepository.findOneByCode(rate).orElse(new Rate());
                 rateItem.setCode(rate.toUpperCase());
@@ -135,8 +125,8 @@ public class RateServiceImpl implements RateService {
                 rateItem.setUpdatedAt(ZonedDateTime.now());
                 rateItem.setActive(true);
                 rateItem.setCreatedAt(ZonedDateTime.now());
+                rateItem.setMark(CURRENCIES.get(rate));
                 rateRepository.save(rateItem);
-                rateSearchRepository.save(rateItem);
             }
         } catch (IOException e) {
             log.error("Can't fetch currency rates {}", e.getMessage());

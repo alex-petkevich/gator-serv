@@ -118,18 +118,4 @@ public class RateResource {
         rateService.delete(id);
         return ResponseEntity.noContent().headers(HeaderUtil.createEntityDeletionAlert(applicationName, true, ENTITY_NAME, id.toString())).build();
     }
-
-    /**
-     * {@code SEARCH  /_search/rates?query=:query} : search for the rate corresponding
-     * to the query.
-     *
-     * @param query the query of the rate search.
-     * @return the result of the search.
-     */
-    @GetMapping("/_search/rates")
-    public List<RateDTO> searchRates(@RequestParam String query) {
-        log.debug("REST request to search Rates for query {}", query);
-        return rateService.search(query);
-    }
-
 }
