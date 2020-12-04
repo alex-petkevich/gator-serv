@@ -1,14 +1,12 @@
 # gator
 
-This application was generated using JHipster 6.2.0, you can find documentation and help at [https://www.jhipster.tech/documentation-archive/v6.2.0](https://www.jhipster.tech/documentation-archive/v6.2.0).
+Application to parse different classifieds boards. Easily customizable (just create your own by.homesite.parser implementation)
 
 ## Development
 
 To start your application in the dev profile, simply run:
 
     ./mvnw
-
-For further instructions on how to develop with JHipster, have a look at [Using JHipster in development][].
 
 ## Building for production
 
@@ -21,8 +19,6 @@ To build the final jar and optimize the gator application for production, run:
 To ensure everything worked, run:
 
     java -jar target/*.jar
-
-Refer to [Using JHipster in production][] for more details.
 
 ### Packaging as war
 
