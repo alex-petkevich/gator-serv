@@ -15,9 +15,9 @@
 
 logging:
   level:
-    ROOT: DEBUG
-    io.github.jhipster: DEBUG
-    by.homesite.gator: DEBUG
+    ROOT: INFO
+    io.github.jhipster: INFO
+    by.homesite.gator: INFO
 
 management:
   health:
@@ -41,9 +41,9 @@ spring:
       indent-output: true
   datasource:
     type: com.zaxxer.hikari.HikariDataSource
-    url: jdbc:h2:~/gator
-    username: sa
-    password: sa
+    url: jdbc:mariadb://localhost:3306/gator?useLegacyDatetimeCode=false&serverTimezone=UTC
+    username: gator
+    password: tagortagor
     hikari:
       poolName: Hikari
       auto-commit: false
@@ -53,9 +53,9 @@ spring:
         prepStmtCacheSqlLimit: 2048
         useServerPrepStmts: true
   jpa:
-    database-platform: org.hibernate.dialect.H2Dialect
-    database: H2
-    show-sql: true
+    database-platform: org.hibernate.dialect.MySQL5InnoDBDialect
+    database: MYSQL
+    show-sql: false
     properties:
       hibernate.id.new_generator_mappings: true
       hibernate.connection.provider_disables_autocommit: true

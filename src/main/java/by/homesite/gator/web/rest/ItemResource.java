@@ -168,11 +168,11 @@ public class ItemResource {
         }
 
         if (!StringUtils.isEmpty(category) && !"0".equals(category)) {
-            inputQuery.append(" AND category.id:" + category);
+            inputQuery.append(" AND (category.id:" + category.replaceAll(",", " OR category.id:") + ")");
         }
 
         if (!StringUtils.isEmpty(type) && !"undefined".equals(type)) {
-            inputQuery.append(" AND type:" + type);
+            inputQuery.append(" AND (type:" + type.replaceAll(",", " OR type:") + ")");
         }
 
         log.debug("REST request to search for a page of All items for query {}", query);
