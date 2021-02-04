@@ -124,7 +124,7 @@ public class ItemServiceImpl implements ItemService {
     @Override
     @Transactional(readOnly = true)
     public Page<ItemDTO> search(String query, Pageable pageable) {
-        log.debug("Request to search for a page of Items for query {}", query);
+        log.trace("Request to search for a page of Items for query {}", query);
         return itemSearchRepository.search(queryStringQuery(query), pageable)
             .map(itemMapper::toDto);
     }
