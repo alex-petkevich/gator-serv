@@ -12,7 +12,7 @@ public final class Constants {
     public static final String DEFAULT_LANGUAGE = "en";
     public static final String ANONYMOUS_USER = "anonymoususer";
 
-    public static final int CONNECT_TIMEOUT = 120;
+    public static final int CONNECT_TIMEOUT = 120*1000;
 
     public static final int PARSE_ITEMS_PERIOD = 60000;
 
