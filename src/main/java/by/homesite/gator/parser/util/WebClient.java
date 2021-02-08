@@ -34,9 +34,12 @@ public class WebClient
 
         HttpComponentsClientHttpRequestFactory clientHttpRequestFactory = new HttpComponentsClientHttpRequestFactory();
         clientHttpRequestFactory.setHttpClient(httpClient);
+        clientHttpRequestFactory.setConnectionRequestTimeout(CONNECT_TIMEOUT);
+        clientHttpRequestFactory.setReadTimeout(CONNECT_TIMEOUT);
+        clientHttpRequestFactory.setConnectTimeout(CONNECT_TIMEOUT);
 
-        this.restTemplate = builder.setConnectTimeout(Duration.ofSeconds(CONNECT_TIMEOUT)).build();
-        this.restTemplate.setRequestFactory(clientHttpRequestFactory);
+        //this.restTemplate = builder.setConnectTimeout(Duration.ofSeconds(CONNECT_TIMEOUT)).build();
+        this.restTemplate = new RestTemplate(clientHttpRequestFactory);
         this.headers = new HttpHeaders();
         headers.add("Accept", "*/*");
     }
