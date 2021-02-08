@@ -44,7 +44,10 @@ public class OnlinerParser implements Parser
         String response = webClient.get(categoryDTO.getLink());
 
         if (!webClient.getStatus().is2xxSuccessful())
+        {
+            log.debug("...failed {}", webClient.getStatus().getReasonPhrase());
             return CompletableFuture.completedFuture(result[0]);
+        }
 
         log.debug("received content, start parser, {}", categoryDTO.getLink());
         Document html = Jsoup.parse(response);
