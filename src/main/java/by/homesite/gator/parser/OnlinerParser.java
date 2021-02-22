@@ -78,7 +78,7 @@ public class OnlinerParser implements Parser
                     int alreadyExistsElements = 0;
                     if (StringUtils.isNotBlank(nativeId))
                     {
-                        alreadyExistsElements = itemService.search("nativeId:" + nativeId, Pageable.unpaged()).getNumberOfElements();
+                        alreadyExistsElements = itemService.search("nativeId:" + nativeId, "", "", Pageable.unpaged()).getNumberOfElements();
                     }
 
                     if (StringUtils.isNotBlank(title) && alreadyExistsElements == 0)

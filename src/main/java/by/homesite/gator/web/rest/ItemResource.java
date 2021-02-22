@@ -31,7 +31,6 @@ import by.homesite.gator.web.rest.errors.BadRequestAlertException;
 import io.github.jhipster.web.util.HeaderUtil;
 import io.github.jhipster.web.util.PaginationUtil;
 import io.github.jhipster.web.util.ResponseUtil;
-import liquibase.util.StringUtils;
 
 /**
  * REST controller for managing {@link by.homesite.gator.domain.Item}.
@@ -146,7 +145,7 @@ public class ItemResource {
     @GetMapping("/_search/items")
     public ResponseEntity<List<ItemDTO>> searchItems(@RequestParam String query, Pageable pageable) {
         log.debug("REST request to search for a page of Items for query {}", query);
-        Page<ItemDTO> page = itemService.search(query, pageable);
+        Page<ItemDTO> page = itemService.search(query, "", "", pageable);
         HttpHeaders headers = PaginationUtil.generatePaginationHttpHeaders(ServletUriComponentsBuilder.fromCurrentRequest(), page);
         return ResponseEntity.ok().headers(headers).body(page.getContent());
     }
@@ -161,22 +160,9 @@ public class ItemResource {
      */
     @GetMapping("/_search/all")
     public ResponseEntity<List<ItemDTO>> searchAll(@RequestParam String query, @RequestParam String category, @RequestParam String type, Pageable pageable) {
-        StringBuilder inputQuery = new StringBuilder("active:true");
-
-        if (!StringUtils.isEmpty(query)) {
-            inputQuery.append(" AND (title:").append(query).append(" OR description:").append(query).append(")");
-        }
-
-        if (!StringUtils.isEmpty(category) && !"0".equals(category)) {
-            inputQuery.append(" AND (category.id:" + category.replaceAll(",", " OR category.id:") + ")");
-        }
-
-        if (!StringUtils.isEmpty(type) && !"undefined".equals(type)) {
-            inputQuery.append(" AND (type:" + type.replaceAll(",", " OR type:") + ")");
-        }
 
         log.debug("REST request to search for a page of All items for query {}", query);
-        Page<ItemDTO> page = itemService.search(inputQuery.toString(), pageable);
+        Page<ItemDTO> page = itemService.search(query, category, type, pageable);
         HttpHeaders headers = PaginationUtil.generatePaginationHttpHeaders(ServletUriComponentsBuilder.fromCurrentRequest(), page);
         return ResponseEntity.ok().headers(headers).body(page.getContent());
     }

@@ -15,8 +15,8 @@
 
 logging:
   level:
-    ROOT: DEBUG
-    by.homesite.gator: DEBUG
+    ROOT: INFO
+    by.homesite.gator: INFO
     io.github.jhipster: INFO
 
 management:

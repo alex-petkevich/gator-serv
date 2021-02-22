@@ -1,8 +1,6 @@
 package by.homesite.gator.scheduler;
 
-import java.time.Duration;
 import java.util.List;
-import java.util.MissingResourceException;
 import java.util.concurrent.ExecutionException;
 
 import by.homesite.gator.config.Constants;
@@ -61,7 +59,7 @@ public class CrawlerScheduled {
 
         if (parser != null) {
             int parsed = parser.parseItems(category).get();
-            log.info("Parsed {} items in {}", parsed, category.getName());
+            log.debug("Parsed {} items in {}", parsed, category.getName());
         } else {
             log.error("Parser not found: {}", site.getTitle());
         }

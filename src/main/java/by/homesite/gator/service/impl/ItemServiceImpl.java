@@ -1,5 +1,9 @@
 package by.homesite.gator.service.impl;
 
+import static org.elasticsearch.index.query.QueryBuilders.matchQuery;
+import static org.elasticsearch.index.query.QueryBuilders.multiMatchQuery;
+import static org.elasticsearch.index.query.QueryBuilders.queryStringQuery;
+
 import by.homesite.gator.service.CategoryService;
 import by.homesite.gator.service.ItemService;
 import by.homesite.gator.domain.Item;
@@ -8,20 +12,27 @@ import by.homesite.gator.repository.search.ItemSearchRepository;
 import by.homesite.gator.service.dto.ItemDTO;
 import by.homesite.gator.service.mapper.CategoryMapper;
 import by.homesite.gator.service.mapper.ItemMapper;
+import liquibase.util.StringUtils;
 
+import org.elasticsearch.common.unit.Fuzziness;
+import org.elasticsearch.index.query.BoolQueryBuilder;
+import org.elasticsearch.index.query.MultiMatchQueryBuilder;
+import org.elasticsearch.index.query.Operator;
+import org.elasticsearch.index.query.QueryBuilder;
+import org.elasticsearch.index.query.QueryBuilders;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
+import org.springframework.data.elasticsearch.core.query.NativeSearchQuery;
+import org.springframework.data.elasticsearch.core.query.NativeSearchQueryBuilder;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
 import java.time.ZonedDateTime;
 import java.util.List;
 import java.util.Optional;
-
-import static org.elasticsearch.index.query.QueryBuilders.*;
 
 /**
  * Service Implementation for managing {@link Item}.
@@ -118,14 +129,66 @@ public class ItemServiceImpl implements ItemService {
      * Search for the item corresponding to the query.
      *
      * @param query the query of the search.
+     * @param category
+     * @param type
      * @param pageable the pagination information.
      * @return the list of entities.
      */
     @Override
     @Transactional(readOnly = true)
-    public Page<ItemDTO> search(String query, Pageable pageable) {
+    public Page<ItemDTO> search(String query, String category, String type, Pageable pageable) {
         log.trace("Request to search for a page of Items for query {}", query);
-        return itemSearchRepository.search(queryStringQuery(query), pageable)
+        StringBuilder inputQuery = new StringBuilder("active:true");
+
+        if (!StringUtils.isEmpty(query) && query.contains("nativeId:") && !"*".equals(type)) {
+            inputQuery.append(" AND (").append(query).append(")");
+        }
+        else if (!StringUtils.isEmpty(query) && !"*".equals(type)) {
+            inputQuery.append(" AND (title:").append(query).append(" OR description:").append(query).append(")");
+        }
+
+        if (!StringUtils.isEmpty(category) && !"0".equals(category)) {
+            inputQuery.append(" AND (category.id:" + category.replaceAll(",", " OR category.id:") + ")");
+        }
+
+        if (!StringUtils.isEmpty(type) && !"undefined".equals(type)) {
+            inputQuery.append(" AND (type:" + type.replaceAll(",", " OR type:") + ")");
+        }
+
+       /* NativeSearchQueryBuilder searchQueryBuilder = new NativeSearchQueryBuilder();
+        BoolQueryBuilder boolQuery = new BoolQueryBuilder();
+
+        boolQuery.must(matchQuery("active","true").operator(Operator.AND));
+
+
+
+        if (!StringUtils.isEmpty(query))
+        {
+            boolQuery.must(multiMatchQuery(query)
+                .field("title")
+                .field("description")
+                .type(MultiMatchQueryBuilder.Type.BEST_FIELDS)
+                .fuzziness(Fuzziness.ONE)
+                .prefixLength(3)
+                .operator(Operator.AND)
+            );
+        }
+        if (!StringUtils.isEmpty(category) && !"0".equals(category))
+        {
+            boolQuery.must(
+                queryStringQuery("(category.id:" + category.replaceAll(",", " OR category.id:") + ")")
+            );
+        }
+        if (!StringUtils.isEmpty(type) && !"undefined".equals(type)) {
+            boolQuery.must(
+                queryStringQuery("(type:" + type.replaceAll(",", " OR type:") + ")")
+            );
+        }
+        searchQueryBuilder.withQuery(boolQuery);
+
+        NativeSearchQuery searchQuery = searchQueryBuilder.build();*/
+
+        return itemSearchRepository.search(QueryBuilders.queryStringQuery(inputQuery.toString()).fuzziness(Fuzziness.ONE).fuzzyPrefixLength(3), pageable)
             .map(itemMapper::toDto);
     }
 

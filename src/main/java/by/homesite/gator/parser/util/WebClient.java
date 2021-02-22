@@ -2,8 +2,6 @@ package by.homesite.gator.parser.util;
 
 import static by.homesite.gator.config.Constants.CONNECT_TIMEOUT;
 
-import java.time.Duration;
-
 import org.apache.http.client.HttpClient;
 import org.apache.http.client.config.CookieSpecs;
 import org.apache.http.client.config.RequestConfig;
@@ -38,7 +36,6 @@ public class WebClient
         clientHttpRequestFactory.setReadTimeout(CONNECT_TIMEOUT);
         clientHttpRequestFactory.setConnectTimeout(CONNECT_TIMEOUT);
 
-        //this.restTemplate = builder.setConnectTimeout(Duration.ofSeconds(CONNECT_TIMEOUT)).build();
         this.restTemplate = new RestTemplate(clientHttpRequestFactory);
         this.headers = new HttpHeaders();
         headers.add("Accept", "*/*");

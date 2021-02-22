@@ -1,8 +1,5 @@
 package by.homesite.gator.parser.util;
 
-import java.net.MalformedURLException;
-import java.net.URL;
-
 public class ParserUtil
 {
     private ParserUtil() {
