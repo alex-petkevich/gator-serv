@@ -29,6 +29,9 @@ public final class Constants {
     public static final int ITEM_TYPE_IMPORTANT = 5;
     public static final int ITEM_TYPE_CLOSED = 6;
 
+    public static final String DISABLED = "disabled";
+    public static final String ENABLED = "enabled";
+
     private Constants() {
     }
 }

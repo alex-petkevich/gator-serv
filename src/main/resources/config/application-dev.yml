@@ -129,3 +129,8 @@ jhipster:
 # ===================================================================
 
 # application:
+
+application:
+  general:
+    crawler-schedulers: disabled
+    rate-schedulers: disabled

@@ -11,7 +11,6 @@ public class UserPropertiesDTO implements Serializable {
 
     private String value;
 
-
     private Long userId;
 
     private String userLogin;

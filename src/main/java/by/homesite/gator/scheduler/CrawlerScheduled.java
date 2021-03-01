@@ -3,6 +3,7 @@ package by.homesite.gator.scheduler;
 import java.util.List;
 import java.util.concurrent.ExecutionException;
 
+import by.homesite.gator.config.ApplicationProperties;
 import by.homesite.gator.config.Constants;
 import by.homesite.gator.parser.ParseFactory;
 import by.homesite.gator.parser.Parser;
@@ -28,15 +29,20 @@ public class CrawlerScheduled {
 
     private final ItemService itemService;
 
-    public CrawlerScheduled(CategoryService categoryService, SiteService siteService, ItemService itemService) {
+    private final ApplicationProperties applicationProperties;
+
+    public CrawlerScheduled(CategoryService categoryService, SiteService siteService, ItemService itemService, ApplicationProperties applicationProperties) {
         this.categoryService = categoryService;
         this.siteService = siteService;
         this.itemService = itemService;
+        this.applicationProperties = applicationProperties;
     }
 
     @Scheduled(fixedRate = Constants.PARSE_ITEMS_PERIOD)
     public void parseSites() throws ExecutionException, InterruptedException
     {
+        if (Constants.DISABLED.equals(applicationProperties.getGeneral().getCrawlerSchedulers()))
+            return;
 
         List<CategoryDTO> categories = categoryService.search("active:true");
         for (CategoryDTO category : categories)
@@ -48,6 +54,9 @@ public class CrawlerScheduled {
 
     @Scheduled(fixedRate = Constants.PURGE_ITEMS_PERIOD)
     public void purgeOldItems() {
+        if (Constants.DISABLED.equals(applicationProperties.getGeneral().getCrawlerSchedulers()))
+            return;
+
         itemService.deleteOldItems(Constants.TTL_ITEMS_DAYS);
     }
 
