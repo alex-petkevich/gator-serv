@@ -46,6 +46,7 @@ public class UserSearchesServiceImpl implements UserSearchesService
         log.debug("Request to save UserSearches : {}", userSearchesDTO);
         UserSearches userSearches = userSearchesMapper.toEntity(userSearchesDTO);
         userSearchesRepository.save(userSearches);
+        userSearchesDTO = userSearchesMapper.toDto(userSearches);
         return userSearchesDTO;
     }
 
@@ -76,6 +77,16 @@ public class UserSearchesServiceImpl implements UserSearchesService
         log.debug("Request to get UserSearches : {}", id);
         return userSearchesRepository.findById(id)
             .map(userSearchesMapper::toDto);
+    }
+
+    @Override
+    @Transactional(readOnly = true)
+    public List<UserSearchesDTO> findByName(String name)
+    {
+        log.debug("Request to get UserSearches by name : {}", name);
+        return userSearchesRepository.findByName(name).stream()
+            .map(userSearchesMapper::toDto)
+            .collect(Collectors.toCollection(LinkedList::new));
     }
 
     @Override

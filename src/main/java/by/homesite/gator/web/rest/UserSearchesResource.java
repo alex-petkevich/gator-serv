@@ -18,6 +18,8 @@ import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RestController;
 
+import by.homesite.gator.repository.UserRepository;
+import by.homesite.gator.security.SecurityUtils;
 import by.homesite.gator.service.UserSearchesService;
 import by.homesite.gator.service.dto.UserSearchesDTO;
 import by.homesite.gator.web.rest.errors.BadRequestAlertException;
@@ -40,9 +42,11 @@ public class UserSearchesResource
     private String applicationName;
 
     private final UserSearchesService userSearchesService;
+    private UserRepository userRepository;
 
-    public UserSearchesResource(UserSearchesService userSearchesService) {
+    public UserSearchesResource(UserSearchesService userSearchesService, UserRepository userRepository) {
         this.userSearchesService = userSearchesService;
+        this.userRepository = userRepository;
     }
 
     /**
@@ -58,6 +62,16 @@ public class UserSearchesResource
         if (userSearchesDTO.getId() != null) {
             throw new BadRequestAlertException("A new userSearches cannot already have an ID", ENTITY_NAME, "idexists");
         }
+        if (userSearchesService.findByName(userSearchesDTO.getName()).size() > 0) {
+            throw new BadRequestAlertException("Search with this name already exists", ENTITY_NAME, "nameexists");
+        }
+        if (!SecurityUtils.isAuthenticated()) {
+            throw new BadRequestAlertException("User not logged in", ENTITY_NAME, "loginrequired");
+        }
+
+        Long userId = userRepository.findOneByLogin(SecurityUtils.getCurrentUserLogin().get()).get().getId() ;
+        userSearchesDTO.setUserId(userId);
+
         UserSearchesDTO result = userSearchesService.save(userSearchesDTO);
         return ResponseEntity.created(new URI("/api/user-searches/" + result.getId()))
             .headers(HeaderUtil.createEntityCreationAlert(applicationName, true, ENTITY_NAME, result.getId().toString()))

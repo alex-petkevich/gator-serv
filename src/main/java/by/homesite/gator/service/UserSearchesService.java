@@ -34,6 +34,8 @@ public interface UserSearchesService
      */
     Optional<UserSearchesDTO> findOne(Long id);
 
+    List<UserSearchesDTO> findByName(String name);
+
     List<UserSearchesDTO> findUserSearches();
 
     /**
