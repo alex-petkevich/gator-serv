@@ -3,7 +3,8 @@ package by.homesite.gator.service.mapper;
 import by.homesite.gator.domain.*;
 import by.homesite.gator.service.dto.CategoryDTO;
 
-import org.mapstruct.*;
+import org.mapstruct.Mapper;
+import org.mapstruct.Mapping;
 
 /**
  * Mapper for the entity {@link Category} and its DTO {@link CategoryDTO}.

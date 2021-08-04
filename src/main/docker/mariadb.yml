@@ -2,10 +2,11 @@ version: '2'
 services:
   gator-mariadb:
     image: mariadb:10.4.6
-    # volumes:
-    #     - ~/volumes/jhipster/gator/mysql/:/var/lib/mysql/
+    volumes:
+         - ~/volumes/gator/mysql/:/var/lib/mysql/
     environment:
-      - MYSQL_USER=root
+      - MYSQL_USER=gator
+      - MYSQL_PASSWORD=tagortagor
       - MYSQL_ALLOW_EMPTY_PASSWORD=yes
       - MYSQL_DATABASE=gator
     ports:

@@ -32,6 +32,9 @@ public final class Constants {
     public static final String DISABLED = "disabled";
     public static final String ENABLED = "enabled";
 
+    public static final String topicExchangeName = "items-exchange";
+    public static final String queueName = "items";
+
     private Constants() {
     }
 }
