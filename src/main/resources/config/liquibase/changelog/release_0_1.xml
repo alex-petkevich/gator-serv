@@ -103,4 +103,70 @@
         </createTable>
     </changeSet>
 
+    <changeSet id="09" author="alexP">
+        <createTable tableName="notification">
+            <column name="id" type="int" autoIncrement="${autoIncrement}">
+                <constraints primaryKey="true" nullable="false"/>
+            </column>
+            <column name="name" type="varchar(255)">
+            </column>
+            <column name="title" type="varchar(255)">
+                <constraints nullable="true" />
+            </column>
+            <column name="active" type="boolean">
+                <constraints nullable="true" />
+            </column>
+            <column name="created_at" type="datetime">
+                <constraints nullable="true" />
+            </column>
+            <column name="updated_at" type="datetime">
+                <constraints nullable="true" />
+            </column>
+            <column name="deleted_at" type="datetime">
+                <constraints nullable="true" />
+            </column>
+        </createTable>
+
+        <createTable tableName="user_notifications">
+            <column name="id" type="bigint" autoIncrement="${autoIncrement}">
+                <constraints primaryKey="true" nullable="false"/>
+            </column>
+            <column name="user_id" type="bigint">
+                <constraints nullable="true" />
+            </column>
+            <column name="notification_id" type="bigint">
+                <constraints nullable="true" />
+            </column>
+            <column name="contact" type="varchar(255)">
+                <constraints nullable="true" />
+            </column>
+            <column name="active" type="boolean">
+                <constraints nullable="true" />
+            </column>
+            <column name="last_sent" type="datetime">
+                <constraints nullable="true" />
+            </column>
+            <column name="total_qty" type="bigint" defaultValue="0">
+                <constraints nullable="true" />
+            </column>
+        </createTable>
+
+        <loadData
+            file="config/liquibase/data/notification.csv"
+            separator=";"
+            tableName="notification">
+            <column name="id" type="numeric"/>
+            <column name="title" type="string"/>
+            <column name="name" type="string"/>
+            <column name="active" type="boolean"/>
+        </loadData>
+    </changeSet>
+
+    <changeSet id="10" author="alexP">
+        <addColumn tableName="user_notifications" >
+            <column name="user_searches_id" type="int" defaultValue="0">
+            </column>
+        </addColumn>
+    </changeSet>
+
 </databaseChangeLog>

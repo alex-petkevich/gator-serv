@@ -38,7 +38,7 @@ public class UserSearches implements Serializable {
     private String payload;
 
     @ManyToOne
-    @JsonIgnoreProperties("userProperties")
+    @JsonIgnoreProperties("userSearches")
     private User user;
 
     public Long getId() {

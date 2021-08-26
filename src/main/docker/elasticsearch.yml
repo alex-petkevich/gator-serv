@@ -2,8 +2,8 @@ version: '2'
 services:
   gator-elasticsearch:
     image: docker.elastic.co/elasticsearch/elasticsearch:6.4.3
-#    volumes:
-#         - d:/data/
+    volumes:
+         - ~/volumes/gator/elasticsearch/
     ports:
       - 9200:9200
       - 9300:9300

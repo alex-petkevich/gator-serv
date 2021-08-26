@@ -1,0 +1,24 @@
+<!DOCTYPE html>
+<html xmlns:th="http://www.thymeleaf.org">
+    <head>
+        <title th:text="#{email.notification.item-created.title}">Item Created</title>
+        <meta http-equiv="Content-Type" content="text/html; charset=UTF-8" />
+        <link rel="shortcut icon" th:href="@{|${baseUrl}/favicon.ico|}" />
+    </head>
+    <body>
+        <p th:text="#{email.notification.item-created.text1}">
+            New Item was created
+        </p>
+        <p>
+            <span th:text="${item.title}"></span> - <span th:text="${item.price}"></span> (<span th:text="${item.link}"></span>)
+        </p>
+        <p>
+            <span th:text="${item.description}"></span>
+        </p>
+        <p>
+            <span th:text="#{email.activation.text2}">Regards, </span>
+            <br/>
+            <em th:text="#{email.signature}">Support team.</em>
+        </p>
+    </body>
+</html>

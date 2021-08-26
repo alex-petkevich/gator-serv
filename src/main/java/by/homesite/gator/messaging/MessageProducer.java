@@ -17,7 +17,7 @@ public class MessageProducer
     }
 
     public void sendNotification(Item message) {
-        rabbitTemplate.convertAndSend(Constants.topicExchangeName, "ads." + message.getSiteName(), message);
+        rabbitTemplate.convertAndSend(Constants.topicExchangeName, "ads.create." + message.getSiteName(), message);
 
     }
 }

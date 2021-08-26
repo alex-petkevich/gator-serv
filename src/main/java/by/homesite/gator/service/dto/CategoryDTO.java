@@ -18,7 +18,6 @@ public class CategoryDTO implements Serializable {
 
     private Boolean active;
 
-
     private Long siteId;
 
     private String siteTitle;

@@ -2,6 +2,7 @@ package by.homesite.gator.service;
 
 import by.homesite.gator.domain.User;
 
+import by.homesite.gator.service.dto.ItemDTO;
 import io.github.jhipster.config.JHipsterProperties;
 
 import java.nio.charset.StandardCharsets;
@@ -29,6 +30,8 @@ public class MailService {
     private final Logger log = LoggerFactory.getLogger(MailService.class);
 
     private static final String USER = "user";
+
+    private static final String ITEM = "item";
 
     private static final String BASE_URL = "baseUrl";
 
@@ -100,5 +103,18 @@ public class MailService {
     public void sendPasswordResetMail(User user) {
         log.debug("Sending password reset email to '{}'", user.getEmail());
         sendEmailFromTemplate(user, "mail/passwordResetEmail", "email.reset.title");
+    }
+
+    @Async
+    public void sendNotification(User user, ItemDTO item) {
+        log.debug("Sending notification email to '{}'", user.getEmail());
+        Locale locale = Locale.forLanguageTag(user.getLangKey());
+        Context context = new Context(locale);
+        context.setVariable(USER, user);
+        context.setVariable(ITEM, item);
+        context.setVariable(BASE_URL, jHipsterProperties.getMail().getBaseUrl());
+        String content = templateEngine.process("mail/notifications/itemCreated", context);
+        String subject = messageSource.getMessage("email.notification.item-created.title", null, locale);
+        sendEmail(user.getEmail(), subject, content, false, true);
     }
 }

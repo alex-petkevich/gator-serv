@@ -13,7 +13,7 @@ import org.springframework.amqp.rabbit.listener.adapter.MessageListenerAdapter;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
 
-import by.homesite.gator.messaging.MessageConsumer;
+import by.homesite.gator.messaging.NotificationMessageConsumer;
 
 @Configuration
 public class MessagingConfiguration
@@ -31,11 +31,11 @@ public class MessagingConfiguration
 
     @Bean
     Binding binding(Queue queue, TopicExchange exchange) {
-        return BindingBuilder.bind(queue).to(exchange).with("ads.#");
+        return BindingBuilder.bind(queue).to(exchange).with("ads.create.#");
     }
 
     @Bean
-    SimpleMessageListenerContainer container(ConnectionFactory connectionFactory,
+    SimpleMessageListenerContainer notificationsContainer(ConnectionFactory connectionFactory,
         MessageListenerAdapter listenerAdapter) {
         SimpleMessageListenerContainer container = new SimpleMessageListenerContainer();
         container.setConnectionFactory(connectionFactory);
@@ -45,8 +45,8 @@ public class MessagingConfiguration
     }
 
     @Bean
-    MessageListenerAdapter listenerAdapter(MessageConsumer messageConsumer) {
-        return new MessageListenerAdapter(messageConsumer, "receiveMessage");
+    MessageListenerAdapter listenerAdapter(NotificationMessageConsumer notificationMessageConsumer) {
+        return new MessageListenerAdapter(notificationMessageConsumer, "receiveMessage");
     }
 
 }
