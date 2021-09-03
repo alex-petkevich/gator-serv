@@ -113,7 +113,7 @@
             <column name="title" type="varchar(255)">
                 <constraints nullable="true" />
             </column>
-            <column name="active" type="boolean">
+            <column name="is_active" type="boolean">
                 <constraints nullable="true" />
             </column>
             <column name="created_at" type="datetime">
@@ -140,7 +140,7 @@
             <column name="contact" type="varchar(255)">
                 <constraints nullable="true" />
             </column>
-            <column name="active" type="boolean">
+            <column name="is_active" type="boolean">
                 <constraints nullable="true" />
             </column>
             <column name="last_sent" type="datetime">
@@ -148,6 +148,8 @@
             </column>
             <column name="total_qty" type="bigint" defaultValue="0">
                 <constraints nullable="true" />
+            </column>
+            <column name="user_searches_id" type="int" defaultValue="0">
             </column>
         </createTable>
 
@@ -158,15 +160,8 @@
             <column name="id" type="numeric"/>
             <column name="title" type="string"/>
             <column name="name" type="string"/>
-            <column name="active" type="boolean"/>
+            <column name="is_active" type="boolean"/>
         </loadData>
-    </changeSet>
-
-    <changeSet id="10" author="alexP">
-        <addColumn tableName="user_notifications" >
-            <column name="user_searches_id" type="int" defaultValue="0">
-            </column>
-        </addColumn>
     </changeSet>
 
 </databaseChangeLog>

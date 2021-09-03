@@ -45,8 +45,8 @@ public class Notification implements Serializable {
     @Column(name = "title")
     private String title;
 
-    @Column(name = "active")
-    private Boolean active;
+    @Column(name = "is_active")
+    private Boolean isActive;
 
     @JsonIgnore
     @OneToMany(mappedBy = "notification")
@@ -88,17 +88,17 @@ public class Notification implements Serializable {
         this.title = title;
     }
 
-    public Boolean isActive() {
-        return active;
+    public Boolean isIsActive() {
+        return isActive;
     }
 
-    public Notification active(Boolean active) {
-        this.active = active;
+    public Notification isActive(Boolean isActive) {
+        this.isActive = isActive;
         return this;
     }
 
-    public void setActive(Boolean active) {
-        this.active = active;
+    public void setIsActive(Boolean isActive) {
+        this.isActive = isActive;
     }
 
     public Set<UserNotifications> getUsersNotifications()
@@ -119,14 +119,14 @@ public class Notification implements Serializable {
         if (o == null || getClass() != o.getClass())
             return false;
         Notification that = (Notification) o;
-        return id.equals(that.id) && name.equals(that.name) && Objects.equals(title, that.title) && Objects.equals(active,
-            that.active);
+        return id.equals(that.id) && name.equals(that.name) && Objects.equals(title, that.title) && Objects.equals(isActive,
+            that.isActive);
     }
 
     @Override
     public int hashCode()
     {
-        return Objects.hash(id, name, title, active);
+        return Objects.hash(id, name, title, isActive);
     }
 
     @Override
@@ -136,7 +136,7 @@ public class Notification implements Serializable {
             "id=" + id +
             ", name='" + name + '\'' +
             ", title='" + title + '\'' +
-            ", active=" + active +
+            ", active=" + isActive +
             '}';
     }
 }

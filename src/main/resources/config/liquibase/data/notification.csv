@@ -1,2 +1,2 @@
-id;title;name;active
+id;title;name;is_active
 1;E-mail;email;true

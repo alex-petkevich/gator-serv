@@ -52,7 +52,7 @@ public class NotificationResource
      * @return the {@link ResponseEntity} with status {@code 201 (Created)} and with body the new userPropertiesDTO, or with status {@code 400 (Bad Request)} if the userProperties has already an ID.
      * @throws URISyntaxException if the Location URI syntax is incorrect.
      */
-    @PostMapping("/notification")
+    @PostMapping("/notifications")
     public ResponseEntity<NotificationDTO> createNotification(@RequestBody NotificationDTO notificationDTO) throws URISyntaxException {
         log.debug("REST request to save notification : {}", notificationDTO);
         if (notificationDTO.getId() != null) {
@@ -73,7 +73,7 @@ public class NotificationResource
      * or with status {@code 500 (Internal Server Error)} if the notificationDTO couldn't be updated.
      * @throws URISyntaxException if the Location URI syntax is incorrect.
      */
-    @PutMapping("/notification")
+    @PutMapping("/notifications")
     public ResponseEntity<NotificationDTO> updateNotification(@RequestBody NotificationDTO notificationDTO) throws URISyntaxException {
         log.debug("REST request to update notification : {}", notificationDTO);
         if (notificationDTO.getId() == null) {
@@ -91,7 +91,7 @@ public class NotificationResource
 
      * @return the {@link ResponseEntity} with status {@code 200 (OK)} and the list of userProperties in body.
      */
-    @GetMapping("/notification")
+    @GetMapping("/notifications")
     public List<NotificationDTO> getAllNotification() {
         log.debug("REST request to get all notifications");
         return notificationService.findAll();
@@ -103,7 +103,7 @@ public class NotificationResource
      * @param id the id of the notificationDTO to retrieve.
      * @return the {@link ResponseEntity} with status {@code 200 (OK)} and with body the notificationDTO, or with status {@code 404 (Not Found)}.
      */
-    @GetMapping("/notification/{id}")
+    @GetMapping("/notifications/{id}")
     public ResponseEntity<NotificationDTO> getNotification(@PathVariable Long id) {
         log.debug("REST request to get UserProperties : {}", id);
         Optional<NotificationDTO> notificationDTO = notificationService.findOne(id);
@@ -116,7 +116,7 @@ public class NotificationResource
      * @param id the id of the notificationDTO to delete.
      * @return the {@link ResponseEntity} with status {@code 204 (NO_CONTENT)}.
      */
-    @DeleteMapping("/notification/{id}")
+    @DeleteMapping("/notifications/{id}")
     public ResponseEntity<Void> deleteNotification(@PathVariable Long id) {
         log.debug("REST request to delete notification : {}", id);
         notificationService.delete(id);
