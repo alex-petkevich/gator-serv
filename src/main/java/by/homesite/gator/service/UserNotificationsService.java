@@ -45,4 +45,6 @@ public interface UserNotificationsService
     void delete(Long id);
 
     List<UserNotifications> findUsersForNotifications(Long id, ItemDTO item);
+
+    List<UserNotifications> findUsersNotificationsForSearch(Long userId, Long notificationId, Long userSearchesId);
 }

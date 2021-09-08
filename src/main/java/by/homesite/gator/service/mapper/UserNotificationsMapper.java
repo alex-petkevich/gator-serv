@@ -15,12 +15,14 @@ public interface UserNotificationsMapper extends EntityMapper<UserNotificationsD
 
     @Mapping(source = "user.id", target = "userId")
     @Mapping(source = "notification.id", target = "notificationId")
-    @Mapping(source = "userSearches.id", target = "userSearchesId", ignore = true)
+    @Mapping(source = "notification.name", target = "notificationName")
+    @Mapping(source = "userSearches.id", target = "userSearchesId")
+    @Mapping(source = "userSearches.name", target = "userSearchesName")
     UserNotificationsDTO toDto(UserNotifications userNotifications);
 
     @Mapping(source = "userId", target = "user")
-    @Mapping(source = "notificationId", target = "notification")
-    @Mapping(source = "userSearchesId", target = "userSearches", ignore = true)
+    @Mapping(source = "notificationId", target = "notification.id")
+    @Mapping(source = "userSearchesId", target = "userSearches.id")
     UserNotifications toEntity(UserNotificationsDTO userNotificationsDTO);
 
     default UserNotifications fromId(Long id) {

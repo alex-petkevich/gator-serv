@@ -102,7 +102,7 @@ public class UserNotificationsServiceImpl implements UserNotificationsService
     {
         log.debug("Request to list Notifications by user : {}", id);
         List<UserNotifications> result = new ArrayList<>();
-        List<UserNotifications> userForNotifications = new LinkedList<>(userNotificationsRepository.findByNotificationIdAndActive(id, true));
+        List<UserNotifications> userForNotifications = new LinkedList<>(userNotificationsRepository.findByNotificationIdAndIsActive(id, true));
         userForNotifications.forEach(userNotifications -> {
             if (userNotifications.getUserSearches() == null ||
                     userSearchesService.checkIfItemEligible(userNotifications.getUserSearches(), item)) {
@@ -111,6 +111,12 @@ public class UserNotificationsServiceImpl implements UserNotificationsService
         });
 
         return result;
+    }
+
+    @Override
+    public List<UserNotifications> findUsersNotificationsForSearch(Long userId, Long notificationId, Long userSearchesId)
+    {
+        return userNotificationsRepository.findByUserIdAndNotificationIdAndUserSearchesId(userId, notificationId, userSearchesId);
     }
 
 }

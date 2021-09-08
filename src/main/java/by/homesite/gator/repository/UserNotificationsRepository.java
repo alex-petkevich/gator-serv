@@ -15,5 +15,7 @@ import by.homesite.gator.domain.UserNotifications;
 @Repository
 public interface UserNotificationsRepository extends JpaRepository<UserNotifications, Long> {
 
-    List<UserNotifications> findByNotificationIdAndActive(Long id, Boolean active);
+    List<UserNotifications> findByNotificationIdAndIsActive(Long id, Boolean active);
+
+    List<UserNotifications> findByUserIdAndNotificationIdAndUserSearchesId(Long userId, Long notificationId, Long userSearchesId);
 }

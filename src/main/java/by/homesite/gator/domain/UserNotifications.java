@@ -1,8 +1,6 @@
 package by.homesite.gator.domain;
 
 import java.io.Serializable;
-import java.time.LocalDate;
-import java.time.LocalDateTime;
 import java.time.ZonedDateTime;
 
 import javax.persistence.Column;
@@ -41,13 +39,13 @@ public class UserNotifications implements Serializable {
     private String contact;
 
     @Column(name = "total_qty")
-    private Integer total_qty;
+    private Integer totalQty;
 
     @Column(name = "last_sent")
     private ZonedDateTime lastSent;
 
-    @Column(name = "active")
-    private Boolean active;
+    @Column(name = "is_active")
+    private Boolean isActive;
 
     @JsonIgnore
     @ManyToOne
@@ -85,14 +83,14 @@ public class UserNotifications implements Serializable {
         this.contact = contact;
     }
 
-    public Integer getTotal_qty()
+    public Integer getTotalQty()
     {
-        return total_qty;
+        return totalQty;
     }
 
-    public void setTotal_qty(Integer total_qty)
+    public void setTotalQty(Integer total_qty)
     {
-        this.total_qty = total_qty;
+        this.totalQty = total_qty;
     }
 
     public ZonedDateTime getLastSent()
@@ -135,14 +133,18 @@ public class UserNotifications implements Serializable {
         this.userSearches = userSearches;
     }
 
-    public Boolean getActive()
-    {
-        return active;
+    public Boolean isIsActive() {
+        return isActive;
     }
 
-    public void setActive(Boolean active)
-    {
-        this.active = active;
+    @JsonIgnore
+    public UserNotifications isActive(Boolean isActive) {
+        this.isActive = isActive;
+        return this;
+    }
+
+    public void setIsActive(Boolean isActive) {
+        this.isActive = isActive;
     }
 
     @Override
@@ -151,7 +153,7 @@ public class UserNotifications implements Serializable {
         return "UserNotifications{" +
             "id=" + id +
             ", contact='" + contact + '\'' +
-            ", total_qty=" + total_qty +
+            ", total_qty=" + totalQty +
             ", lastSent=" + lastSent +
             ", user=" + user +
             ", notification=" + notification +

@@ -1,7 +1,6 @@
 package by.homesite.gator.service.dto;
 import java.io.Serializable;
 import java.time.ZonedDateTime;
-import java.util.Objects;
 
 /**
  * A DTO for the {@link by.homesite.gator.domain.UserNotifications} entity.
@@ -12,7 +11,7 @@ public class UserNotificationsDTO implements Serializable {
 
     private String contact;
 
-    private Long total_qty;
+    private Long totalQty;
 
     private ZonedDateTime lastSent;
 
@@ -20,9 +19,13 @@ public class UserNotificationsDTO implements Serializable {
 
     private Long notificationId;
 
+    private String notificationName;
+
     private Long userSearchesId;
 
-    private boolean active;
+    private String userSearchesName;
+
+    private Boolean isActive;
 
     public Long getUserId()
     {
@@ -62,14 +65,14 @@ public class UserNotificationsDTO implements Serializable {
         this.contact = contact;
     }
 
-    public Long getTotal_qty()
+    public Long getTotalQty()
     {
-        return total_qty;
+        return totalQty;
     }
 
-    public void setTotal_qty(Long total_qty)
+    public void setTotalQty(Long totalQty)
     {
-        this.total_qty = total_qty;
+        this.totalQty = totalQty;
     }
 
     public ZonedDateTime getLastSent()
@@ -92,14 +95,34 @@ public class UserNotificationsDTO implements Serializable {
         this.userSearchesId = userSearchesId;
     }
 
-    public boolean isActive()
+    public Boolean getIsActive()
     {
-        return active;
+        return isActive;
     }
 
-    public void setActive(boolean active)
+    public void setIsActive(Boolean active)
     {
-        this.active = active;
+        isActive = active;
+    }
+
+    public String getNotificationName()
+    {
+        return notificationName;
+    }
+
+    public void setNotificationName(String notificationName)
+    {
+        this.notificationName = notificationName;
+    }
+
+    public String getUserSearchesName()
+    {
+        return userSearchesName;
+    }
+
+    public void setUserSearchesName(String userSearchesName)
+    {
+        this.userSearchesName = userSearchesName;
     }
 
     @Override
@@ -108,7 +131,7 @@ public class UserNotificationsDTO implements Serializable {
         return "UserNotificationsDTO{" +
             "id=" + id +
             ", contact='" + contact + '\'' +
-            ", total_qty=" + total_qty +
+            ", total_qty=" + totalQty +
             ", lastSent=" + lastSent +
             '}';
     }

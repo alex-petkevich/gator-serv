@@ -2,6 +2,7 @@ package by.homesite.gator.web.rest;
 
 import java.net.URI;
 import java.net.URISyntaxException;
+import java.time.ZonedDateTime;
 import java.util.List;
 import java.util.Optional;
 
@@ -18,7 +19,11 @@ import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RestController;
 
+import by.homesite.gator.repository.UserRepository;
+import by.homesite.gator.security.SecurityUtils;
+import by.homesite.gator.service.NotificationService;
 import by.homesite.gator.service.UserNotificationsService;
+import by.homesite.gator.service.UserSearchesService;
 import by.homesite.gator.service.dto.UserNotificationsDTO;
 import by.homesite.gator.web.rest.errors.BadRequestAlertException;
 import io.github.jhipster.web.util.HeaderUtil;
@@ -41,8 +46,15 @@ public class UserNotificationsResource
 
     private final UserNotificationsService userNotificationsService;
 
-    public UserNotificationsResource(UserNotificationsService userNotificationsService) {
+    private final UserSearchesService userSearchesService;
+    private final NotificationService notificationService;
+    private UserRepository userRepository;
+
+    public UserNotificationsResource(UserNotificationsService userNotificationsService, UserRepository userRepository, UserSearchesService userSearchesService, NotificationService notificationService) {
         this.userNotificationsService = userNotificationsService;
+        this.userSearchesService = userSearchesService;
+        this.userRepository = userRepository;
+        this.notificationService = notificationService;
     }
 
     /**
@@ -58,6 +70,26 @@ public class UserNotificationsResource
         if (userNotificationsDTO.getId() != null) {
             throw new BadRequestAlertException("A new notification cannot already have an ID", ENTITY_NAME, "idexists");
         }
+
+        userNotificationsDTO.setNotificationId(notificationService.findByName(userNotificationsDTO.getNotificationName()).getId());
+        if (userNotificationsDTO.getNotificationId() == null) {
+            throw new BadRequestAlertException("Notification is not exists", ENTITY_NAME, "notificationnotexists");
+        }
+
+        if (!SecurityUtils.isAuthenticated()) {
+            throw new BadRequestAlertException("User not logged in", ENTITY_NAME, "loginrequired");
+        }
+
+        Long userId = userRepository.findOneByLogin(SecurityUtils.getCurrentUserLogin().get()).get().getId() ;
+        userNotificationsDTO.setUserId(userId);
+
+        if (userNotificationsService.findUsersNotificationsForSearch(userId, userNotificationsDTO.getNotificationId(), userNotificationsDTO.getUserSearchesId()).size() > 0) {
+            throw new BadRequestAlertException("Notification for this filter already exists", ENTITY_NAME, "nameexists");
+        }
+        userNotificationsDTO.setIsActive(true);
+        userNotificationsDTO.setTotalQty(0L);
+        userNotificationsDTO.setLastSent(ZonedDateTime.now());
+
         UserNotificationsDTO result = userNotificationsService.save(userNotificationsDTO);
         return ResponseEntity.created(new URI("/api/user-notifications/" + result.getId()))
             .headers(HeaderUtil.createEntityCreationAlert(applicationName, true, ENTITY_NAME, result.getId().toString()))

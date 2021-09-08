@@ -146,7 +146,7 @@
             <column name="last_sent" type="datetime">
                 <constraints nullable="true" />
             </column>
-            <column name="total_qty" type="bigint" defaultValue="0">
+            <column name="totalQty" type="bigint" defaultValue="0">
                 <constraints nullable="true" />
             </column>
             <column name="user_searches_id" type="int" defaultValue="0">
