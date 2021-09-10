@@ -1,5 +1,6 @@
 package by.homesite.gator.service.impl;
 
+import java.time.ZonedDateTime;
 import java.util.ArrayList;
 import java.util.LinkedList;
 import java.util.List;
@@ -117,6 +118,14 @@ public class UserNotificationsServiceImpl implements UserNotificationsService
     public List<UserNotifications> findUsersNotificationsForSearch(Long userId, Long notificationId, Long userSearchesId)
     {
         return userNotificationsRepository.findByUserIdAndNotificationIdAndUserSearchesId(userId, notificationId, userSearchesId);
+    }
+
+    @Override
+    public void calculate(UserNotifications userNotifications)
+    {
+        userNotifications.setTotalQty(userNotifications.getTotalQty() + 1);
+        userNotifications.setLastSent(ZonedDateTime.now());
+        userNotificationsRepository.save(userNotifications);
     }
 
 }

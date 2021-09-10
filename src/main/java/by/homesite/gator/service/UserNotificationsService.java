@@ -47,4 +47,6 @@ public interface UserNotificationsService
     List<UserNotifications> findUsersForNotifications(Long id, ItemDTO item);
 
     List<UserNotifications> findUsersNotificationsForSearch(Long userId, Long notificationId, Long userSearchesId);
+
+	void calculate(UserNotifications userNotifications);
 }

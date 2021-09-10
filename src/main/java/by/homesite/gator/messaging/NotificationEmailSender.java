@@ -34,6 +34,7 @@ public class NotificationEmailSender implements Sender
         if (notification != null && item != null) {
             userNotificationsService.findUsersForNotifications(notification.getId(), item).forEach(userNotifications -> {
                 mailService.sendNotification(userNotifications.getUser(), item);
+                userNotificationsService.calculate(userNotifications);
             });
         }
         return null;

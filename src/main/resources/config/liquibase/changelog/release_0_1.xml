@@ -1,7 +1,6 @@
 <?xml version="1.0" encoding="utf-8"?>
 <databaseChangeLog
     xmlns="http://www.liquibase.org/xml/ns/dbchangelog"
-    xmlns:ext="http://www.liquibase.org/xml/ns/dbchangelog-ext"
     xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
     xsi:schemaLocation="http://www.liquibase.org/xml/ns/dbchangelog http://www.liquibase.org/xml/ns/dbchangelog/dbchangelog-3.6.xsd
                         http://www.liquibase.org/xml/ns/dbchangelog-ext http://www.liquibase.org/xml/ns/dbchangelog/dbchangelog-ext.xsd">
@@ -146,7 +145,7 @@
             <column name="last_sent" type="datetime">
                 <constraints nullable="true" />
             </column>
-            <column name="totalQty" type="bigint" defaultValue="0">
+            <column name="total_qty" type="bigint" defaultValue="0">
                 <constraints nullable="true" />
             </column>
             <column name="user_searches_id" type="int" defaultValue="0">
