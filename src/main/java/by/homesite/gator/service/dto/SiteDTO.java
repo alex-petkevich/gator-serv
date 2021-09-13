@@ -1,7 +1,8 @@
 package by.homesite.gator.service.dto;
-import javax.validation.constraints.*;
+
 import java.io.Serializable;
 import java.util.Objects;
+import javax.validation.constraints.*;
 
 /**
  * A DTO for the {@link by.homesite.gator.domain.Site} entity.
@@ -18,10 +19,7 @@ public class SiteDTO implements Serializable {
 
     private Boolean active;
 
-
-    private Long userId;
-
-    private String userLogin;
+    private UserDTO user;
 
     public Long getId() {
         return id;
@@ -47,7 +45,7 @@ public class SiteDTO implements Serializable {
         this.url = url;
     }
 
-    public Boolean isActive() {
+    public Boolean getActive() {
         return active;
     }
 
@@ -55,20 +53,12 @@ public class SiteDTO implements Serializable {
         this.active = active;
     }
 
-    public Long getUserId() {
-        return userId;
+    public UserDTO getUser() {
+        return user;
     }
 
-    public void setUserId(Long userId) {
-        this.userId = userId;
-    }
-
-    public String getUserLogin() {
-        return userLogin;
-    }
-
-    public void setUserLogin(String userLogin) {
-        this.userLogin = userLogin;
+    public void setUser(UserDTO user) {
+        this.user = user;
     }
 
     @Override
@@ -76,31 +66,31 @@ public class SiteDTO implements Serializable {
         if (this == o) {
             return true;
         }
-        if (o == null || getClass() != o.getClass()) {
+        if (!(o instanceof SiteDTO)) {
             return false;
         }
 
         SiteDTO siteDTO = (SiteDTO) o;
-        if (siteDTO.getId() == null || getId() == null) {
+        if (this.id == null) {
             return false;
         }
-        return Objects.equals(getId(), siteDTO.getId());
+        return Objects.equals(this.id, siteDTO.id);
     }
 
     @Override
     public int hashCode() {
-        return Objects.hashCode(getId());
+        return Objects.hash(this.id);
     }
 
+    // prettier-ignore
     @Override
     public String toString() {
         return "SiteDTO{" +
             "id=" + getId() +
             ", title='" + getTitle() + "'" +
             ", url='" + getUrl() + "'" +
-            ", active='" + isActive() + "'" +
-            ", user=" + getUserId() +
-            ", user='" + getUserLogin() + "'" +
+            ", active='" + getActive() + "'" +
+            ", user=" + getUser() +
             "}";
     }
 }

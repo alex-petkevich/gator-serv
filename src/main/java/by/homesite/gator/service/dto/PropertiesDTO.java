@@ -1,7 +1,8 @@
 package by.homesite.gator.service.dto;
-import javax.validation.constraints.*;
+
 import java.io.Serializable;
 import java.util.Objects;
+import javax.validation.constraints.*;
 
 /**
  * A DTO for the {@link by.homesite.gator.domain.Properties} entity.
@@ -15,7 +16,6 @@ public class PropertiesDTO implements Serializable {
     private String name;
 
     private Boolean isActive;
-
 
     public Long getId() {
         return id;
@@ -33,7 +33,7 @@ public class PropertiesDTO implements Serializable {
         this.name = name;
     }
 
-    public Boolean isIsActive() {
+    public Boolean getIsActive() {
         return isActive;
     }
 
@@ -46,28 +46,29 @@ public class PropertiesDTO implements Serializable {
         if (this == o) {
             return true;
         }
-        if (o == null || getClass() != o.getClass()) {
+        if (!(o instanceof PropertiesDTO)) {
             return false;
         }
 
         PropertiesDTO propertiesDTO = (PropertiesDTO) o;
-        if (propertiesDTO.getId() == null || getId() == null) {
+        if (this.id == null) {
             return false;
         }
-        return Objects.equals(getId(), propertiesDTO.getId());
+        return Objects.equals(this.id, propertiesDTO.id);
     }
 
     @Override
     public int hashCode() {
-        return Objects.hashCode(getId());
+        return Objects.hash(this.id);
     }
 
+    // prettier-ignore
     @Override
     public String toString() {
         return "PropertiesDTO{" +
             "id=" + getId() +
             ", name='" + getName() + "'" +
-            ", isActive='" + isIsActive() + "'" +
+            ", isActive='" + getIsActive() + "'" +
             "}";
     }
 }

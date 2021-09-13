@@ -12,5 +12,4 @@ public class RateSearchRepositoryMockConfiguration {
 
     @MockBean
     private RateSearchRepository mockRateSearchRepository;
-
 }

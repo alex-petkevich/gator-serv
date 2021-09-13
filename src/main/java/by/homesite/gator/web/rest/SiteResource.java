@@ -1,12 +1,19 @@
 package by.homesite.gator.web.rest;
 
-import by.homesite.gator.service.SiteService;
-import by.homesite.gator.web.rest.errors.BadRequestAlertException;
-import by.homesite.gator.service.dto.SiteDTO;
+import static org.elasticsearch.index.query.QueryBuilders.*;
 
-import io.github.jhipster.web.util.HeaderUtil;
-import io.github.jhipster.web.util.PaginationUtil;
-import io.github.jhipster.web.util.ResponseUtil;
+import by.homesite.gator.repository.SiteRepository;
+import by.homesite.gator.service.SiteService;
+import by.homesite.gator.service.dto.SiteDTO;
+import by.homesite.gator.web.rest.errors.BadRequestAlertException;
+import java.net.URI;
+import java.net.URISyntaxException;
+import java.util.List;
+import java.util.Objects;
+import java.util.Optional;
+import java.util.stream.StreamSupport;
+import javax.validation.Valid;
+import javax.validation.constraints.NotNull;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Value;
@@ -14,19 +21,12 @@ import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
 import org.springframework.http.HttpHeaders;
 import org.springframework.http.HttpStatus;
-import org.springframework.web.servlet.support.ServletUriComponentsBuilder;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
-
-import javax.validation.Valid;
-import java.net.URI;
-import java.net.URISyntaxException;
-
-import java.util.List;
-import java.util.Optional;
-import java.util.stream.StreamSupport;
-
-import static org.elasticsearch.index.query.QueryBuilders.*;
+import org.springframework.web.servlet.support.ServletUriComponentsBuilder;
+import tech.jhipster.web.util.HeaderUtil;
+import tech.jhipster.web.util.PaginationUtil;
+import tech.jhipster.web.util.ResponseUtil;
 
 /**
  * REST controller for managing {@link by.homesite.gator.domain.Site}.
@@ -44,8 +44,11 @@ public class SiteResource {
 
     private final SiteService siteService;
 
-    public SiteResource(SiteService siteService) {
+    private final SiteRepository siteRepository;
+
+    public SiteResource(SiteService siteService, SiteRepository siteRepository) {
         this.siteService = siteService;
+        this.siteRepository = siteRepository;
     }
 
     /**
@@ -62,38 +65,86 @@ public class SiteResource {
             throw new BadRequestAlertException("A new site cannot already have an ID", ENTITY_NAME, "idexists");
         }
         SiteDTO result = siteService.save(siteDTO);
-        return ResponseEntity.created(new URI("/api/sites/" + result.getId()))
+        return ResponseEntity
+            .created(new URI("/api/sites/" + result.getId()))
             .headers(HeaderUtil.createEntityCreationAlert(applicationName, true, ENTITY_NAME, result.getId().toString()))
             .body(result);
     }
 
     /**
-     * {@code PUT  /sites} : Updates an existing site.
+     * {@code PUT  /sites/:id} : Updates an existing site.
      *
+     * @param id the id of the siteDTO to save.
      * @param siteDTO the siteDTO to update.
      * @return the {@link ResponseEntity} with status {@code 200 (OK)} and with body the updated siteDTO,
      * or with status {@code 400 (Bad Request)} if the siteDTO is not valid,
      * or with status {@code 500 (Internal Server Error)} if the siteDTO couldn't be updated.
      * @throws URISyntaxException if the Location URI syntax is incorrect.
      */
-    @PutMapping("/sites")
-    public ResponseEntity<SiteDTO> updateSite(@Valid @RequestBody SiteDTO siteDTO) throws URISyntaxException {
-        log.debug("REST request to update Site : {}", siteDTO);
+    @PutMapping("/sites/{id}")
+    public ResponseEntity<SiteDTO> updateSite(
+        @PathVariable(value = "id", required = false) final Long id,
+        @Valid @RequestBody SiteDTO siteDTO
+    ) throws URISyntaxException {
+        log.debug("REST request to update Site : {}, {}", id, siteDTO);
         if (siteDTO.getId() == null) {
             throw new BadRequestAlertException("Invalid id", ENTITY_NAME, "idnull");
         }
+        if (!Objects.equals(id, siteDTO.getId())) {
+            throw new BadRequestAlertException("Invalid ID", ENTITY_NAME, "idinvalid");
+        }
+
+        if (!siteRepository.existsById(id)) {
+            throw new BadRequestAlertException("Entity not found", ENTITY_NAME, "idnotfound");
+        }
+
         SiteDTO result = siteService.save(siteDTO);
-        return ResponseEntity.ok()
+        return ResponseEntity
+            .ok()
             .headers(HeaderUtil.createEntityUpdateAlert(applicationName, true, ENTITY_NAME, siteDTO.getId().toString()))
             .body(result);
     }
 
     /**
+     * {@code PATCH  /sites/:id} : Partial updates given fields of an existing site, field will ignore if it is null
+     *
+     * @param id the id of the siteDTO to save.
+     * @param siteDTO the siteDTO to update.
+     * @return the {@link ResponseEntity} with status {@code 200 (OK)} and with body the updated siteDTO,
+     * or with status {@code 400 (Bad Request)} if the siteDTO is not valid,
+     * or with status {@code 404 (Not Found)} if the siteDTO is not found,
+     * or with status {@code 500 (Internal Server Error)} if the siteDTO couldn't be updated.
+     * @throws URISyntaxException if the Location URI syntax is incorrect.
+     */
+    @PatchMapping(value = "/sites/{id}", consumes = "application/merge-patch+json")
+    public ResponseEntity<SiteDTO> partialUpdateSite(
+        @PathVariable(value = "id", required = false) final Long id,
+        @NotNull @RequestBody SiteDTO siteDTO
+    ) throws URISyntaxException {
+        log.debug("REST request to partial update Site partially : {}, {}", id, siteDTO);
+        if (siteDTO.getId() == null) {
+            throw new BadRequestAlertException("Invalid id", ENTITY_NAME, "idnull");
+        }
+        if (!Objects.equals(id, siteDTO.getId())) {
+            throw new BadRequestAlertException("Invalid ID", ENTITY_NAME, "idinvalid");
+        }
+
+        if (!siteRepository.existsById(id)) {
+            throw new BadRequestAlertException("Entity not found", ENTITY_NAME, "idnotfound");
+        }
+
+        Optional<SiteDTO> result = siteService.partialUpdate(siteDTO);
+
+        return ResponseUtil.wrapOrNotFound(
+            result,
+            HeaderUtil.createEntityUpdateAlert(applicationName, true, ENTITY_NAME, siteDTO.getId().toString())
+        );
+    }
+
+    /**
      * {@code GET  /sites} : get all the sites.
      *
-
      * @param pageable the pagination information.
-
      * @return the {@link ResponseEntity} with status {@code 200 (OK)} and the list of sites in body.
      */
     @GetMapping("/sites")
@@ -127,7 +178,10 @@ public class SiteResource {
     public ResponseEntity<Void> deleteSite(@PathVariable Long id) {
         log.debug("REST request to delete Site : {}", id);
         siteService.delete(id);
-        return ResponseEntity.noContent().headers(HeaderUtil.createEntityDeletionAlert(applicationName, true, ENTITY_NAME, id.toString())).build();
+        return ResponseEntity
+            .noContent()
+            .headers(HeaderUtil.createEntityDeletionAlert(applicationName, true, ENTITY_NAME, id.toString()))
+            .build();
     }
 
     /**
@@ -145,5 +199,4 @@ public class SiteResource {
         HttpHeaders headers = PaginationUtil.generatePaginationHttpHeaders(ServletUriComponentsBuilder.fromCurrentRequest(), page);
         return ResponseEntity.ok().headers(headers).body(page.getContent());
     }
-
 }

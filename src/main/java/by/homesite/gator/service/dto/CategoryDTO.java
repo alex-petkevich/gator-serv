@@ -1,7 +1,8 @@
 package by.homesite.gator.service.dto;
-import javax.validation.constraints.*;
+
 import java.io.Serializable;
 import java.util.Objects;
+import javax.validation.constraints.*;
 
 /**
  * A DTO for the {@link by.homesite.gator.domain.Category} entity.
@@ -18,10 +19,7 @@ public class CategoryDTO implements Serializable {
 
     private Boolean active;
 
-
-    private Long siteId;
-
-    private String siteTitle;
+    private SiteDTO site;
 
     public Long getId() {
         return id;
@@ -47,7 +45,7 @@ public class CategoryDTO implements Serializable {
         this.link = link;
     }
 
-    public Boolean isActive() {
+    public Boolean getActive() {
         return active;
     }
 
@@ -55,20 +53,12 @@ public class CategoryDTO implements Serializable {
         this.active = active;
     }
 
-    public Long getSiteId() {
-        return siteId;
+    public SiteDTO getSite() {
+        return site;
     }
 
-    public void setSiteId(Long siteId) {
-        this.siteId = siteId;
-    }
-
-    public String getSiteTitle() {
-        return siteTitle;
-    }
-
-    public void setSiteTitle(String siteTitle) {
-        this.siteTitle = siteTitle;
+    public void setSite(SiteDTO site) {
+        this.site = site;
     }
 
     @Override
@@ -76,31 +66,31 @@ public class CategoryDTO implements Serializable {
         if (this == o) {
             return true;
         }
-        if (o == null || getClass() != o.getClass()) {
+        if (!(o instanceof CategoryDTO)) {
             return false;
         }
 
         CategoryDTO categoryDTO = (CategoryDTO) o;
-        if (categoryDTO.getId() == null || getId() == null) {
+        if (this.id == null) {
             return false;
         }
-        return Objects.equals(getId(), categoryDTO.getId());
+        return Objects.equals(this.id, categoryDTO.id);
     }
 
     @Override
     public int hashCode() {
-        return Objects.hashCode(getId());
+        return Objects.hash(this.id);
     }
 
+    // prettier-ignore
     @Override
     public String toString() {
         return "CategoryDTO{" +
             "id=" + getId() +
             ", name='" + getName() + "'" +
             ", link='" + getLink() + "'" +
-            ", active='" + isActive() + "'" +
-            ", site=" + getSiteId() +
-            ", site='" + getSiteTitle() + "'" +
+            ", active='" + getActive() + "'" +
+            ", site=" + getSite() +
             "}";
     }
 }

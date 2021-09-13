@@ -1,8 +1,9 @@
 package by.homesite.gator.service.dto;
-import java.time.ZonedDateTime;
-import javax.validation.constraints.*;
+
 import java.io.Serializable;
+import java.time.ZonedDateTime;
 import java.util.Objects;
+import javax.validation.constraints.*;
 
 /**
  * A DTO for the {@link by.homesite.gator.domain.Item} entity.
@@ -34,10 +35,7 @@ public class ItemDTO implements Serializable {
 
     private ZonedDateTime deletedAt;
 
-
-    private Long categoryId;
-
-    private String categoryName;
+    private CategoryDTO category;
 
     public Long getId() {
         return id;
@@ -103,7 +101,7 @@ public class ItemDTO implements Serializable {
         this.image = image;
     }
 
-    public Boolean isActive() {
+    public Boolean getActive() {
         return active;
     }
 
@@ -135,20 +133,12 @@ public class ItemDTO implements Serializable {
         this.deletedAt = deletedAt;
     }
 
-    public Long getCategoryId() {
-        return categoryId;
+    public CategoryDTO getCategory() {
+        return category;
     }
 
-    public void setCategoryId(Long categoryId) {
-        this.categoryId = categoryId;
-    }
-
-    public String getCategoryName() {
-        return categoryName;
-    }
-
-    public void setCategoryName(String categoryName) {
-        this.categoryName = categoryName;
+    public void setCategory(CategoryDTO category) {
+        this.category = category;
     }
 
     @Override
@@ -156,22 +146,23 @@ public class ItemDTO implements Serializable {
         if (this == o) {
             return true;
         }
-        if (o == null || getClass() != o.getClass()) {
+        if (!(o instanceof ItemDTO)) {
             return false;
         }
 
         ItemDTO itemDTO = (ItemDTO) o;
-        if (itemDTO.getId() == null || getId() == null) {
+        if (this.id == null) {
             return false;
         }
-        return Objects.equals(getId(), itemDTO.getId());
+        return Objects.equals(this.id, itemDTO.id);
     }
 
     @Override
     public int hashCode() {
-        return Objects.hashCode(getId());
+        return Objects.hash(this.id);
     }
 
+    // prettier-ignore
     @Override
     public String toString() {
         return "ItemDTO{" +
@@ -183,12 +174,11 @@ public class ItemDTO implements Serializable {
             ", ownerName='" + getOwnerName() + "'" +
             ", ownerLink='" + getOwnerLink() + "'" +
             ", image='" + getImage() + "'" +
-            ", active='" + isActive() + "'" +
+            ", active='" + getActive() + "'" +
             ", createdAt='" + getCreatedAt() + "'" +
             ", updatedAt='" + getUpdatedAt() + "'" +
             ", deletedAt='" + getDeletedAt() + "'" +
-            ", category=" + getCategoryId() +
-            ", category='" + getCategoryName() + "'" +
+            ", category=" + getCategory() +
             "}";
     }
 }

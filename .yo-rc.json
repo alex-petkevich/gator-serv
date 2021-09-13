@@ -4,7 +4,7 @@
       "packageName": "by.homesite.gator",
       "nativeLanguage": "en"
     },
-    "jhipsterVersion": "6.2.0",
+    "jhipsterVersion": "7.1.0",
     "applicationType": "monolith",
     "baseName": "gator",
     "packageName": "by.homesite.gator",
@@ -31,11 +31,20 @@
     "enableTranslation": true,
     "clientPackageManager": "npm",
     "nativeLanguage": "en",
-    "languages": [
-      "en",
-      "ru"
-    ],
+    "languages": ["en", "ru"],
     "blueprints": [],
-    "skipClient": true
+    "skipClient": true,
+    "clientFramework": "angularX",
+    "skipUserManagement": false,
+    "withAdminUi": true,
+    "clientTheme": "none",
+    "clientThemeVariant": "",
+    "skipServer": false,
+    "skipCheckLengthOfIdentifier": false,
+    "skipFakeData": false,
+    "pages": [],
+    "reactive": false,
+    "creationTimestamp": 1631532479746,
+    "entities": ["Item", "Category", "Site", "UserProperties", "Properties", "UserSites", "Rate"]
   }
 }

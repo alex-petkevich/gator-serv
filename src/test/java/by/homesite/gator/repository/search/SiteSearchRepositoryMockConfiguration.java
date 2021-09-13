@@ -12,5 +12,4 @@ public class SiteSearchRepositoryMockConfiguration {
 
     @MockBean
     private SiteSearchRepository mockSiteSearchRepository;
-
 }

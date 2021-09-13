@@ -1,17 +1,14 @@
 package by.homesite.gator.service;
 
 import by.homesite.gator.service.dto.ItemDTO;
-
+import java.util.Optional;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
-
-import java.util.Optional;
 
 /**
  * Service Interface for managing {@link by.homesite.gator.domain.Item}.
  */
 public interface ItemService {
-
     /**
      * Save a item.
      *
@@ -21,13 +18,20 @@ public interface ItemService {
     ItemDTO save(ItemDTO itemDTO);
 
     /**
+     * Partially updates a item.
+     *
+     * @param itemDTO the entity to update partially.
+     * @return the persisted entity.
+     */
+    Optional<ItemDTO> partialUpdate(ItemDTO itemDTO);
+
+    /**
      * Get all the items.
      *
      * @param pageable the pagination information.
      * @return the list of entities.
      */
     Page<ItemDTO> findAll(Pageable pageable);
-
 
     /**
      * Get the "id" item.
@@ -48,7 +52,7 @@ public interface ItemService {
      * Search for the item corresponding to the query.
      *
      * @param query the query of the search.
-     * 
+     *
      * @param pageable the pagination information.
      * @return the list of entities.
      */

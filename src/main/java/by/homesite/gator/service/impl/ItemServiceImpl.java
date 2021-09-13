@@ -1,22 +1,20 @@
 package by.homesite.gator.service.impl;
 
-import by.homesite.gator.service.ItemService;
+import static org.elasticsearch.index.query.QueryBuilders.*;
+
 import by.homesite.gator.domain.Item;
 import by.homesite.gator.repository.ItemRepository;
 import by.homesite.gator.repository.search.ItemSearchRepository;
+import by.homesite.gator.service.ItemService;
 import by.homesite.gator.service.dto.ItemDTO;
 import by.homesite.gator.service.mapper.ItemMapper;
+import java.util.Optional;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
-
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
-
-import java.util.Optional;
-
-import static org.elasticsearch.index.query.QueryBuilders.*;
 
 /**
  * Service Implementation for managing {@link Item}.
@@ -39,12 +37,6 @@ public class ItemServiceImpl implements ItemService {
         this.itemSearchRepository = itemSearchRepository;
     }
 
-    /**
-     * Save a item.
-     *
-     * @param itemDTO the entity to save.
-     * @return the persisted entity.
-     */
     @Override
     public ItemDTO save(ItemDTO itemDTO) {
         log.debug("Request to save Item : {}", itemDTO);
@@ -55,40 +47,44 @@ public class ItemServiceImpl implements ItemService {
         return result;
     }
 
-    /**
-     * Get all the items.
-     *
-     * @param pageable the pagination information.
-     * @return the list of entities.
-     */
+    @Override
+    public Optional<ItemDTO> partialUpdate(ItemDTO itemDTO) {
+        log.debug("Request to partially update Item : {}", itemDTO);
+
+        return itemRepository
+            .findById(itemDTO.getId())
+            .map(
+                existingItem -> {
+                    itemMapper.partialUpdate(existingItem, itemDTO);
+
+                    return existingItem;
+                }
+            )
+            .map(itemRepository::save)
+            .map(
+                savedItem -> {
+                    itemSearchRepository.save(savedItem);
+
+                    return savedItem;
+                }
+            )
+            .map(itemMapper::toDto);
+    }
+
     @Override
     @Transactional(readOnly = true)
     public Page<ItemDTO> findAll(Pageable pageable) {
         log.debug("Request to get all Items");
-        return itemRepository.findAll(pageable)
-            .map(itemMapper::toDto);
+        return itemRepository.findAll(pageable).map(itemMapper::toDto);
     }
 
-
-    /**
-     * Get one item by id.
-     *
-     * @param id the id of the entity.
-     * @return the entity.
-     */
     @Override
     @Transactional(readOnly = true)
     public Optional<ItemDTO> findOne(Long id) {
         log.debug("Request to get Item : {}", id);
-        return itemRepository.findById(id)
-            .map(itemMapper::toDto);
+        return itemRepository.findById(id).map(itemMapper::toDto);
     }
 
-    /**
-     * Delete the item by id.
-     *
-     * @param id the id of the entity.
-     */
     @Override
     public void delete(Long id) {
         log.debug("Request to delete Item : {}", id);
@@ -96,18 +92,10 @@ public class ItemServiceImpl implements ItemService {
         itemSearchRepository.deleteById(id);
     }
 
-    /**
-     * Search for the item corresponding to the query.
-     *
-     * @param query the query of the search.
-     * @param pageable the pagination information.
-     * @return the list of entities.
-     */
     @Override
     @Transactional(readOnly = true)
     public Page<ItemDTO> search(String query, Pageable pageable) {
         log.debug("Request to search for a page of Items for query {}", query);
-        return itemSearchRepository.search(queryStringQuery(query), pageable)
-            .map(itemMapper::toDto);
+        return itemSearchRepository.search(queryStringQuery(query), pageable).map(itemMapper::toDto);
     }
 }

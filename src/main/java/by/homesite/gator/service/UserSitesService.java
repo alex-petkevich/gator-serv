@@ -1,7 +1,6 @@
 package by.homesite.gator.service;
 
 import by.homesite.gator.service.dto.UserSitesDTO;
-
 import java.util.List;
 import java.util.Optional;
 
@@ -9,7 +8,6 @@ import java.util.Optional;
  * Service Interface for managing {@link by.homesite.gator.domain.UserSites}.
  */
 public interface UserSitesService {
-
     /**
      * Save a userSites.
      *
@@ -19,12 +17,19 @@ public interface UserSitesService {
     UserSitesDTO save(UserSitesDTO userSitesDTO);
 
     /**
+     * Partially updates a userSites.
+     *
+     * @param userSitesDTO the entity to update partially.
+     * @return the persisted entity.
+     */
+    Optional<UserSitesDTO> partialUpdate(UserSitesDTO userSitesDTO);
+
+    /**
      * Get all the userSites.
      *
      * @return the list of entities.
      */
     List<UserSitesDTO> findAll();
-
 
     /**
      * Get the "id" userSites.
@@ -45,7 +50,6 @@ public interface UserSitesService {
      * Search for the userSites corresponding to the query.
      *
      * @param query the query of the search.
-     * 
      * @return the list of entities.
      */
     List<UserSitesDTO> search(String query);

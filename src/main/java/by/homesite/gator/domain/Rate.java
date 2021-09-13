@@ -1,28 +1,27 @@
 package by.homesite.gator.domain;
-import org.hibernate.annotations.Cache;
-import org.hibernate.annotations.CacheConcurrencyStrategy;
 
-import javax.persistence.*;
-
-import org.springframework.data.elasticsearch.annotations.FieldType;
 import java.io.Serializable;
 import java.math.BigDecimal;
 import java.time.Instant;
+import javax.persistence.*;
+import org.hibernate.annotations.Cache;
+import org.hibernate.annotations.CacheConcurrencyStrategy;
+import org.springframework.data.elasticsearch.annotations.FieldType;
 
 /**
  * A Rate.
  */
 @Entity
 @Table(name = "rate")
-@Cache(usage = CacheConcurrencyStrategy.NONSTRICT_READ_WRITE)
+@Cache(usage = CacheConcurrencyStrategy.READ_WRITE)
 @org.springframework.data.elasticsearch.annotations.Document(indexName = "rate")
 public class Rate implements Serializable {
 
     private static final long serialVersionUID = 1L;
 
     @Id
-    @GeneratedValue(strategy = GenerationType.IDENTITY)
-    @org.springframework.data.elasticsearch.annotations.Field(type = FieldType.Keyword)
+    @GeneratedValue(strategy = GenerationType.SEQUENCE, generator = "sequenceGenerator")
+    @SequenceGenerator(name = "sequenceGenerator")
     private Long id;
 
     @Column(name = "idname")
@@ -37,7 +36,7 @@ public class Rate implements Serializable {
     @Column(name = "active")
     private Instant active;
 
-    // jhipster-needle-entity-add-field - JHipster will add fields here, do not remove
+    // jhipster-needle-entity-add-field - JHipster will add fields here
     public Long getId() {
         return id;
     }
@@ -46,8 +45,13 @@ public class Rate implements Serializable {
         this.id = id;
     }
 
+    public Rate id(Long id) {
+        this.id = id;
+        return this;
+    }
+
     public String getIdname() {
-        return idname;
+        return this.idname;
     }
 
     public Rate idname(String idname) {
@@ -60,7 +64,7 @@ public class Rate implements Serializable {
     }
 
     public String getCode() {
-        return code;
+        return this.code;
     }
 
     public Rate code(String code) {
@@ -73,7 +77,7 @@ public class Rate implements Serializable {
     }
 
     public BigDecimal getRate() {
-        return rate;
+        return this.rate;
     }
 
     public Rate rate(BigDecimal rate) {
@@ -86,7 +90,7 @@ public class Rate implements Serializable {
     }
 
     public Instant getActive() {
-        return active;
+        return this.active;
     }
 
     public Rate active(Instant active) {
@@ -97,7 +101,8 @@ public class Rate implements Serializable {
     public void setActive(Instant active) {
         this.active = active;
     }
-    // jhipster-needle-entity-add-getters-setters - JHipster will add getters and setters here, do not remove
+
+    // jhipster-needle-entity-add-getters-setters - JHipster will add getters and setters here
 
     @Override
     public boolean equals(Object o) {
@@ -112,9 +117,11 @@ public class Rate implements Serializable {
 
     @Override
     public int hashCode() {
-        return 31;
+        // see https://vladmihalcea.com/how-to-implement-equals-and-hashcode-using-the-jpa-entity-identifier/
+        return getClass().hashCode();
     }
 
+    // prettier-ignore
     @Override
     public String toString() {
         return "Rate{" +

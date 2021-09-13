@@ -4,12 +4,9 @@ import by.homesite.gator.domain.Rate;
 import org.springframework.data.jpa.repository.*;
 import org.springframework.stereotype.Repository;
 
-
 /**
- * Spring Data  repository for the Rate entity.
+ * Spring Data SQL repository for the Rate entity.
  */
 @SuppressWarnings("unused")
 @Repository
-public interface RateRepository extends JpaRepository<Rate, Long> {
-
-}
+public interface RateRepository extends JpaRepository<Rate, Long> {}

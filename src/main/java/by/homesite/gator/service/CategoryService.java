@@ -1,7 +1,6 @@
 package by.homesite.gator.service;
 
 import by.homesite.gator.service.dto.CategoryDTO;
-
 import java.util.List;
 import java.util.Optional;
 
@@ -9,7 +8,6 @@ import java.util.Optional;
  * Service Interface for managing {@link by.homesite.gator.domain.Category}.
  */
 public interface CategoryService {
-
     /**
      * Save a category.
      *
@@ -19,12 +17,19 @@ public interface CategoryService {
     CategoryDTO save(CategoryDTO categoryDTO);
 
     /**
+     * Partially updates a category.
+     *
+     * @param categoryDTO the entity to update partially.
+     * @return the persisted entity.
+     */
+    Optional<CategoryDTO> partialUpdate(CategoryDTO categoryDTO);
+
+    /**
      * Get all the categories.
      *
      * @return the list of entities.
      */
     List<CategoryDTO> findAll();
-
 
     /**
      * Get the "id" category.
@@ -45,7 +50,6 @@ public interface CategoryService {
      * Search for the category corresponding to the query.
      *
      * @param query the query of the search.
-     * 
      * @return the list of entities.
      */
     List<CategoryDTO> search(String query);

@@ -1,51 +1,51 @@
 package by.homesite.gator.web.rest;
 
-import by.homesite.gator.GatorApp;
-import by.homesite.gator.domain.Item;
-import by.homesite.gator.repository.ItemRepository;
-import by.homesite.gator.repository.search.ItemSearchRepository;
-import by.homesite.gator.service.ItemService;
-import by.homesite.gator.service.dto.ItemDTO;
-import by.homesite.gator.service.mapper.ItemMapper;
-import by.homesite.gator.web.rest.errors.ExceptionTranslator;
-
-import org.junit.jupiter.api.BeforeEach;
-import org.junit.jupiter.api.Test;
-import org.mockito.MockitoAnnotations;
-import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.boot.test.context.SpringBootTest;
-import org.springframework.data.domain.PageImpl;
-import org.springframework.data.domain.PageRequest;
-import org.springframework.data.web.PageableHandlerMethodArgumentResolver;
-import org.springframework.http.MediaType;
-import org.springframework.http.converter.json.MappingJackson2HttpMessageConverter;
-import org.springframework.test.web.servlet.MockMvc;
-import org.springframework.test.web.servlet.setup.MockMvcBuilders;
-import org.springframework.transaction.annotation.Transactional;
-import org.springframework.validation.Validator;
-
-import javax.persistence.EntityManager;
-import java.time.Instant;
-import java.time.ZonedDateTime;
-import java.time.ZoneOffset;
-import java.time.ZoneId;
-import java.util.Collections;
-import java.util.List;
-
 import static by.homesite.gator.web.rest.TestUtil.sameInstant;
-import static by.homesite.gator.web.rest.TestUtil.createFormattingConversionService;
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.elasticsearch.index.query.QueryBuilders.queryStringQuery;
 import static org.hamcrest.Matchers.hasItem;
 import static org.mockito.Mockito.*;
+import static org.springframework.security.test.web.servlet.request.SecurityMockMvcRequestPostProcessors.csrf;
 import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.*;
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.*;
+
+import by.homesite.gator.IntegrationTest;
+import by.homesite.gator.domain.Item;
+import by.homesite.gator.repository.ItemRepository;
+import by.homesite.gator.repository.search.ItemSearchRepository;
+import by.homesite.gator.service.dto.ItemDTO;
+import by.homesite.gator.service.mapper.ItemMapper;
+import java.time.Instant;
+import java.time.ZoneId;
+import java.time.ZoneOffset;
+import java.time.ZonedDateTime;
+import java.util.Collections;
+import java.util.List;
+import java.util.Random;
+import java.util.concurrent.atomic.AtomicLong;
+import javax.persistence.EntityManager;
+import org.junit.jupiter.api.BeforeEach;
+import org.junit.jupiter.api.Test;
+import org.junit.jupiter.api.extension.ExtendWith;
+import org.mockito.Mock;
+import org.mockito.junit.jupiter.MockitoExtension;
+import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.boot.test.autoconfigure.web.servlet.AutoConfigureMockMvc;
+import org.springframework.data.domain.PageImpl;
+import org.springframework.data.domain.PageRequest;
+import org.springframework.http.MediaType;
+import org.springframework.security.test.context.support.WithMockUser;
+import org.springframework.test.web.servlet.MockMvc;
+import org.springframework.transaction.annotation.Transactional;
 
 /**
  * Integration tests for the {@link ItemResource} REST controller.
  */
-@SpringBootTest(classes = GatorApp.class)
-public class ItemResourceIT {
+@IntegrationTest
+@ExtendWith(MockitoExtension.class)
+@AutoConfigureMockMvc
+@WithMockUser
+class ItemResourceIT {
 
     private static final String DEFAULT_TITLE = "AAAAAAAAAA";
     private static final String UPDATED_TITLE = "BBBBBBBBBB";
@@ -55,7 +55,6 @@ public class ItemResourceIT {
 
     private static final Float DEFAULT_PRICE = 1F;
     private static final Float UPDATED_PRICE = 2F;
-    private static final Float SMALLER_PRICE = 1F - 1F;
 
     private static final String DEFAULT_LINK = "AAAAAAAAAA";
     private static final String UPDATED_LINK = "BBBBBBBBBB";
@@ -74,24 +73,25 @@ public class ItemResourceIT {
 
     private static final ZonedDateTime DEFAULT_CREATED_AT = ZonedDateTime.ofInstant(Instant.ofEpochMilli(0L), ZoneOffset.UTC);
     private static final ZonedDateTime UPDATED_CREATED_AT = ZonedDateTime.now(ZoneId.systemDefault()).withNano(0);
-    private static final ZonedDateTime SMALLER_CREATED_AT = ZonedDateTime.ofInstant(Instant.ofEpochMilli(-1L), ZoneOffset.UTC);
 
     private static final ZonedDateTime DEFAULT_UPDATED_AT = ZonedDateTime.ofInstant(Instant.ofEpochMilli(0L), ZoneOffset.UTC);
     private static final ZonedDateTime UPDATED_UPDATED_AT = ZonedDateTime.now(ZoneId.systemDefault()).withNano(0);
-    private static final ZonedDateTime SMALLER_UPDATED_AT = ZonedDateTime.ofInstant(Instant.ofEpochMilli(-1L), ZoneOffset.UTC);
 
     private static final ZonedDateTime DEFAULT_DELETED_AT = ZonedDateTime.ofInstant(Instant.ofEpochMilli(0L), ZoneOffset.UTC);
     private static final ZonedDateTime UPDATED_DELETED_AT = ZonedDateTime.now(ZoneId.systemDefault()).withNano(0);
-    private static final ZonedDateTime SMALLER_DELETED_AT = ZonedDateTime.ofInstant(Instant.ofEpochMilli(-1L), ZoneOffset.UTC);
+
+    private static final String ENTITY_API_URL = "/api/items";
+    private static final String ENTITY_API_URL_ID = ENTITY_API_URL + "/{id}";
+    private static final String ENTITY_SEARCH_API_URL = "/api/_search/items";
+
+    private static Random random = new Random();
+    private static AtomicLong count = new AtomicLong(random.nextInt() + (2 * Integer.MAX_VALUE));
 
     @Autowired
     private ItemRepository itemRepository;
 
     @Autowired
     private ItemMapper itemMapper;
-
-    @Autowired
-    private ItemService itemService;
 
     /**
      * This repository is mocked in the by.homesite.gator.repository.search test package.
@@ -102,35 +102,12 @@ public class ItemResourceIT {
     private ItemSearchRepository mockItemSearchRepository;
 
     @Autowired
-    private MappingJackson2HttpMessageConverter jacksonMessageConverter;
-
-    @Autowired
-    private PageableHandlerMethodArgumentResolver pageableArgumentResolver;
-
-    @Autowired
-    private ExceptionTranslator exceptionTranslator;
-
-    @Autowired
     private EntityManager em;
 
     @Autowired
-    private Validator validator;
-
     private MockMvc restItemMockMvc;
 
     private Item item;
-
-    @BeforeEach
-    public void setup() {
-        MockitoAnnotations.initMocks(this);
-        final ItemResource itemResource = new ItemResource(itemService);
-        this.restItemMockMvc = MockMvcBuilders.standaloneSetup(itemResource)
-            .setCustomArgumentResolvers(pageableArgumentResolver)
-            .setControllerAdvice(exceptionTranslator)
-            .setConversionService(createFormattingConversionService())
-            .setMessageConverters(jacksonMessageConverter)
-            .setValidator(validator).build();
-    }
 
     /**
      * Create an entity for this test.
@@ -153,6 +130,7 @@ public class ItemResourceIT {
             .deletedAt(DEFAULT_DELETED_AT);
         return item;
     }
+
     /**
      * Create an updated entity for this test.
      *
@@ -182,14 +160,17 @@ public class ItemResourceIT {
 
     @Test
     @Transactional
-    public void createItem() throws Exception {
+    void createItem() throws Exception {
         int databaseSizeBeforeCreate = itemRepository.findAll().size();
-
         // Create the Item
         ItemDTO itemDTO = itemMapper.toDto(item);
-        restItemMockMvc.perform(post("/api/items")
-            .contentType(TestUtil.APPLICATION_JSON_UTF8)
-            .content(TestUtil.convertObjectToJsonBytes(itemDTO)))
+        restItemMockMvc
+            .perform(
+                post(ENTITY_API_URL)
+                    .with(csrf())
+                    .contentType(MediaType.APPLICATION_JSON)
+                    .content(TestUtil.convertObjectToJsonBytes(itemDTO))
+            )
             .andExpect(status().isCreated());
 
         // Validate the Item in the database
@@ -203,7 +184,7 @@ public class ItemResourceIT {
         assertThat(testItem.getOwnerName()).isEqualTo(DEFAULT_OWNER_NAME);
         assertThat(testItem.getOwnerLink()).isEqualTo(DEFAULT_OWNER_LINK);
         assertThat(testItem.getImage()).isEqualTo(DEFAULT_IMAGE);
-        assertThat(testItem.isActive()).isEqualTo(DEFAULT_ACTIVE);
+        assertThat(testItem.getActive()).isEqualTo(DEFAULT_ACTIVE);
         assertThat(testItem.getCreatedAt()).isEqualTo(DEFAULT_CREATED_AT);
         assertThat(testItem.getUpdatedAt()).isEqualTo(DEFAULT_UPDATED_AT);
         assertThat(testItem.getDeletedAt()).isEqualTo(DEFAULT_DELETED_AT);
@@ -214,17 +195,21 @@ public class ItemResourceIT {
 
     @Test
     @Transactional
-    public void createItemWithExistingId() throws Exception {
-        int databaseSizeBeforeCreate = itemRepository.findAll().size();
-
+    void createItemWithExistingId() throws Exception {
         // Create the Item with an existing ID
         item.setId(1L);
         ItemDTO itemDTO = itemMapper.toDto(item);
 
+        int databaseSizeBeforeCreate = itemRepository.findAll().size();
+
         // An entity with an existing ID cannot be created, so this API call must fail
-        restItemMockMvc.perform(post("/api/items")
-            .contentType(TestUtil.APPLICATION_JSON_UTF8)
-            .content(TestUtil.convertObjectToJsonBytes(itemDTO)))
+        restItemMockMvc
+            .perform(
+                post(ENTITY_API_URL)
+                    .with(csrf())
+                    .contentType(MediaType.APPLICATION_JSON)
+                    .content(TestUtil.convertObjectToJsonBytes(itemDTO))
+            )
             .andExpect(status().isBadRequest());
 
         // Validate the Item in the database
@@ -235,10 +220,9 @@ public class ItemResourceIT {
         verify(mockItemSearchRepository, times(0)).save(item);
     }
 
-
     @Test
     @Transactional
-    public void checkTitleIsRequired() throws Exception {
+    void checkTitleIsRequired() throws Exception {
         int databaseSizeBeforeTest = itemRepository.findAll().size();
         // set the field null
         item.setTitle(null);
@@ -246,9 +230,13 @@ public class ItemResourceIT {
         // Create the Item, which fails.
         ItemDTO itemDTO = itemMapper.toDto(item);
 
-        restItemMockMvc.perform(post("/api/items")
-            .contentType(TestUtil.APPLICATION_JSON_UTF8)
-            .content(TestUtil.convertObjectToJsonBytes(itemDTO)))
+        restItemMockMvc
+            .perform(
+                post(ENTITY_API_URL)
+                    .with(csrf())
+                    .contentType(MediaType.APPLICATION_JSON)
+                    .content(TestUtil.convertObjectToJsonBytes(itemDTO))
+            )
             .andExpect(status().isBadRequest());
 
         List<Item> itemList = itemRepository.findAll();
@@ -257,46 +245,48 @@ public class ItemResourceIT {
 
     @Test
     @Transactional
-    public void getAllItems() throws Exception {
+    void getAllItems() throws Exception {
         // Initialize the database
         itemRepository.saveAndFlush(item);
 
         // Get all the itemList
-        restItemMockMvc.perform(get("/api/items?sort=id,desc"))
+        restItemMockMvc
+            .perform(get(ENTITY_API_URL + "?sort=id,desc"))
             .andExpect(status().isOk())
-            .andExpect(content().contentType(MediaType.APPLICATION_JSON_UTF8_VALUE))
+            .andExpect(content().contentType(MediaType.APPLICATION_JSON_VALUE))
             .andExpect(jsonPath("$.[*].id").value(hasItem(item.getId().intValue())))
-            .andExpect(jsonPath("$.[*].title").value(hasItem(DEFAULT_TITLE.toString())))
-            .andExpect(jsonPath("$.[*].description").value(hasItem(DEFAULT_DESCRIPTION.toString())))
+            .andExpect(jsonPath("$.[*].title").value(hasItem(DEFAULT_TITLE)))
+            .andExpect(jsonPath("$.[*].description").value(hasItem(DEFAULT_DESCRIPTION)))
             .andExpect(jsonPath("$.[*].price").value(hasItem(DEFAULT_PRICE.doubleValue())))
-            .andExpect(jsonPath("$.[*].link").value(hasItem(DEFAULT_LINK.toString())))
-            .andExpect(jsonPath("$.[*].ownerName").value(hasItem(DEFAULT_OWNER_NAME.toString())))
-            .andExpect(jsonPath("$.[*].ownerLink").value(hasItem(DEFAULT_OWNER_LINK.toString())))
-            .andExpect(jsonPath("$.[*].image").value(hasItem(DEFAULT_IMAGE.toString())))
+            .andExpect(jsonPath("$.[*].link").value(hasItem(DEFAULT_LINK)))
+            .andExpect(jsonPath("$.[*].ownerName").value(hasItem(DEFAULT_OWNER_NAME)))
+            .andExpect(jsonPath("$.[*].ownerLink").value(hasItem(DEFAULT_OWNER_LINK)))
+            .andExpect(jsonPath("$.[*].image").value(hasItem(DEFAULT_IMAGE)))
             .andExpect(jsonPath("$.[*].active").value(hasItem(DEFAULT_ACTIVE.booleanValue())))
             .andExpect(jsonPath("$.[*].createdAt").value(hasItem(sameInstant(DEFAULT_CREATED_AT))))
             .andExpect(jsonPath("$.[*].updatedAt").value(hasItem(sameInstant(DEFAULT_UPDATED_AT))))
             .andExpect(jsonPath("$.[*].deletedAt").value(hasItem(sameInstant(DEFAULT_DELETED_AT))));
     }
-    
+
     @Test
     @Transactional
-    public void getItem() throws Exception {
+    void getItem() throws Exception {
         // Initialize the database
         itemRepository.saveAndFlush(item);
 
         // Get the item
-        restItemMockMvc.perform(get("/api/items/{id}", item.getId()))
+        restItemMockMvc
+            .perform(get(ENTITY_API_URL_ID, item.getId()))
             .andExpect(status().isOk())
-            .andExpect(content().contentType(MediaType.APPLICATION_JSON_UTF8_VALUE))
+            .andExpect(content().contentType(MediaType.APPLICATION_JSON_VALUE))
             .andExpect(jsonPath("$.id").value(item.getId().intValue()))
-            .andExpect(jsonPath("$.title").value(DEFAULT_TITLE.toString()))
-            .andExpect(jsonPath("$.description").value(DEFAULT_DESCRIPTION.toString()))
+            .andExpect(jsonPath("$.title").value(DEFAULT_TITLE))
+            .andExpect(jsonPath("$.description").value(DEFAULT_DESCRIPTION))
             .andExpect(jsonPath("$.price").value(DEFAULT_PRICE.doubleValue()))
-            .andExpect(jsonPath("$.link").value(DEFAULT_LINK.toString()))
-            .andExpect(jsonPath("$.ownerName").value(DEFAULT_OWNER_NAME.toString()))
-            .andExpect(jsonPath("$.ownerLink").value(DEFAULT_OWNER_LINK.toString()))
-            .andExpect(jsonPath("$.image").value(DEFAULT_IMAGE.toString()))
+            .andExpect(jsonPath("$.link").value(DEFAULT_LINK))
+            .andExpect(jsonPath("$.ownerName").value(DEFAULT_OWNER_NAME))
+            .andExpect(jsonPath("$.ownerLink").value(DEFAULT_OWNER_LINK))
+            .andExpect(jsonPath("$.image").value(DEFAULT_IMAGE))
             .andExpect(jsonPath("$.active").value(DEFAULT_ACTIVE.booleanValue()))
             .andExpect(jsonPath("$.createdAt").value(sameInstant(DEFAULT_CREATED_AT)))
             .andExpect(jsonPath("$.updatedAt").value(sameInstant(DEFAULT_UPDATED_AT)))
@@ -305,15 +295,14 @@ public class ItemResourceIT {
 
     @Test
     @Transactional
-    public void getNonExistingItem() throws Exception {
+    void getNonExistingItem() throws Exception {
         // Get the item
-        restItemMockMvc.perform(get("/api/items/{id}", Long.MAX_VALUE))
-            .andExpect(status().isNotFound());
+        restItemMockMvc.perform(get(ENTITY_API_URL_ID, Long.MAX_VALUE)).andExpect(status().isNotFound());
     }
 
     @Test
     @Transactional
-    public void updateItem() throws Exception {
+    void putNewItem() throws Exception {
         // Initialize the database
         itemRepository.saveAndFlush(item);
 
@@ -337,9 +326,13 @@ public class ItemResourceIT {
             .deletedAt(UPDATED_DELETED_AT);
         ItemDTO itemDTO = itemMapper.toDto(updatedItem);
 
-        restItemMockMvc.perform(put("/api/items")
-            .contentType(TestUtil.APPLICATION_JSON_UTF8)
-            .content(TestUtil.convertObjectToJsonBytes(itemDTO)))
+        restItemMockMvc
+            .perform(
+                put(ENTITY_API_URL_ID, itemDTO.getId())
+                    .with(csrf())
+                    .contentType(MediaType.APPLICATION_JSON)
+                    .content(TestUtil.convertObjectToJsonBytes(itemDTO))
+            )
             .andExpect(status().isOk());
 
         // Validate the Item in the database
@@ -353,27 +346,32 @@ public class ItemResourceIT {
         assertThat(testItem.getOwnerName()).isEqualTo(UPDATED_OWNER_NAME);
         assertThat(testItem.getOwnerLink()).isEqualTo(UPDATED_OWNER_LINK);
         assertThat(testItem.getImage()).isEqualTo(UPDATED_IMAGE);
-        assertThat(testItem.isActive()).isEqualTo(UPDATED_ACTIVE);
+        assertThat(testItem.getActive()).isEqualTo(UPDATED_ACTIVE);
         assertThat(testItem.getCreatedAt()).isEqualTo(UPDATED_CREATED_AT);
         assertThat(testItem.getUpdatedAt()).isEqualTo(UPDATED_UPDATED_AT);
         assertThat(testItem.getDeletedAt()).isEqualTo(UPDATED_DELETED_AT);
 
         // Validate the Item in Elasticsearch
-        verify(mockItemSearchRepository, times(1)).save(testItem);
+        verify(mockItemSearchRepository).save(testItem);
     }
 
     @Test
     @Transactional
-    public void updateNonExistingItem() throws Exception {
+    void putNonExistingItem() throws Exception {
         int databaseSizeBeforeUpdate = itemRepository.findAll().size();
+        item.setId(count.incrementAndGet());
 
         // Create the Item
         ItemDTO itemDTO = itemMapper.toDto(item);
 
         // If the entity doesn't have an ID, it will throw BadRequestAlertException
-        restItemMockMvc.perform(put("/api/items")
-            .contentType(TestUtil.APPLICATION_JSON_UTF8)
-            .content(TestUtil.convertObjectToJsonBytes(itemDTO)))
+        restItemMockMvc
+            .perform(
+                put(ENTITY_API_URL_ID, itemDTO.getId())
+                    .with(csrf())
+                    .contentType(MediaType.APPLICATION_JSON)
+                    .content(TestUtil.convertObjectToJsonBytes(itemDTO))
+            )
             .andExpect(status().isBadRequest());
 
         // Validate the Item in the database
@@ -386,15 +384,243 @@ public class ItemResourceIT {
 
     @Test
     @Transactional
-    public void deleteItem() throws Exception {
+    void putWithIdMismatchItem() throws Exception {
+        int databaseSizeBeforeUpdate = itemRepository.findAll().size();
+        item.setId(count.incrementAndGet());
+
+        // Create the Item
+        ItemDTO itemDTO = itemMapper.toDto(item);
+
+        // If url ID doesn't match entity ID, it will throw BadRequestAlertException
+        restItemMockMvc
+            .perform(
+                put(ENTITY_API_URL_ID, count.incrementAndGet())
+                    .with(csrf())
+                    .contentType(MediaType.APPLICATION_JSON)
+                    .content(TestUtil.convertObjectToJsonBytes(itemDTO))
+            )
+            .andExpect(status().isBadRequest());
+
+        // Validate the Item in the database
+        List<Item> itemList = itemRepository.findAll();
+        assertThat(itemList).hasSize(databaseSizeBeforeUpdate);
+
+        // Validate the Item in Elasticsearch
+        verify(mockItemSearchRepository, times(0)).save(item);
+    }
+
+    @Test
+    @Transactional
+    void putWithMissingIdPathParamItem() throws Exception {
+        int databaseSizeBeforeUpdate = itemRepository.findAll().size();
+        item.setId(count.incrementAndGet());
+
+        // Create the Item
+        ItemDTO itemDTO = itemMapper.toDto(item);
+
+        // If url ID doesn't match entity ID, it will throw BadRequestAlertException
+        restItemMockMvc
+            .perform(
+                put(ENTITY_API_URL).with(csrf()).contentType(MediaType.APPLICATION_JSON).content(TestUtil.convertObjectToJsonBytes(itemDTO))
+            )
+            .andExpect(status().isMethodNotAllowed());
+
+        // Validate the Item in the database
+        List<Item> itemList = itemRepository.findAll();
+        assertThat(itemList).hasSize(databaseSizeBeforeUpdate);
+
+        // Validate the Item in Elasticsearch
+        verify(mockItemSearchRepository, times(0)).save(item);
+    }
+
+    @Test
+    @Transactional
+    void partialUpdateItemWithPatch() throws Exception {
+        // Initialize the database
+        itemRepository.saveAndFlush(item);
+
+        int databaseSizeBeforeUpdate = itemRepository.findAll().size();
+
+        // Update the item using partial update
+        Item partialUpdatedItem = new Item();
+        partialUpdatedItem.setId(item.getId());
+
+        partialUpdatedItem
+            .link(UPDATED_LINK)
+            .active(UPDATED_ACTIVE)
+            .createdAt(UPDATED_CREATED_AT)
+            .updatedAt(UPDATED_UPDATED_AT)
+            .deletedAt(UPDATED_DELETED_AT);
+
+        restItemMockMvc
+            .perform(
+                patch(ENTITY_API_URL_ID, partialUpdatedItem.getId())
+                    .with(csrf())
+                    .contentType("application/merge-patch+json")
+                    .content(TestUtil.convertObjectToJsonBytes(partialUpdatedItem))
+            )
+            .andExpect(status().isOk());
+
+        // Validate the Item in the database
+        List<Item> itemList = itemRepository.findAll();
+        assertThat(itemList).hasSize(databaseSizeBeforeUpdate);
+        Item testItem = itemList.get(itemList.size() - 1);
+        assertThat(testItem.getTitle()).isEqualTo(DEFAULT_TITLE);
+        assertThat(testItem.getDescription()).isEqualTo(DEFAULT_DESCRIPTION);
+        assertThat(testItem.getPrice()).isEqualTo(DEFAULT_PRICE);
+        assertThat(testItem.getLink()).isEqualTo(UPDATED_LINK);
+        assertThat(testItem.getOwnerName()).isEqualTo(DEFAULT_OWNER_NAME);
+        assertThat(testItem.getOwnerLink()).isEqualTo(DEFAULT_OWNER_LINK);
+        assertThat(testItem.getImage()).isEqualTo(DEFAULT_IMAGE);
+        assertThat(testItem.getActive()).isEqualTo(UPDATED_ACTIVE);
+        assertThat(testItem.getCreatedAt()).isEqualTo(UPDATED_CREATED_AT);
+        assertThat(testItem.getUpdatedAt()).isEqualTo(UPDATED_UPDATED_AT);
+        assertThat(testItem.getDeletedAt()).isEqualTo(UPDATED_DELETED_AT);
+    }
+
+    @Test
+    @Transactional
+    void fullUpdateItemWithPatch() throws Exception {
+        // Initialize the database
+        itemRepository.saveAndFlush(item);
+
+        int databaseSizeBeforeUpdate = itemRepository.findAll().size();
+
+        // Update the item using partial update
+        Item partialUpdatedItem = new Item();
+        partialUpdatedItem.setId(item.getId());
+
+        partialUpdatedItem
+            .title(UPDATED_TITLE)
+            .description(UPDATED_DESCRIPTION)
+            .price(UPDATED_PRICE)
+            .link(UPDATED_LINK)
+            .ownerName(UPDATED_OWNER_NAME)
+            .ownerLink(UPDATED_OWNER_LINK)
+            .image(UPDATED_IMAGE)
+            .active(UPDATED_ACTIVE)
+            .createdAt(UPDATED_CREATED_AT)
+            .updatedAt(UPDATED_UPDATED_AT)
+            .deletedAt(UPDATED_DELETED_AT);
+
+        restItemMockMvc
+            .perform(
+                patch(ENTITY_API_URL_ID, partialUpdatedItem.getId())
+                    .with(csrf())
+                    .contentType("application/merge-patch+json")
+                    .content(TestUtil.convertObjectToJsonBytes(partialUpdatedItem))
+            )
+            .andExpect(status().isOk());
+
+        // Validate the Item in the database
+        List<Item> itemList = itemRepository.findAll();
+        assertThat(itemList).hasSize(databaseSizeBeforeUpdate);
+        Item testItem = itemList.get(itemList.size() - 1);
+        assertThat(testItem.getTitle()).isEqualTo(UPDATED_TITLE);
+        assertThat(testItem.getDescription()).isEqualTo(UPDATED_DESCRIPTION);
+        assertThat(testItem.getPrice()).isEqualTo(UPDATED_PRICE);
+        assertThat(testItem.getLink()).isEqualTo(UPDATED_LINK);
+        assertThat(testItem.getOwnerName()).isEqualTo(UPDATED_OWNER_NAME);
+        assertThat(testItem.getOwnerLink()).isEqualTo(UPDATED_OWNER_LINK);
+        assertThat(testItem.getImage()).isEqualTo(UPDATED_IMAGE);
+        assertThat(testItem.getActive()).isEqualTo(UPDATED_ACTIVE);
+        assertThat(testItem.getCreatedAt()).isEqualTo(UPDATED_CREATED_AT);
+        assertThat(testItem.getUpdatedAt()).isEqualTo(UPDATED_UPDATED_AT);
+        assertThat(testItem.getDeletedAt()).isEqualTo(UPDATED_DELETED_AT);
+    }
+
+    @Test
+    @Transactional
+    void patchNonExistingItem() throws Exception {
+        int databaseSizeBeforeUpdate = itemRepository.findAll().size();
+        item.setId(count.incrementAndGet());
+
+        // Create the Item
+        ItemDTO itemDTO = itemMapper.toDto(item);
+
+        // If the entity doesn't have an ID, it will throw BadRequestAlertException
+        restItemMockMvc
+            .perform(
+                patch(ENTITY_API_URL_ID, itemDTO.getId())
+                    .with(csrf())
+                    .contentType("application/merge-patch+json")
+                    .content(TestUtil.convertObjectToJsonBytes(itemDTO))
+            )
+            .andExpect(status().isBadRequest());
+
+        // Validate the Item in the database
+        List<Item> itemList = itemRepository.findAll();
+        assertThat(itemList).hasSize(databaseSizeBeforeUpdate);
+
+        // Validate the Item in Elasticsearch
+        verify(mockItemSearchRepository, times(0)).save(item);
+    }
+
+    @Test
+    @Transactional
+    void patchWithIdMismatchItem() throws Exception {
+        int databaseSizeBeforeUpdate = itemRepository.findAll().size();
+        item.setId(count.incrementAndGet());
+
+        // Create the Item
+        ItemDTO itemDTO = itemMapper.toDto(item);
+
+        // If url ID doesn't match entity ID, it will throw BadRequestAlertException
+        restItemMockMvc
+            .perform(
+                patch(ENTITY_API_URL_ID, count.incrementAndGet())
+                    .with(csrf())
+                    .contentType("application/merge-patch+json")
+                    .content(TestUtil.convertObjectToJsonBytes(itemDTO))
+            )
+            .andExpect(status().isBadRequest());
+
+        // Validate the Item in the database
+        List<Item> itemList = itemRepository.findAll();
+        assertThat(itemList).hasSize(databaseSizeBeforeUpdate);
+
+        // Validate the Item in Elasticsearch
+        verify(mockItemSearchRepository, times(0)).save(item);
+    }
+
+    @Test
+    @Transactional
+    void patchWithMissingIdPathParamItem() throws Exception {
+        int databaseSizeBeforeUpdate = itemRepository.findAll().size();
+        item.setId(count.incrementAndGet());
+
+        // Create the Item
+        ItemDTO itemDTO = itemMapper.toDto(item);
+
+        // If url ID doesn't match entity ID, it will throw BadRequestAlertException
+        restItemMockMvc
+            .perform(
+                patch(ENTITY_API_URL)
+                    .with(csrf())
+                    .contentType("application/merge-patch+json")
+                    .content(TestUtil.convertObjectToJsonBytes(itemDTO))
+            )
+            .andExpect(status().isMethodNotAllowed());
+
+        // Validate the Item in the database
+        List<Item> itemList = itemRepository.findAll();
+        assertThat(itemList).hasSize(databaseSizeBeforeUpdate);
+
+        // Validate the Item in Elasticsearch
+        verify(mockItemSearchRepository, times(0)).save(item);
+    }
+
+    @Test
+    @Transactional
+    void deleteItem() throws Exception {
         // Initialize the database
         itemRepository.saveAndFlush(item);
 
         int databaseSizeBeforeDelete = itemRepository.findAll().size();
 
         // Delete the item
-        restItemMockMvc.perform(delete("/api/items/{id}", item.getId())
-            .accept(TestUtil.APPLICATION_JSON_UTF8))
+        restItemMockMvc
+            .perform(delete(ENTITY_API_URL_ID, item.getId()).with(csrf()).accept(MediaType.APPLICATION_JSON))
             .andExpect(status().isNoContent());
 
         // Validate the database contains one less item
@@ -407,15 +633,18 @@ public class ItemResourceIT {
 
     @Test
     @Transactional
-    public void searchItem() throws Exception {
+    void searchItem() throws Exception {
+        // Configure the mock search repository
         // Initialize the database
         itemRepository.saveAndFlush(item);
         when(mockItemSearchRepository.search(queryStringQuery("id:" + item.getId()), PageRequest.of(0, 20)))
             .thenReturn(new PageImpl<>(Collections.singletonList(item), PageRequest.of(0, 1), 1));
+
         // Search the item
-        restItemMockMvc.perform(get("/api/_search/items?query=id:" + item.getId()))
+        restItemMockMvc
+            .perform(get(ENTITY_SEARCH_API_URL + "?query=id:" + item.getId()))
             .andExpect(status().isOk())
-            .andExpect(content().contentType(MediaType.APPLICATION_JSON_UTF8_VALUE))
+            .andExpect(content().contentType(MediaType.APPLICATION_JSON_VALUE))
             .andExpect(jsonPath("$.[*].id").value(hasItem(item.getId().intValue())))
             .andExpect(jsonPath("$.[*].title").value(hasItem(DEFAULT_TITLE)))
             .andExpect(jsonPath("$.[*].description").value(hasItem(DEFAULT_DESCRIPTION)))
@@ -428,43 +657,5 @@ public class ItemResourceIT {
             .andExpect(jsonPath("$.[*].createdAt").value(hasItem(sameInstant(DEFAULT_CREATED_AT))))
             .andExpect(jsonPath("$.[*].updatedAt").value(hasItem(sameInstant(DEFAULT_UPDATED_AT))))
             .andExpect(jsonPath("$.[*].deletedAt").value(hasItem(sameInstant(DEFAULT_DELETED_AT))));
-    }
-
-    @Test
-    @Transactional
-    public void equalsVerifier() throws Exception {
-        TestUtil.equalsVerifier(Item.class);
-        Item item1 = new Item();
-        item1.setId(1L);
-        Item item2 = new Item();
-        item2.setId(item1.getId());
-        assertThat(item1).isEqualTo(item2);
-        item2.setId(2L);
-        assertThat(item1).isNotEqualTo(item2);
-        item1.setId(null);
-        assertThat(item1).isNotEqualTo(item2);
-    }
-
-    @Test
-    @Transactional
-    public void dtoEqualsVerifier() throws Exception {
-        TestUtil.equalsVerifier(ItemDTO.class);
-        ItemDTO itemDTO1 = new ItemDTO();
-        itemDTO1.setId(1L);
-        ItemDTO itemDTO2 = new ItemDTO();
-        assertThat(itemDTO1).isNotEqualTo(itemDTO2);
-        itemDTO2.setId(itemDTO1.getId());
-        assertThat(itemDTO1).isEqualTo(itemDTO2);
-        itemDTO2.setId(2L);
-        assertThat(itemDTO1).isNotEqualTo(itemDTO2);
-        itemDTO1.setId(null);
-        assertThat(itemDTO1).isNotEqualTo(itemDTO2);
-    }
-
-    @Test
-    @Transactional
-    public void testEntityFromId() {
-        assertThat(itemMapper.fromId(42L).getId()).isEqualTo(42);
-        assertThat(itemMapper.fromId(null)).isNull();
     }
 }

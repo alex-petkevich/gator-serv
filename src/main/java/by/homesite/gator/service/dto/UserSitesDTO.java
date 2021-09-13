@@ -1,4 +1,5 @@
 package by.homesite.gator.service.dto;
+
 import java.io.Serializable;
 import java.util.Objects;
 
@@ -9,10 +10,7 @@ public class UserSitesDTO implements Serializable {
 
     private Long id;
 
-
-    private Long userId;
-
-    private String userLogin;
+    private UserDTO user;
 
     public Long getId() {
         return id;
@@ -22,20 +20,12 @@ public class UserSitesDTO implements Serializable {
         this.id = id;
     }
 
-    public Long getUserId() {
-        return userId;
+    public UserDTO getUser() {
+        return user;
     }
 
-    public void setUserId(Long userId) {
-        this.userId = userId;
-    }
-
-    public String getUserLogin() {
-        return userLogin;
-    }
-
-    public void setUserLogin(String userLogin) {
-        this.userLogin = userLogin;
+    public void setUser(UserDTO user) {
+        this.user = user;
     }
 
     @Override
@@ -43,28 +33,28 @@ public class UserSitesDTO implements Serializable {
         if (this == o) {
             return true;
         }
-        if (o == null || getClass() != o.getClass()) {
+        if (!(o instanceof UserSitesDTO)) {
             return false;
         }
 
         UserSitesDTO userSitesDTO = (UserSitesDTO) o;
-        if (userSitesDTO.getId() == null || getId() == null) {
+        if (this.id == null) {
             return false;
         }
-        return Objects.equals(getId(), userSitesDTO.getId());
+        return Objects.equals(this.id, userSitesDTO.id);
     }
 
     @Override
     public int hashCode() {
-        return Objects.hashCode(getId());
+        return Objects.hash(this.id);
     }
 
+    // prettier-ignore
     @Override
     public String toString() {
         return "UserSitesDTO{" +
             "id=" + getId() +
-            ", user=" + getUserId() +
-            ", user='" + getUserLogin() + "'" +
+            ", user=" + getUser() +
             "}";
     }
 }

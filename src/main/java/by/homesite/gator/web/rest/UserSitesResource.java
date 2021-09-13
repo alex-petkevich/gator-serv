@@ -1,25 +1,24 @@
 package by.homesite.gator.web.rest;
 
-import by.homesite.gator.service.UserSitesService;
-import by.homesite.gator.web.rest.errors.BadRequestAlertException;
-import by.homesite.gator.service.dto.UserSitesDTO;
+import static org.elasticsearch.index.query.QueryBuilders.*;
 
-import io.github.jhipster.web.util.HeaderUtil;
-import io.github.jhipster.web.util.ResponseUtil;
+import by.homesite.gator.repository.UserSitesRepository;
+import by.homesite.gator.service.UserSitesService;
+import by.homesite.gator.service.dto.UserSitesDTO;
+import by.homesite.gator.web.rest.errors.BadRequestAlertException;
+import java.net.URI;
+import java.net.URISyntaxException;
+import java.util.List;
+import java.util.Objects;
+import java.util.Optional;
+import java.util.stream.StreamSupport;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
-
-import java.net.URI;
-import java.net.URISyntaxException;
-
-import java.util.List;
-import java.util.Optional;
-import java.util.stream.StreamSupport;
-
-import static org.elasticsearch.index.query.QueryBuilders.*;
+import tech.jhipster.web.util.HeaderUtil;
+import tech.jhipster.web.util.ResponseUtil;
 
 /**
  * REST controller for managing {@link by.homesite.gator.domain.UserSites}.
@@ -37,8 +36,11 @@ public class UserSitesResource {
 
     private final UserSitesService userSitesService;
 
-    public UserSitesResource(UserSitesService userSitesService) {
+    private final UserSitesRepository userSitesRepository;
+
+    public UserSitesResource(UserSitesService userSitesService, UserSitesRepository userSitesRepository) {
         this.userSitesService = userSitesService;
+        this.userSitesRepository = userSitesRepository;
     }
 
     /**
@@ -55,36 +57,85 @@ public class UserSitesResource {
             throw new BadRequestAlertException("A new userSites cannot already have an ID", ENTITY_NAME, "idexists");
         }
         UserSitesDTO result = userSitesService.save(userSitesDTO);
-        return ResponseEntity.created(new URI("/api/user-sites/" + result.getId()))
+        return ResponseEntity
+            .created(new URI("/api/user-sites/" + result.getId()))
             .headers(HeaderUtil.createEntityCreationAlert(applicationName, true, ENTITY_NAME, result.getId().toString()))
             .body(result);
     }
 
     /**
-     * {@code PUT  /user-sites} : Updates an existing userSites.
+     * {@code PUT  /user-sites/:id} : Updates an existing userSites.
      *
+     * @param id the id of the userSitesDTO to save.
      * @param userSitesDTO the userSitesDTO to update.
      * @return the {@link ResponseEntity} with status {@code 200 (OK)} and with body the updated userSitesDTO,
      * or with status {@code 400 (Bad Request)} if the userSitesDTO is not valid,
      * or with status {@code 500 (Internal Server Error)} if the userSitesDTO couldn't be updated.
      * @throws URISyntaxException if the Location URI syntax is incorrect.
      */
-    @PutMapping("/user-sites")
-    public ResponseEntity<UserSitesDTO> updateUserSites(@RequestBody UserSitesDTO userSitesDTO) throws URISyntaxException {
-        log.debug("REST request to update UserSites : {}", userSitesDTO);
+    @PutMapping("/user-sites/{id}")
+    public ResponseEntity<UserSitesDTO> updateUserSites(
+        @PathVariable(value = "id", required = false) final Long id,
+        @RequestBody UserSitesDTO userSitesDTO
+    ) throws URISyntaxException {
+        log.debug("REST request to update UserSites : {}, {}", id, userSitesDTO);
         if (userSitesDTO.getId() == null) {
             throw new BadRequestAlertException("Invalid id", ENTITY_NAME, "idnull");
         }
+        if (!Objects.equals(id, userSitesDTO.getId())) {
+            throw new BadRequestAlertException("Invalid ID", ENTITY_NAME, "idinvalid");
+        }
+
+        if (!userSitesRepository.existsById(id)) {
+            throw new BadRequestAlertException("Entity not found", ENTITY_NAME, "idnotfound");
+        }
+
         UserSitesDTO result = userSitesService.save(userSitesDTO);
-        return ResponseEntity.ok()
+        return ResponseEntity
+            .ok()
             .headers(HeaderUtil.createEntityUpdateAlert(applicationName, true, ENTITY_NAME, userSitesDTO.getId().toString()))
             .body(result);
     }
 
     /**
+     * {@code PATCH  /user-sites/:id} : Partial updates given fields of an existing userSites, field will ignore if it is null
+     *
+     * @param id the id of the userSitesDTO to save.
+     * @param userSitesDTO the userSitesDTO to update.
+     * @return the {@link ResponseEntity} with status {@code 200 (OK)} and with body the updated userSitesDTO,
+     * or with status {@code 400 (Bad Request)} if the userSitesDTO is not valid,
+     * or with status {@code 404 (Not Found)} if the userSitesDTO is not found,
+     * or with status {@code 500 (Internal Server Error)} if the userSitesDTO couldn't be updated.
+     * @throws URISyntaxException if the Location URI syntax is incorrect.
+     */
+    @PatchMapping(value = "/user-sites/{id}", consumes = "application/merge-patch+json")
+    public ResponseEntity<UserSitesDTO> partialUpdateUserSites(
+        @PathVariable(value = "id", required = false) final Long id,
+        @RequestBody UserSitesDTO userSitesDTO
+    ) throws URISyntaxException {
+        log.debug("REST request to partial update UserSites partially : {}, {}", id, userSitesDTO);
+        if (userSitesDTO.getId() == null) {
+            throw new BadRequestAlertException("Invalid id", ENTITY_NAME, "idnull");
+        }
+        if (!Objects.equals(id, userSitesDTO.getId())) {
+            throw new BadRequestAlertException("Invalid ID", ENTITY_NAME, "idinvalid");
+        }
+
+        if (!userSitesRepository.existsById(id)) {
+            throw new BadRequestAlertException("Entity not found", ENTITY_NAME, "idnotfound");
+        }
+
+        Optional<UserSitesDTO> result = userSitesService.partialUpdate(userSitesDTO);
+
+        return ResponseUtil.wrapOrNotFound(
+            result,
+            HeaderUtil.createEntityUpdateAlert(applicationName, true, ENTITY_NAME, userSitesDTO.getId().toString())
+        );
+    }
+
+    /**
      * {@code GET  /user-sites} : get all the userSites.
      *
-
      * @return the {@link ResponseEntity} with status {@code 200 (OK)} and the list of userSites in body.
      */
     @GetMapping("/user-sites")
@@ -116,7 +167,10 @@ public class UserSitesResource {
     public ResponseEntity<Void> deleteUserSites(@PathVariable Long id) {
         log.debug("REST request to delete UserSites : {}", id);
         userSitesService.delete(id);
-        return ResponseEntity.noContent().headers(HeaderUtil.createEntityDeletionAlert(applicationName, true, ENTITY_NAME, id.toString())).build();
+        return ResponseEntity
+            .noContent()
+            .headers(HeaderUtil.createEntityDeletionAlert(applicationName, true, ENTITY_NAME, id.toString()))
+            .build();
     }
 
     /**
@@ -131,5 +185,4 @@ public class UserSitesResource {
         log.debug("REST request to search UserSites for query {}", query);
         return userSitesService.search(query);
     }
-
 }

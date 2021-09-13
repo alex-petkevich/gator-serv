@@ -6,5 +6,4 @@ import org.springframework.data.elasticsearch.repository.ElasticsearchRepository
 /**
  * Spring Data Elasticsearch repository for the {@link Rate} entity.
  */
-public interface RateSearchRepository extends ElasticsearchRepository<Rate, Long> {
-}
+public interface RateSearchRepository extends ElasticsearchRepository<Rate, Long> {}

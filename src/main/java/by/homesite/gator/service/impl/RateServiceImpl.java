@@ -1,24 +1,22 @@
 package by.homesite.gator.service.impl;
 
-import by.homesite.gator.service.RateService;
+import static org.elasticsearch.index.query.QueryBuilders.*;
+
 import by.homesite.gator.domain.Rate;
 import by.homesite.gator.repository.RateRepository;
 import by.homesite.gator.repository.search.RateSearchRepository;
+import by.homesite.gator.service.RateService;
 import by.homesite.gator.service.dto.RateDTO;
 import by.homesite.gator.service.mapper.RateMapper;
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
-
-import org.springframework.stereotype.Service;
-import org.springframework.transaction.annotation.Transactional;
-
 import java.util.LinkedList;
 import java.util.List;
 import java.util.Optional;
 import java.util.stream.Collectors;
 import java.util.stream.StreamSupport;
-
-import static org.elasticsearch.index.query.QueryBuilders.*;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
+import org.springframework.stereotype.Service;
+import org.springframework.transaction.annotation.Transactional;
 
 /**
  * Service Implementation for managing {@link Rate}.
@@ -41,12 +39,6 @@ public class RateServiceImpl implements RateService {
         this.rateSearchRepository = rateSearchRepository;
     }
 
-    /**
-     * Save a rate.
-     *
-     * @param rateDTO the entity to save.
-     * @return the persisted entity.
-     */
     @Override
     public RateDTO save(RateDTO rateDTO) {
         log.debug("Request to save Rate : {}", rateDTO);
@@ -57,40 +49,44 @@ public class RateServiceImpl implements RateService {
         return result;
     }
 
-    /**
-     * Get all the rates.
-     *
-     * @return the list of entities.
-     */
+    @Override
+    public Optional<RateDTO> partialUpdate(RateDTO rateDTO) {
+        log.debug("Request to partially update Rate : {}", rateDTO);
+
+        return rateRepository
+            .findById(rateDTO.getId())
+            .map(
+                existingRate -> {
+                    rateMapper.partialUpdate(existingRate, rateDTO);
+
+                    return existingRate;
+                }
+            )
+            .map(rateRepository::save)
+            .map(
+                savedRate -> {
+                    rateSearchRepository.save(savedRate);
+
+                    return savedRate;
+                }
+            )
+            .map(rateMapper::toDto);
+    }
+
     @Override
     @Transactional(readOnly = true)
     public List<RateDTO> findAll() {
         log.debug("Request to get all Rates");
-        return rateRepository.findAll().stream()
-            .map(rateMapper::toDto)
-            .collect(Collectors.toCollection(LinkedList::new));
+        return rateRepository.findAll().stream().map(rateMapper::toDto).collect(Collectors.toCollection(LinkedList::new));
     }
 
-
-    /**
-     * Get one rate by id.
-     *
-     * @param id the id of the entity.
-     * @return the entity.
-     */
     @Override
     @Transactional(readOnly = true)
     public Optional<RateDTO> findOne(Long id) {
         log.debug("Request to get Rate : {}", id);
-        return rateRepository.findById(id)
-            .map(rateMapper::toDto);
+        return rateRepository.findById(id).map(rateMapper::toDto);
     }
 
-    /**
-     * Delete the rate by id.
-     *
-     * @param id the id of the entity.
-     */
     @Override
     public void delete(Long id) {
         log.debug("Request to delete Rate : {}", id);
@@ -98,12 +94,6 @@ public class RateServiceImpl implements RateService {
         rateSearchRepository.deleteById(id);
     }
 
-    /**
-     * Search for the rate corresponding to the query.
-     *
-     * @param query the query of the search.
-     * @return the list of entities.
-     */
     @Override
     @Transactional(readOnly = true)
     public List<RateDTO> search(String query) {
