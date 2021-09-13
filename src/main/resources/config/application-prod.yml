@@ -16,8 +16,8 @@
 logging:
   level:
     ROOT: INFO
+    tech.jhipster: INFO
     by.homesite.gator: INFO
-    io.github.jhipster: INFO
 
 management:
   metrics:
@@ -54,9 +54,9 @@ spring:
       hibernate.cache.use_second_level_cache: true
       hibernate.cache.use_query_cache: false
       hibernate.generate_statistics: false
-  data:
-    jest:
-      uri: http://localhost:9200
+  #data:
+  #  jest:
+  #    uri: http://localhost:9200
   # see https://docs.spring.io/spring-boot/docs/current/reference/html/boot-features-nosql.html#boot-features-connecting-to-elasticsearch-jest
   elasticsearch:
     rest:
@@ -65,10 +65,16 @@ spring:
   liquibase:
     contexts: prod
   mail:
-    host: localhost
-    port: 25
-    username:
-    password:
+    host: smtp.gmail.com
+    port: 587
+    username: mrdoggy.all@gmail.com #Replace this field with your Gmail username.
+    password: !qazxsw2 #Replace this field with your Gmail password/App password.
+
+    protocol: smtp
+    properties.mail.smtp:
+      auth: true
+      starttls.enable: true
+      ssl.trust: smtp.gmail.com
   thymeleaf:
     cache: true
 
@@ -93,6 +99,7 @@ spring:
 # ===================================================================
 server:
   port: 8899
+  shutdown: graceful # see https://docs.spring.io/spring-boot/docs/current/reference/html/spring-boot-features.html#boot-features-graceful-shutdown
   compression:
     enabled: true
     mime-types: text/html,text/xml,text/plain,text/css, application/javascript, application/json
@@ -118,10 +125,10 @@ jhipster:
       key: 320bb523b651c669faaf027266d8bc33a98c461e73ba9747f79166d21a9f16ae2d6f6af8d9dd145794d40528d2a67c4c7c8b
   mail: # specific JHipster mail property, for standard properties see MailProperties
     base-url: http://gator.homesite.by # Modify according to your server's URL
-  metrics:
-    logs: # Reports metrics in the logs
-      enabled: false
-      report-frequency: 60 # in seconds
+  #  metrics:
+  #    logs: # Reports metrics in the logs
+  #      enabled: false
+  #      report-frequency: 60 # in seconds
   logging:
     use-json-format: false # By default, logs are not in Json format
     logstash: # Forward logs to logstash over a socket, used by LoggingConfiguration

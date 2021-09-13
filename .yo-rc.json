@@ -31,10 +31,7 @@
     "enableTranslation": true,
     "clientPackageManager": "npm",
     "nativeLanguage": "en",
-    "languages": [
-      "en",
-      "ru"
-    ],
+    "languages": ["en", "ru"],
     "blueprints": [],
     "skipClient": true
   }

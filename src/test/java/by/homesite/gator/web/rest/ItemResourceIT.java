@@ -1,5 +1,14 @@
 package by.homesite.gator.web.rest;
 
+import static by.homesite.gator.web.rest.TestUtil.createFormattingConversionService;
+import static by.homesite.gator.web.rest.TestUtil.sameInstant;
+import static org.assertj.core.api.Assertions.assertThat;
+import static org.elasticsearch.index.query.QueryBuilders.queryStringQuery;
+import static org.hamcrest.Matchers.hasItem;
+import static org.mockito.Mockito.*;
+import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.*;
+import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.*;
+
 import by.homesite.gator.GatorApp;
 import by.homesite.gator.domain.Item;
 import by.homesite.gator.repository.ItemRepository;
@@ -8,7 +17,13 @@ import by.homesite.gator.service.ItemService;
 import by.homesite.gator.service.dto.ItemDTO;
 import by.homesite.gator.service.mapper.ItemMapper;
 import by.homesite.gator.web.rest.errors.ExceptionTranslator;
-
+import java.time.Instant;
+import java.time.ZoneId;
+import java.time.ZoneOffset;
+import java.time.ZonedDateTime;
+import java.util.Collections;
+import java.util.List;
+import javax.persistence.EntityManager;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 import org.mockito.MockitoAnnotations;
@@ -23,23 +38,6 @@ import org.springframework.test.web.servlet.MockMvc;
 import org.springframework.test.web.servlet.setup.MockMvcBuilders;
 import org.springframework.transaction.annotation.Transactional;
 import org.springframework.validation.Validator;
-
-import javax.persistence.EntityManager;
-import java.time.Instant;
-import java.time.ZonedDateTime;
-import java.time.ZoneOffset;
-import java.time.ZoneId;
-import java.util.Collections;
-import java.util.List;
-
-import static by.homesite.gator.web.rest.TestUtil.sameInstant;
-import static by.homesite.gator.web.rest.TestUtil.createFormattingConversionService;
-import static org.assertj.core.api.Assertions.assertThat;
-import static org.elasticsearch.index.query.QueryBuilders.queryStringQuery;
-import static org.hamcrest.Matchers.hasItem;
-import static org.mockito.Mockito.*;
-import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.*;
-import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.*;
 
 /**
  * Integration tests for the {@link ItemResource} REST controller.
@@ -123,13 +121,16 @@ public class ItemResourceIT {
     @BeforeEach
     public void setup() {
         MockitoAnnotations.initMocks(this);
-        final ItemResource itemResource = new ItemResource(itemService);
-        this.restItemMockMvc = MockMvcBuilders.standaloneSetup(itemResource)
-            .setCustomArgumentResolvers(pageableArgumentResolver)
-            .setControllerAdvice(exceptionTranslator)
-            .setConversionService(createFormattingConversionService())
-            .setMessageConverters(jacksonMessageConverter)
-            .setValidator(validator).build();
+        final ItemResource itemResource = new ItemResource(itemService, itemRepository);
+        this.restItemMockMvc =
+            MockMvcBuilders
+                .standaloneSetup(itemResource)
+                .setCustomArgumentResolvers(pageableArgumentResolver)
+                .setControllerAdvice(exceptionTranslator)
+                .setConversionService(createFormattingConversionService())
+                .setMessageConverters(jacksonMessageConverter)
+                .setValidator(validator)
+                .build();
     }
 
     /**
@@ -153,6 +154,7 @@ public class ItemResourceIT {
             .deletedAt(DEFAULT_DELETED_AT);
         return item;
     }
+
     /**
      * Create an updated entity for this test.
      *
@@ -222,10 +224,7 @@ public class ItemResourceIT {
         ItemDTO itemDTO = itemMapper.toDto(item);
 
         // An entity with an existing ID cannot be created, so this API call must fail
-        restItemMockMvc.perform(post("/api/items")
-            .contentType(TestUtil.APPLICATION_JSON_UTF8)
-            .content(TestUtil.convertObjectToJsonBytes(itemDTO)))
-            .andExpect(status().isBadRequest());
+        restItemMockMvc.perform(post("/api/items").content(TestUtil.convertObjectToJsonBytes(itemDTO))).andExpect(status().isBadRequest());
 
         // Validate the Item in the database
         List<Item> itemList = itemRepository.findAll();
@@ -234,7 +233,6 @@ public class ItemResourceIT {
         // Validate the Item in Elasticsearch
         verify(mockItemSearchRepository, times(0)).save(item);
     }
-
 
     @Test
     @Transactional
@@ -246,16 +244,13 @@ public class ItemResourceIT {
         // Create the Item, which fails.
         ItemDTO itemDTO = itemMapper.toDto(item);
 
-        restItemMockMvc.perform(post("/api/items")
-            .contentType(TestUtil.APPLICATION_JSON_UTF8)
-            .content(TestUtil.convertObjectToJsonBytes(itemDTO)))
-            .andExpect(status().isBadRequest());
+        restItemMockMvc.perform(post("/api/items").content(TestUtil.convertObjectToJsonBytes(itemDTO))).andExpect(status().isBadRequest());
 
         List<Item> itemList = itemRepository.findAll();
         assertThat(itemList).hasSize(databaseSizeBeforeTest);
     }
 
-   /* @Test
+    /* @Test
     @Transactional
     public void getAllItems() throws Exception {
         // Initialize the database
@@ -307,8 +302,7 @@ public class ItemResourceIT {
     @Transactional
     public void getNonExistingItem() throws Exception {
         // Get the item
-        restItemMockMvc.perform(get("/api/items/{id}", Long.MAX_VALUE))
-            .andExpect(status().isNotFound());
+        restItemMockMvc.perform(get("/api/items/{id}", Long.MAX_VALUE)).andExpect(status().isNotFound());
     }
 
     /*@Test
@@ -371,10 +365,7 @@ public class ItemResourceIT {
         ItemDTO itemDTO = itemMapper.toDto(item);
 
         // If the entity doesn't have an ID, it will throw BadRequestAlertException
-        restItemMockMvc.perform(put("/api/items")
-            .contentType(TestUtil.APPLICATION_JSON_UTF8)
-            .content(TestUtil.convertObjectToJsonBytes(itemDTO)))
-            .andExpect(status().isBadRequest());
+        restItemMockMvc.perform(put("/api/items").content(TestUtil.convertObjectToJsonBytes(itemDTO))).andExpect(status().isBadRequest());
 
         // Validate the Item in the database
         List<Item> itemList = itemRepository.findAll();
@@ -459,12 +450,5 @@ public class ItemResourceIT {
         assertThat(itemDTO1).isNotEqualTo(itemDTO2);
         itemDTO1.setId(null);
         assertThat(itemDTO1).isNotEqualTo(itemDTO2);
-    }
-
-    @Test
-    @Transactional
-    public void testEntityFromId() {
-        assertThat(itemMapper.fromId(42L).getId()).isEqualTo(42);
-        assertThat(itemMapper.fromId(null)).isNull();
     }
 }

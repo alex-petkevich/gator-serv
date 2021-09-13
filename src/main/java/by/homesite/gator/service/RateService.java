@@ -1,17 +1,13 @@
 package by.homesite.gator.service;
 
 import by.homesite.gator.service.dto.RateDTO;
-
-import java.io.IOException;
 import java.util.List;
-import java.util.Map;
 import java.util.Optional;
 
 /**
  * Service Interface for managing {@link by.homesite.gator.domain.Rate}.
  */
 public interface RateService {
-
     /**
      * Save a rate.
      *
@@ -21,12 +17,19 @@ public interface RateService {
     RateDTO save(RateDTO rateDTO);
 
     /**
+     * Partially updates a rate.
+     *
+     * @param rateDTO the entity to update partially.
+     * @return the persisted entity.
+     */
+    Optional<RateDTO> partialUpdate(RateDTO rateDTO);
+
+    /**
      * Get all the rates.
      *
      * @return the list of entities.
      */
     List<RateDTO> findAll();
-
 
     /**
      * Get the "id" rate.

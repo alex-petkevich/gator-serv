@@ -3,10 +3,8 @@ package by.homesite.gator.web.websocket;
 import static by.homesite.gator.config.WebsocketConfiguration.IP_ADDRESS;
 
 import by.homesite.gator.web.websocket.dto.ActivityDTO;
-
 import java.security.Principal;
 import java.time.Instant;
-
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.context.ApplicationListener;

@@ -1,10 +1,12 @@
 package by.homesite.gator.web.rest;
 
+import by.homesite.gator.service.NotificationService;
+import by.homesite.gator.service.dto.NotificationDTO;
+import by.homesite.gator.web.rest.errors.BadRequestAlertException;
 import java.net.URI;
 import java.net.URISyntaxException;
 import java.util.List;
 import java.util.Optional;
-
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Value;
@@ -17,20 +19,15 @@ import org.springframework.web.bind.annotation.PutMapping;
 import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RestController;
-
-import by.homesite.gator.service.NotificationService;
-import by.homesite.gator.service.dto.NotificationDTO;
-import by.homesite.gator.web.rest.errors.BadRequestAlertException;
-import io.github.jhipster.web.util.HeaderUtil;
-import io.github.jhipster.web.util.ResponseUtil;
+import tech.jhipster.web.util.HeaderUtil;
+import tech.jhipster.web.util.ResponseUtil;
 
 /**
  * REST controller for managing {@link by.homesite.gator.domain.Notification}.
  */
 @RestController
 @RequestMapping("/api")
-public class NotificationResource
-{
+public class NotificationResource {
 
     private final Logger log = LoggerFactory.getLogger(NotificationResource.class);
 
@@ -59,7 +56,8 @@ public class NotificationResource
             throw new BadRequestAlertException("A new notification cannot already have an ID", ENTITY_NAME, "idexists");
         }
         NotificationDTO result = notificationService.save(notificationDTO);
-        return ResponseEntity.created(new URI("/api/notification/" + result.getId()))
+        return ResponseEntity
+            .created(new URI("/api/notification/" + result.getId()))
             .headers(HeaderUtil.createEntityCreationAlert(applicationName, true, ENTITY_NAME, result.getId().toString()))
             .body(result);
     }
@@ -80,7 +78,8 @@ public class NotificationResource
             throw new BadRequestAlertException("Invalid id", ENTITY_NAME, "idnull");
         }
         NotificationDTO result = notificationService.save(notificationDTO);
-        return ResponseEntity.ok()
+        return ResponseEntity
+            .ok()
             .headers(HeaderUtil.createEntityUpdateAlert(applicationName, true, ENTITY_NAME, notificationDTO.getId().toString()))
             .body(result);
     }
@@ -120,6 +119,9 @@ public class NotificationResource
     public ResponseEntity<Void> deleteNotification(@PathVariable Long id) {
         log.debug("REST request to delete notification : {}", id);
         notificationService.delete(id);
-        return ResponseEntity.noContent().headers(HeaderUtil.createEntityDeletionAlert(applicationName, true, ENTITY_NAME, id.toString())).build();
+        return ResponseEntity
+            .noContent()
+            .headers(HeaderUtil.createEntityDeletionAlert(applicationName, true, ENTITY_NAME, id.toString()))
+            .build();
     }
 }

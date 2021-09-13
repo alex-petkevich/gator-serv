@@ -1,4 +1,5 @@
 package by.homesite.gator.service.dto;
+
 import java.io.Serializable;
 import java.math.BigDecimal;
 import java.util.Objects;
@@ -73,22 +74,23 @@ public class RateDTO implements Serializable {
         if (this == o) {
             return true;
         }
-        if (o == null || getClass() != o.getClass()) {
+        if (!(o instanceof RateDTO)) {
             return false;
         }
 
         RateDTO rateDTO = (RateDTO) o;
-        if (rateDTO.getId() == null || getId() == null) {
+        if (this.id == null) {
             return false;
         }
-        return Objects.equals(getId(), rateDTO.getId());
+        return Objects.equals(this.id, rateDTO.id);
     }
 
     @Override
     public int hashCode() {
-        return Objects.hashCode(getId());
+        return Objects.hash(this.id);
     }
 
+    // prettier-ignore
     @Override
     public String toString() {
         return "RateDTO{" +

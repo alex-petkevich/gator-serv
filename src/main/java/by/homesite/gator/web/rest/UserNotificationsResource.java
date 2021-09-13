@@ -1,11 +1,17 @@
 package by.homesite.gator.web.rest;
 
+import by.homesite.gator.repository.UserRepository;
+import by.homesite.gator.security.SecurityUtils;
+import by.homesite.gator.service.NotificationService;
+import by.homesite.gator.service.UserNotificationsService;
+import by.homesite.gator.service.UserSearchesService;
+import by.homesite.gator.service.dto.UserNotificationsDTO;
+import by.homesite.gator.web.rest.errors.BadRequestAlertException;
 import java.net.URI;
 import java.net.URISyntaxException;
 import java.time.ZonedDateTime;
 import java.util.List;
 import java.util.Optional;
-
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Value;
@@ -18,24 +24,15 @@ import org.springframework.web.bind.annotation.PutMapping;
 import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RestController;
-
-import by.homesite.gator.repository.UserRepository;
-import by.homesite.gator.security.SecurityUtils;
-import by.homesite.gator.service.NotificationService;
-import by.homesite.gator.service.UserNotificationsService;
-import by.homesite.gator.service.UserSearchesService;
-import by.homesite.gator.service.dto.UserNotificationsDTO;
-import by.homesite.gator.web.rest.errors.BadRequestAlertException;
-import io.github.jhipster.web.util.HeaderUtil;
-import io.github.jhipster.web.util.ResponseUtil;
+import tech.jhipster.web.util.HeaderUtil;
+import tech.jhipster.web.util.ResponseUtil;
 
 /**
  * REST controller for managing {@link by.homesite.gator.domain.Notification}.
  */
 @RestController
 @RequestMapping("/api")
-public class UserNotificationsResource
-{
+public class UserNotificationsResource {
 
     private final Logger log = LoggerFactory.getLogger(UserNotificationsResource.class);
 
@@ -50,7 +47,12 @@ public class UserNotificationsResource
     private final NotificationService notificationService;
     private UserRepository userRepository;
 
-    public UserNotificationsResource(UserNotificationsService userNotificationsService, UserRepository userRepository, UserSearchesService userSearchesService, NotificationService notificationService) {
+    public UserNotificationsResource(
+        UserNotificationsService userNotificationsService,
+        UserRepository userRepository,
+        UserSearchesService userSearchesService,
+        NotificationService notificationService
+    ) {
         this.userNotificationsService = userNotificationsService;
         this.userSearchesService = userSearchesService;
         this.userRepository = userRepository;
@@ -65,7 +67,8 @@ public class UserNotificationsResource
      * @throws URISyntaxException if the Location URI syntax is incorrect.
      */
     @PostMapping("/user-notifications")
-    public ResponseEntity<UserNotificationsDTO> createUserNotifications(@RequestBody UserNotificationsDTO userNotificationsDTO) throws URISyntaxException {
+    public ResponseEntity<UserNotificationsDTO> createUserNotifications(@RequestBody UserNotificationsDTO userNotificationsDTO)
+        throws URISyntaxException {
         log.debug("REST request to save notification : {}", userNotificationsDTO);
         if (userNotificationsDTO.getId() != null) {
             throw new BadRequestAlertException("A new notification cannot already have an ID", ENTITY_NAME, "idexists");
@@ -80,10 +83,15 @@ public class UserNotificationsResource
             throw new BadRequestAlertException("User not logged in", ENTITY_NAME, "loginrequired");
         }
 
-        Long userId = userRepository.findOneByLogin(SecurityUtils.getCurrentUserLogin().get()).get().getId() ;
+        Long userId = userRepository.findOneByLogin(SecurityUtils.getCurrentUserLogin().get()).get().getId();
         userNotificationsDTO.setUserId(userId);
 
-        if (userNotificationsService.findUsersNotificationsForSearch(userId, userNotificationsDTO.getNotificationId(), userNotificationsDTO.getUserSearchesId()).size() > 0) {
+        if (
+            userNotificationsService
+                .findUsersNotificationsForSearch(userId, userNotificationsDTO.getNotificationId(), userNotificationsDTO.getUserSearchesId())
+                .size() >
+            0
+        ) {
             throw new BadRequestAlertException("Notification for this filter already exists", ENTITY_NAME, "nameexists");
         }
         userNotificationsDTO.setIsActive(true);
@@ -91,7 +99,8 @@ public class UserNotificationsResource
         userNotificationsDTO.setLastSent(ZonedDateTime.now());
 
         UserNotificationsDTO result = userNotificationsService.save(userNotificationsDTO);
-        return ResponseEntity.created(new URI("/api/user-notifications/" + result.getId()))
+        return ResponseEntity
+            .created(new URI("/api/user-notifications/" + result.getId()))
             .headers(HeaderUtil.createEntityCreationAlert(applicationName, true, ENTITY_NAME, result.getId().toString()))
             .body(result);
     }
@@ -106,13 +115,15 @@ public class UserNotificationsResource
      * @throws URISyntaxException if the Location URI syntax is incorrect.
      */
     @PutMapping("/user-notifications")
-    public ResponseEntity<UserNotificationsDTO> updateUserNotifications(@RequestBody UserNotificationsDTO userNotificationsDTO) throws URISyntaxException {
+    public ResponseEntity<UserNotificationsDTO> updateUserNotifications(@RequestBody UserNotificationsDTO userNotificationsDTO)
+        throws URISyntaxException {
         log.debug("REST request to update user notifications : {}", userNotificationsDTO);
         if (userNotificationsDTO.getId() == null) {
             throw new BadRequestAlertException("Invalid id", ENTITY_NAME, "idnull");
         }
         UserNotificationsDTO result = userNotificationsService.save(userNotificationsDTO);
-        return ResponseEntity.ok()
+        return ResponseEntity
+            .ok()
             .headers(HeaderUtil.createEntityUpdateAlert(applicationName, true, ENTITY_NAME, userNotificationsDTO.getId().toString()))
             .body(result);
     }
@@ -152,6 +163,9 @@ public class UserNotificationsResource
     public ResponseEntity<Void> deleteUserNotifications(@PathVariable Long id) {
         log.debug("REST request to delete User Notifications : {}", id);
         userNotificationsService.delete(id);
-        return ResponseEntity.noContent().headers(HeaderUtil.createEntityDeletionAlert(applicationName, true, ENTITY_NAME, id.toString())).build();
+        return ResponseEntity
+            .noContent()
+            .headers(HeaderUtil.createEntityDeletionAlert(applicationName, true, ENTITY_NAME, id.toString()))
+            .build();
     }
 }

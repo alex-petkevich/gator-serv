@@ -1,10 +1,14 @@
 package by.homesite.gator.web.rest;
 
+import by.homesite.gator.repository.UserRepository;
+import by.homesite.gator.security.SecurityUtils;
+import by.homesite.gator.service.UserSearchesService;
+import by.homesite.gator.service.dto.UserSearchesDTO;
+import by.homesite.gator.web.rest.errors.BadRequestAlertException;
 import java.net.URI;
 import java.net.URISyntaxException;
 import java.util.List;
 import java.util.Optional;
-
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Value;
@@ -17,22 +21,15 @@ import org.springframework.web.bind.annotation.PutMapping;
 import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RestController;
-
-import by.homesite.gator.repository.UserRepository;
-import by.homesite.gator.security.SecurityUtils;
-import by.homesite.gator.service.UserSearchesService;
-import by.homesite.gator.service.dto.UserSearchesDTO;
-import by.homesite.gator.web.rest.errors.BadRequestAlertException;
-import io.github.jhipster.web.util.HeaderUtil;
-import io.github.jhipster.web.util.ResponseUtil;
+import tech.jhipster.web.util.HeaderUtil;
+import tech.jhipster.web.util.ResponseUtil;
 
 /**
  * REST controller for managing {@link by.homesite.gator.domain.UserSearches}.
  */
 @RestController
 @RequestMapping("/api")
-public class UserSearchesResource
-{
+public class UserSearchesResource {
 
     private final Logger log = LoggerFactory.getLogger(UserSearchesResource.class);
 
@@ -69,11 +66,12 @@ public class UserSearchesResource
             throw new BadRequestAlertException("User not logged in", ENTITY_NAME, "loginrequired");
         }
 
-        Long userId = userRepository.findOneByLogin(SecurityUtils.getCurrentUserLogin().get()).get().getId() ;
+        Long userId = userRepository.findOneByLogin(SecurityUtils.getCurrentUserLogin().get()).get().getId();
         userSearchesDTO.setUserId(userId);
 
         UserSearchesDTO result = userSearchesService.save(userSearchesDTO);
-        return ResponseEntity.created(new URI("/api/user-searches/" + result.getId()))
+        return ResponseEntity
+            .created(new URI("/api/user-searches/" + result.getId()))
             .headers(HeaderUtil.createEntityCreationAlert(applicationName, true, ENTITY_NAME, result.getId().toString()))
             .body(result);
     }
@@ -94,7 +92,8 @@ public class UserSearchesResource
             throw new BadRequestAlertException("Invalid id", ENTITY_NAME, "idnull");
         }
         UserSearchesDTO result = userSearchesService.save(userSearchesDTO);
-        return ResponseEntity.ok()
+        return ResponseEntity
+            .ok()
             .headers(HeaderUtil.createEntityUpdateAlert(applicationName, true, ENTITY_NAME, userSearchesDTO.getId().toString()))
             .body(result);
     }
@@ -134,7 +133,9 @@ public class UserSearchesResource
     public ResponseEntity<Void> deleteUserSearches(@PathVariable Long id) {
         log.debug("REST request to delete UserSearches : {}", id);
         userSearchesService.delete(id);
-        return ResponseEntity.noContent().headers(HeaderUtil.createEntityDeletionAlert(applicationName, true, ENTITY_NAME, id.toString())).build();
+        return ResponseEntity
+            .noContent()
+            .headers(HeaderUtil.createEntityDeletionAlert(applicationName, true, ENTITY_NAME, id.toString()))
+            .build();
     }
-
 }

@@ -3,8 +3,7 @@ package by.homesite.gator.web.rest;
 import by.homesite.gator.security.AuthoritiesConstants;
 import by.homesite.gator.security.SecurityUtils;
 import by.homesite.gator.service.ElasticsearchIndexService;
-import io.github.jhipster.web.util.HeaderUtil;
-
+import java.net.URISyntaxException;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Value;
@@ -13,8 +12,7 @@ import org.springframework.security.access.annotation.Secured;
 import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RestController;
-
-import java.net.URISyntaxException;
+import tech.jhipster.web.util.HeaderUtil;
 
 /**
  * REST controller for managing Elasticsearch index.
@@ -42,8 +40,6 @@ public class ElasticsearchIndexResource {
     public ResponseEntity<Void> reindexAll() throws URISyntaxException {
         log.info("REST request to reindex Elasticsearch by user : {}", SecurityUtils.getCurrentUserLogin());
         elasticsearchIndexService.reindexAll();
-        return ResponseEntity.accepted()
-            .headers(HeaderUtil.createAlert(applicationName,"elasticsearch.reindex.accepted", null))
-            .build();
+        return ResponseEntity.accepted().headers(HeaderUtil.createAlert(applicationName, "elasticsearch.reindex.accepted", null)).build();
     }
 }

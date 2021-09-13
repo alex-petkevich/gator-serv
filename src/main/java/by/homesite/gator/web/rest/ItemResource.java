@@ -1,36 +1,32 @@
 package by.homesite.gator.web.rest;
 
+import static org.elasticsearch.index.query.QueryBuilders.*;
+
+import by.homesite.gator.repository.ItemRepository;
+import by.homesite.gator.service.ItemService;
+import by.homesite.gator.service.dto.ItemDTO;
+import by.homesite.gator.web.rest.errors.BadRequestAlertException;
 import java.net.URI;
 import java.net.URISyntaxException;
 import java.util.List;
+import java.util.Objects;
 import java.util.Optional;
-
+import java.util.stream.StreamSupport;
 import javax.validation.Valid;
-
+import javax.validation.constraints.NotNull;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
 import org.springframework.http.HttpHeaders;
+import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
-import org.springframework.web.bind.annotation.DeleteMapping;
-import org.springframework.web.bind.annotation.GetMapping;
-import org.springframework.web.bind.annotation.PathVariable;
-import org.springframework.web.bind.annotation.PostMapping;
-import org.springframework.web.bind.annotation.PutMapping;
-import org.springframework.web.bind.annotation.RequestBody;
-import org.springframework.web.bind.annotation.RequestMapping;
-import org.springframework.web.bind.annotation.RequestParam;
-import org.springframework.web.bind.annotation.RestController;
+import org.springframework.web.bind.annotation.*;
 import org.springframework.web.servlet.support.ServletUriComponentsBuilder;
-
-import by.homesite.gator.service.ItemService;
-import by.homesite.gator.service.dto.ItemDTO;
-import by.homesite.gator.web.rest.errors.BadRequestAlertException;
-import io.github.jhipster.web.util.HeaderUtil;
-import io.github.jhipster.web.util.PaginationUtil;
-import io.github.jhipster.web.util.ResponseUtil;
+import tech.jhipster.web.util.HeaderUtil;
+import tech.jhipster.web.util.PaginationUtil;
+import tech.jhipster.web.util.ResponseUtil;
 
 /**
  * REST controller for managing {@link by.homesite.gator.domain.Item}.
@@ -48,8 +44,11 @@ public class ItemResource {
 
     private final ItemService itemService;
 
-    public ItemResource(ItemService itemService) {
+    private final ItemRepository itemRepository;
+
+    public ItemResource(ItemService itemService, ItemRepository itemRepository) {
         this.itemService = itemService;
+        this.itemRepository = itemRepository;
     }
 
     /**
@@ -66,30 +65,80 @@ public class ItemResource {
             throw new BadRequestAlertException("A new item cannot already have an ID", ENTITY_NAME, "idexists");
         }
         ItemDTO result = itemService.save(itemDTO);
-        return ResponseEntity.created(new URI("/api/items/" + result.getId()))
+        return ResponseEntity
+            .created(new URI("/api/items/" + result.getId()))
             .headers(HeaderUtil.createEntityCreationAlert(applicationName, true, ENTITY_NAME, result.getId().toString()))
             .body(result);
     }
 
     /**
-     * {@code PUT  /items} : Updates an existing item.
+     * {@code PUT  /items/:id} : Updates an existing item.
      *
+     * @param id the id of the itemDTO to save.
      * @param itemDTO the itemDTO to update.
      * @return the {@link ResponseEntity} with status {@code 200 (OK)} and with body the updated itemDTO,
      * or with status {@code 400 (Bad Request)} if the itemDTO is not valid,
      * or with status {@code 500 (Internal Server Error)} if the itemDTO couldn't be updated.
      * @throws URISyntaxException if the Location URI syntax is incorrect.
      */
-    @PutMapping("/items")
-    public ResponseEntity<ItemDTO> updateItem(@Valid @RequestBody ItemDTO itemDTO) throws URISyntaxException {
-        log.debug("REST request to update Item : {}", itemDTO);
+    @PutMapping("/items/{id}")
+    public ResponseEntity<ItemDTO> updateItem(
+        @PathVariable(value = "id", required = false) final Long id,
+        @Valid @RequestBody ItemDTO itemDTO
+    ) throws URISyntaxException {
+        log.debug("REST request to update Item : {}, {}", id, itemDTO);
         if (itemDTO.getId() == null) {
             throw new BadRequestAlertException("Invalid id", ENTITY_NAME, "idnull");
         }
+        if (!Objects.equals(id, itemDTO.getId())) {
+            throw new BadRequestAlertException("Invalid ID", ENTITY_NAME, "idinvalid");
+        }
+
+        if (!itemRepository.existsById(id)) {
+            throw new BadRequestAlertException("Entity not found", ENTITY_NAME, "idnotfound");
+        }
+
         ItemDTO result = itemService.save(itemDTO);
-        return ResponseEntity.ok()
+        return ResponseEntity
+            .ok()
             .headers(HeaderUtil.createEntityUpdateAlert(applicationName, true, ENTITY_NAME, itemDTO.getId().toString()))
             .body(result);
+    }
+
+    /**
+     * {@code PATCH  /items/:id} : Partial updates given fields of an existing item, field will ignore if it is null
+     *
+     * @param id the id of the itemDTO to save.
+     * @param itemDTO the itemDTO to update.
+     * @return the {@link ResponseEntity} with status {@code 200 (OK)} and with body the updated itemDTO,
+     * or with status {@code 400 (Bad Request)} if the itemDTO is not valid,
+     * or with status {@code 404 (Not Found)} if the itemDTO is not found,
+     * or with status {@code 500 (Internal Server Error)} if the itemDTO couldn't be updated.
+     * @throws URISyntaxException if the Location URI syntax is incorrect.
+     */
+    @PatchMapping(value = "/items/{id}", consumes = "application/merge-patch+json")
+    public ResponseEntity<ItemDTO> partialUpdateItem(
+        @PathVariable(value = "id", required = false) final Long id,
+        @NotNull @RequestBody ItemDTO itemDTO
+    ) throws URISyntaxException {
+        log.debug("REST request to partial update Item partially : {}, {}", id, itemDTO);
+        if (itemDTO.getId() == null) {
+            throw new BadRequestAlertException("Invalid id", ENTITY_NAME, "idnull");
+        }
+        if (!Objects.equals(id, itemDTO.getId())) {
+            throw new BadRequestAlertException("Invalid ID", ENTITY_NAME, "idinvalid");
+        }
+
+        if (!itemRepository.existsById(id)) {
+            throw new BadRequestAlertException("Entity not found", ENTITY_NAME, "idnotfound");
+        }
+
+        Optional<ItemDTO> result = itemService.partialUpdate(itemDTO);
+
+        return ResponseUtil.wrapOrNotFound(
+            result,
+            HeaderUtil.createEntityUpdateAlert(applicationName, true, ENTITY_NAME, itemDTO.getId().toString())
+        );
     }
 
     /**
@@ -131,7 +180,10 @@ public class ItemResource {
     public ResponseEntity<Void> deleteItem(@PathVariable Long id) {
         log.debug("REST request to delete Item : {}", id);
         itemService.delete(id);
-        return ResponseEntity.noContent().headers(HeaderUtil.createEntityDeletionAlert(applicationName, true, ENTITY_NAME, id.toString())).build();
+        return ResponseEntity
+            .noContent()
+            .headers(HeaderUtil.createEntityDeletionAlert(applicationName, true, ENTITY_NAME, id.toString()))
+            .build();
     }
 
     /**
@@ -145,7 +197,7 @@ public class ItemResource {
     @GetMapping("/_search/items")
     public ResponseEntity<List<ItemDTO>> searchItems(@RequestParam String query, Pageable pageable) {
         log.debug("REST request to search for a page of Items for query {}", query);
-        Page<ItemDTO> page = itemService.search(query, "", "", pageable);
+        Page<ItemDTO> page = itemService.search(query, null, null, pageable);
         HttpHeaders headers = PaginationUtil.generatePaginationHttpHeaders(ServletUriComponentsBuilder.fromCurrentRequest(), page);
         return ResponseEntity.ok().headers(headers).body(page.getContent());
     }
@@ -159,12 +211,15 @@ public class ItemResource {
      * @return the result of the search.
      */
     @GetMapping("/_search/all")
-    public ResponseEntity<List<ItemDTO>> searchAll(@RequestParam String query, @RequestParam String category, @RequestParam String type, Pageable pageable) {
-
+    public ResponseEntity<List<ItemDTO>> searchAll(
+        @RequestParam String query,
+        @RequestParam String category,
+        @RequestParam String type,
+        Pageable pageable
+    ) {
         log.debug("REST request to search for a page of All items for query {}", query);
         Page<ItemDTO> page = itemService.search(query, category, type, pageable);
         HttpHeaders headers = PaginationUtil.generatePaginationHttpHeaders(ServletUriComponentsBuilder.fromCurrentRequest(), page);
         return ResponseEntity.ok().headers(headers).body(page.getContent());
     }
-
 }

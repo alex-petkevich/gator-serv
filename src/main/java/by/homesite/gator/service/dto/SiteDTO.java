@@ -1,7 +1,8 @@
 package by.homesite.gator.service.dto;
-import javax.validation.constraints.*;
+
 import java.io.Serializable;
 import java.util.Objects;
+import javax.validation.constraints.*;
 
 /**
  * A DTO for the {@link by.homesite.gator.domain.Site} entity.
@@ -72,13 +73,11 @@ public class SiteDTO implements Serializable {
         this.userLogin = userLogin;
     }
 
-    public String getName()
-    {
+    public String getName() {
         return name;
     }
 
-    public void setName(String name)
-    {
+    public void setName(String name) {
         this.name = name;
     }
 
@@ -87,22 +86,23 @@ public class SiteDTO implements Serializable {
         if (this == o) {
             return true;
         }
-        if (o == null || getClass() != o.getClass()) {
+        if (!(o instanceof SiteDTO)) {
             return false;
         }
 
         SiteDTO siteDTO = (SiteDTO) o;
-        if (siteDTO.getId() == null || getId() == null) {
+        if (this.id == null) {
             return false;
         }
-        return Objects.equals(getId(), siteDTO.getId());
+        return Objects.equals(this.id, siteDTO.id);
     }
 
     @Override
     public int hashCode() {
-        return Objects.hashCode(getId());
+        return Objects.hash(this.id);
     }
 
+    // prettier-ignore
     @Override
     public String toString() {
         return "SiteDTO{" +

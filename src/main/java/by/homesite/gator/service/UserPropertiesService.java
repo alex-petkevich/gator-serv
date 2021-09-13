@@ -1,7 +1,6 @@
 package by.homesite.gator.service;
 
 import by.homesite.gator.service.dto.UserPropertiesDTO;
-
 import java.util.List;
 import java.util.Optional;
 
@@ -9,7 +8,6 @@ import java.util.Optional;
  * Service Interface for managing {@link by.homesite.gator.domain.UserProperties}.
  */
 public interface UserPropertiesService {
-
     /**
      * Save a userProperties.
      *
@@ -19,12 +17,19 @@ public interface UserPropertiesService {
     UserPropertiesDTO save(UserPropertiesDTO userPropertiesDTO);
 
     /**
+     * Partially updates a userProperties.
+     *
+     * @param userPropertiesDTO the entity to update partially.
+     * @return the persisted entity.
+     */
+    Optional<UserPropertiesDTO> partialUpdate(UserPropertiesDTO userPropertiesDTO);
+
+    /**
      * Get all the userProperties.
      *
      * @return the list of entities.
      */
     List<UserPropertiesDTO> findAll();
-
 
     /**
      * Get the "id" userProperties.
@@ -45,7 +50,6 @@ public interface UserPropertiesService {
      * Search for the userProperties corresponding to the query.
      *
      * @param query the query of the search.
-     * 
      * @return the list of entities.
      */
     List<UserPropertiesDTO> search(String query);

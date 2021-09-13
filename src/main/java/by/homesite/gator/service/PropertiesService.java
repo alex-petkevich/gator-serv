@@ -1,7 +1,6 @@
 package by.homesite.gator.service;
 
 import by.homesite.gator.service.dto.PropertiesDTO;
-
 import java.util.List;
 import java.util.Optional;
 
@@ -9,7 +8,6 @@ import java.util.Optional;
  * Service Interface for managing {@link by.homesite.gator.domain.Properties}.
  */
 public interface PropertiesService {
-
     /**
      * Save a properties.
      *
@@ -19,12 +17,19 @@ public interface PropertiesService {
     PropertiesDTO save(PropertiesDTO propertiesDTO);
 
     /**
+     * Partially updates a properties.
+     *
+     * @param propertiesDTO the entity to update partially.
+     * @return the persisted entity.
+     */
+    Optional<PropertiesDTO> partialUpdate(PropertiesDTO propertiesDTO);
+
+    /**
      * Get all the properties.
      *
      * @return the list of entities.
      */
     List<PropertiesDTO> findAll();
-
 
     /**
      * Get the "id" properties.
@@ -45,7 +50,6 @@ public interface PropertiesService {
      * Search for the properties corresponding to the query.
      *
      * @param query the query of the search.
-     * 
      * @return the list of entities.
      */
     List<PropertiesDTO> search(String query);

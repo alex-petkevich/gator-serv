@@ -12,5 +12,4 @@ public class ItemSearchRepositoryMockConfiguration {
 
     @MockBean
     private ItemSearchRepository mockItemSearchRepository;
-
 }

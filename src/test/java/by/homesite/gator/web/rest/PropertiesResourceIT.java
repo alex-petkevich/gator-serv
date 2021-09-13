@@ -1,44 +1,44 @@
 package by.homesite.gator.web.rest;
 
-import by.homesite.gator.GatorApp;
-import by.homesite.gator.domain.Properties;
-import by.homesite.gator.repository.PropertiesRepository;
-import by.homesite.gator.repository.search.PropertiesSearchRepository;
-import by.homesite.gator.service.PropertiesService;
-import by.homesite.gator.service.dto.PropertiesDTO;
-import by.homesite.gator.service.mapper.PropertiesMapper;
-import by.homesite.gator.web.rest.errors.ExceptionTranslator;
-
-import org.junit.jupiter.api.BeforeEach;
-import org.junit.jupiter.api.Test;
-import org.mockito.MockitoAnnotations;
-import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.boot.test.context.SpringBootTest;
-import org.springframework.data.web.PageableHandlerMethodArgumentResolver;
-import org.springframework.http.MediaType;
-import org.springframework.http.converter.json.MappingJackson2HttpMessageConverter;
-import org.springframework.test.web.servlet.MockMvc;
-import org.springframework.test.web.servlet.setup.MockMvcBuilders;
-import org.springframework.transaction.annotation.Transactional;
-import org.springframework.validation.Validator;
-
-import javax.persistence.EntityManager;
-import java.util.Collections;
-import java.util.List;
-
-import static by.homesite.gator.web.rest.TestUtil.createFormattingConversionService;
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.elasticsearch.index.query.QueryBuilders.queryStringQuery;
 import static org.hamcrest.Matchers.hasItem;
 import static org.mockito.Mockito.*;
+import static org.springframework.security.test.web.servlet.request.SecurityMockMvcRequestPostProcessors.csrf;
 import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.*;
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.*;
+
+import by.homesite.gator.IntegrationTest;
+import by.homesite.gator.domain.Properties;
+import by.homesite.gator.repository.PropertiesRepository;
+import by.homesite.gator.repository.search.PropertiesSearchRepository;
+import by.homesite.gator.service.dto.PropertiesDTO;
+import by.homesite.gator.service.mapper.PropertiesMapper;
+import java.util.Collections;
+import java.util.List;
+import java.util.Random;
+import java.util.concurrent.atomic.AtomicLong;
+import javax.persistence.EntityManager;
+import org.junit.jupiter.api.BeforeEach;
+import org.junit.jupiter.api.Test;
+import org.junit.jupiter.api.extension.ExtendWith;
+import org.mockito.Mock;
+import org.mockito.junit.jupiter.MockitoExtension;
+import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.boot.test.autoconfigure.web.servlet.AutoConfigureMockMvc;
+import org.springframework.http.MediaType;
+import org.springframework.security.test.context.support.WithMockUser;
+import org.springframework.test.web.servlet.MockMvc;
+import org.springframework.transaction.annotation.Transactional;
 
 /**
  * Integration tests for the {@link PropertiesResource} REST controller.
  */
-@SpringBootTest(classes = GatorApp.class)
-public class PropertiesResourceIT {
+@IntegrationTest
+@ExtendWith(MockitoExtension.class)
+@AutoConfigureMockMvc
+@WithMockUser
+class PropertiesResourceIT {
 
     private static final String DEFAULT_NAME = "AAAAAAAAAA";
     private static final String UPDATED_NAME = "BBBBBBBBBB";
@@ -46,14 +46,18 @@ public class PropertiesResourceIT {
     private static final Boolean DEFAULT_IS_ACTIVE = false;
     private static final Boolean UPDATED_IS_ACTIVE = true;
 
+    private static final String ENTITY_API_URL = "/api/properties";
+    private static final String ENTITY_API_URL_ID = ENTITY_API_URL + "/{id}";
+    private static final String ENTITY_SEARCH_API_URL = "/api/_search/properties";
+
+    private static Random random = new Random();
+    private static AtomicLong count = new AtomicLong(random.nextInt() + (2 * Integer.MAX_VALUE));
+
     @Autowired
     private PropertiesRepository propertiesRepository;
 
     @Autowired
     private PropertiesMapper propertiesMapper;
-
-    @Autowired
-    private PropertiesService propertiesService;
 
     /**
      * This repository is mocked in the by.homesite.gator.repository.search test package.
@@ -64,35 +68,12 @@ public class PropertiesResourceIT {
     private PropertiesSearchRepository mockPropertiesSearchRepository;
 
     @Autowired
-    private MappingJackson2HttpMessageConverter jacksonMessageConverter;
-
-    @Autowired
-    private PageableHandlerMethodArgumentResolver pageableArgumentResolver;
-
-    @Autowired
-    private ExceptionTranslator exceptionTranslator;
-
-    @Autowired
     private EntityManager em;
 
     @Autowired
-    private Validator validator;
-
     private MockMvc restPropertiesMockMvc;
 
     private Properties properties;
-
-    @BeforeEach
-    public void setup() {
-        MockitoAnnotations.initMocks(this);
-        final PropertiesResource propertiesResource = new PropertiesResource(propertiesService);
-        this.restPropertiesMockMvc = MockMvcBuilders.standaloneSetup(propertiesResource)
-            .setCustomArgumentResolvers(pageableArgumentResolver)
-            .setControllerAdvice(exceptionTranslator)
-            .setConversionService(createFormattingConversionService())
-            .setMessageConverters(jacksonMessageConverter)
-            .setValidator(validator).build();
-    }
 
     /**
      * Create an entity for this test.
@@ -101,11 +82,10 @@ public class PropertiesResourceIT {
      * if they test an entity which requires the current entity.
      */
     public static Properties createEntity(EntityManager em) {
-        Properties properties = new Properties()
-            .name(DEFAULT_NAME)
-            .isActive(DEFAULT_IS_ACTIVE);
+        Properties properties = new Properties().name(DEFAULT_NAME).isActive(DEFAULT_IS_ACTIVE);
         return properties;
     }
+
     /**
      * Create an updated entity for this test.
      *
@@ -113,9 +93,7 @@ public class PropertiesResourceIT {
      * if they test an entity which requires the current entity.
      */
     public static Properties createUpdatedEntity(EntityManager em) {
-        Properties properties = new Properties()
-            .name(UPDATED_NAME)
-            .isActive(UPDATED_IS_ACTIVE);
+        Properties properties = new Properties().name(UPDATED_NAME).isActive(UPDATED_IS_ACTIVE);
         return properties;
     }
 
@@ -126,14 +104,17 @@ public class PropertiesResourceIT {
 
     @Test
     @Transactional
-    public void createProperties() throws Exception {
+    void createProperties() throws Exception {
         int databaseSizeBeforeCreate = propertiesRepository.findAll().size();
-
         // Create the Properties
         PropertiesDTO propertiesDTO = propertiesMapper.toDto(properties);
-        restPropertiesMockMvc.perform(post("/api/properties")
-            .contentType(TestUtil.APPLICATION_JSON_UTF8)
-            .content(TestUtil.convertObjectToJsonBytes(propertiesDTO)))
+        restPropertiesMockMvc
+            .perform(
+                post(ENTITY_API_URL)
+                    .with(csrf())
+                    .contentType(MediaType.APPLICATION_JSON)
+                    .content(TestUtil.convertObjectToJsonBytes(propertiesDTO))
+            )
             .andExpect(status().isCreated());
 
         // Validate the Properties in the database
@@ -141,7 +122,7 @@ public class PropertiesResourceIT {
         assertThat(propertiesList).hasSize(databaseSizeBeforeCreate + 1);
         Properties testProperties = propertiesList.get(propertiesList.size() - 1);
         assertThat(testProperties.getName()).isEqualTo(DEFAULT_NAME);
-        assertThat(testProperties.isIsActive()).isEqualTo(DEFAULT_IS_ACTIVE);
+        assertThat(testProperties.getIsActive()).isEqualTo(DEFAULT_IS_ACTIVE);
 
         // Validate the Properties in Elasticsearch
         verify(mockPropertiesSearchRepository, times(1)).save(testProperties);
@@ -149,17 +130,21 @@ public class PropertiesResourceIT {
 
     @Test
     @Transactional
-    public void createPropertiesWithExistingId() throws Exception {
-        int databaseSizeBeforeCreate = propertiesRepository.findAll().size();
-
+    void createPropertiesWithExistingId() throws Exception {
         // Create the Properties with an existing ID
         properties.setId(1L);
         PropertiesDTO propertiesDTO = propertiesMapper.toDto(properties);
 
+        int databaseSizeBeforeCreate = propertiesRepository.findAll().size();
+
         // An entity with an existing ID cannot be created, so this API call must fail
-        restPropertiesMockMvc.perform(post("/api/properties")
-            .contentType(TestUtil.APPLICATION_JSON_UTF8)
-            .content(TestUtil.convertObjectToJsonBytes(propertiesDTO)))
+        restPropertiesMockMvc
+            .perform(
+                post(ENTITY_API_URL)
+                    .with(csrf())
+                    .contentType(MediaType.APPLICATION_JSON)
+                    .content(TestUtil.convertObjectToJsonBytes(propertiesDTO))
+            )
             .andExpect(status().isBadRequest());
 
         // Validate the Properties in the database
@@ -170,10 +155,9 @@ public class PropertiesResourceIT {
         verify(mockPropertiesSearchRepository, times(0)).save(properties);
     }
 
-
     @Test
     @Transactional
-    public void checkNameIsRequired() throws Exception {
+    void checkNameIsRequired() throws Exception {
         int databaseSizeBeforeTest = propertiesRepository.findAll().size();
         // set the field null
         properties.setName(null);
@@ -181,9 +165,13 @@ public class PropertiesResourceIT {
         // Create the Properties, which fails.
         PropertiesDTO propertiesDTO = propertiesMapper.toDto(properties);
 
-        restPropertiesMockMvc.perform(post("/api/properties")
-            .contentType(TestUtil.APPLICATION_JSON_UTF8)
-            .content(TestUtil.convertObjectToJsonBytes(propertiesDTO)))
+        restPropertiesMockMvc
+            .perform(
+                post(ENTITY_API_URL)
+                    .with(csrf())
+                    .contentType(MediaType.APPLICATION_JSON)
+                    .content(TestUtil.convertObjectToJsonBytes(propertiesDTO))
+            )
             .andExpect(status().isBadRequest());
 
         List<Properties> propertiesList = propertiesRepository.findAll();
@@ -192,45 +180,46 @@ public class PropertiesResourceIT {
 
     @Test
     @Transactional
-    public void getAllProperties() throws Exception {
+    void getAllProperties() throws Exception {
         // Initialize the database
         propertiesRepository.saveAndFlush(properties);
 
         // Get all the propertiesList
-        restPropertiesMockMvc.perform(get("/api/properties?sort=id,desc"))
+        restPropertiesMockMvc
+            .perform(get(ENTITY_API_URL + "?sort=id,desc"))
             .andExpect(status().isOk())
-            .andExpect(content().contentType(MediaType.APPLICATION_JSON_UTF8_VALUE))
+            .andExpect(content().contentType(MediaType.APPLICATION_JSON_VALUE))
             .andExpect(jsonPath("$.[*].id").value(hasItem(properties.getId().intValue())))
-            .andExpect(jsonPath("$.[*].name").value(hasItem(DEFAULT_NAME.toString())))
+            .andExpect(jsonPath("$.[*].name").value(hasItem(DEFAULT_NAME)))
             .andExpect(jsonPath("$.[*].isActive").value(hasItem(DEFAULT_IS_ACTIVE.booleanValue())));
     }
-    
+
     @Test
     @Transactional
-    public void getProperties() throws Exception {
+    void getProperties() throws Exception {
         // Initialize the database
         propertiesRepository.saveAndFlush(properties);
 
         // Get the properties
-        restPropertiesMockMvc.perform(get("/api/properties/{id}", properties.getId()))
+        restPropertiesMockMvc
+            .perform(get(ENTITY_API_URL_ID, properties.getId()))
             .andExpect(status().isOk())
-            .andExpect(content().contentType(MediaType.APPLICATION_JSON_UTF8_VALUE))
+            .andExpect(content().contentType(MediaType.APPLICATION_JSON_VALUE))
             .andExpect(jsonPath("$.id").value(properties.getId().intValue()))
-            .andExpect(jsonPath("$.name").value(DEFAULT_NAME.toString()))
+            .andExpect(jsonPath("$.name").value(DEFAULT_NAME))
             .andExpect(jsonPath("$.isActive").value(DEFAULT_IS_ACTIVE.booleanValue()));
     }
 
     @Test
     @Transactional
-    public void getNonExistingProperties() throws Exception {
+    void getNonExistingProperties() throws Exception {
         // Get the properties
-        restPropertiesMockMvc.perform(get("/api/properties/{id}", Long.MAX_VALUE))
-            .andExpect(status().isNotFound());
+        restPropertiesMockMvc.perform(get(ENTITY_API_URL_ID, Long.MAX_VALUE)).andExpect(status().isNotFound());
     }
 
     @Test
     @Transactional
-    public void updateProperties() throws Exception {
+    void putNewProperties() throws Exception {
         // Initialize the database
         propertiesRepository.saveAndFlush(properties);
 
@@ -240,14 +229,16 @@ public class PropertiesResourceIT {
         Properties updatedProperties = propertiesRepository.findById(properties.getId()).get();
         // Disconnect from session so that the updates on updatedProperties are not directly saved in db
         em.detach(updatedProperties);
-        updatedProperties
-            .name(UPDATED_NAME)
-            .isActive(UPDATED_IS_ACTIVE);
+        updatedProperties.name(UPDATED_NAME).isActive(UPDATED_IS_ACTIVE);
         PropertiesDTO propertiesDTO = propertiesMapper.toDto(updatedProperties);
 
-        restPropertiesMockMvc.perform(put("/api/properties")
-            .contentType(TestUtil.APPLICATION_JSON_UTF8)
-            .content(TestUtil.convertObjectToJsonBytes(propertiesDTO)))
+        restPropertiesMockMvc
+            .perform(
+                put(ENTITY_API_URL_ID, propertiesDTO.getId())
+                    .with(csrf())
+                    .contentType(MediaType.APPLICATION_JSON)
+                    .content(TestUtil.convertObjectToJsonBytes(propertiesDTO))
+            )
             .andExpect(status().isOk());
 
         // Validate the Properties in the database
@@ -255,24 +246,29 @@ public class PropertiesResourceIT {
         assertThat(propertiesList).hasSize(databaseSizeBeforeUpdate);
         Properties testProperties = propertiesList.get(propertiesList.size() - 1);
         assertThat(testProperties.getName()).isEqualTo(UPDATED_NAME);
-        assertThat(testProperties.isIsActive()).isEqualTo(UPDATED_IS_ACTIVE);
+        assertThat(testProperties.getIsActive()).isEqualTo(UPDATED_IS_ACTIVE);
 
         // Validate the Properties in Elasticsearch
-        verify(mockPropertiesSearchRepository, times(1)).save(testProperties);
+        verify(mockPropertiesSearchRepository).save(testProperties);
     }
 
     @Test
     @Transactional
-    public void updateNonExistingProperties() throws Exception {
+    void putNonExistingProperties() throws Exception {
         int databaseSizeBeforeUpdate = propertiesRepository.findAll().size();
+        properties.setId(count.incrementAndGet());
 
         // Create the Properties
         PropertiesDTO propertiesDTO = propertiesMapper.toDto(properties);
 
         // If the entity doesn't have an ID, it will throw BadRequestAlertException
-        restPropertiesMockMvc.perform(put("/api/properties")
-            .contentType(TestUtil.APPLICATION_JSON_UTF8)
-            .content(TestUtil.convertObjectToJsonBytes(propertiesDTO)))
+        restPropertiesMockMvc
+            .perform(
+                put(ENTITY_API_URL_ID, propertiesDTO.getId())
+                    .with(csrf())
+                    .contentType(MediaType.APPLICATION_JSON)
+                    .content(TestUtil.convertObjectToJsonBytes(propertiesDTO))
+            )
             .andExpect(status().isBadRequest());
 
         // Validate the Properties in the database
@@ -285,15 +281,210 @@ public class PropertiesResourceIT {
 
     @Test
     @Transactional
-    public void deleteProperties() throws Exception {
+    void putWithIdMismatchProperties() throws Exception {
+        int databaseSizeBeforeUpdate = propertiesRepository.findAll().size();
+        properties.setId(count.incrementAndGet());
+
+        // Create the Properties
+        PropertiesDTO propertiesDTO = propertiesMapper.toDto(properties);
+
+        // If url ID doesn't match entity ID, it will throw BadRequestAlertException
+        restPropertiesMockMvc
+            .perform(
+                put(ENTITY_API_URL_ID, count.incrementAndGet())
+                    .with(csrf())
+                    .contentType(MediaType.APPLICATION_JSON)
+                    .content(TestUtil.convertObjectToJsonBytes(propertiesDTO))
+            )
+            .andExpect(status().isBadRequest());
+
+        // Validate the Properties in the database
+        List<Properties> propertiesList = propertiesRepository.findAll();
+        assertThat(propertiesList).hasSize(databaseSizeBeforeUpdate);
+
+        // Validate the Properties in Elasticsearch
+        verify(mockPropertiesSearchRepository, times(0)).save(properties);
+    }
+
+    @Test
+    @Transactional
+    void putWithMissingIdPathParamProperties() throws Exception {
+        int databaseSizeBeforeUpdate = propertiesRepository.findAll().size();
+        properties.setId(count.incrementAndGet());
+
+        // Create the Properties
+        PropertiesDTO propertiesDTO = propertiesMapper.toDto(properties);
+
+        // If url ID doesn't match entity ID, it will throw BadRequestAlertException
+        restPropertiesMockMvc
+            .perform(
+                put(ENTITY_API_URL)
+                    .with(csrf())
+                    .contentType(MediaType.APPLICATION_JSON)
+                    .content(TestUtil.convertObjectToJsonBytes(propertiesDTO))
+            )
+            .andExpect(status().isMethodNotAllowed());
+
+        // Validate the Properties in the database
+        List<Properties> propertiesList = propertiesRepository.findAll();
+        assertThat(propertiesList).hasSize(databaseSizeBeforeUpdate);
+
+        // Validate the Properties in Elasticsearch
+        verify(mockPropertiesSearchRepository, times(0)).save(properties);
+    }
+
+    @Test
+    @Transactional
+    void partialUpdatePropertiesWithPatch() throws Exception {
+        // Initialize the database
+        propertiesRepository.saveAndFlush(properties);
+
+        int databaseSizeBeforeUpdate = propertiesRepository.findAll().size();
+
+        // Update the properties using partial update
+        Properties partialUpdatedProperties = new Properties();
+        partialUpdatedProperties.setId(properties.getId());
+
+        restPropertiesMockMvc
+            .perform(
+                patch(ENTITY_API_URL_ID, partialUpdatedProperties.getId())
+                    .with(csrf())
+                    .contentType("application/merge-patch+json")
+                    .content(TestUtil.convertObjectToJsonBytes(partialUpdatedProperties))
+            )
+            .andExpect(status().isOk());
+
+        // Validate the Properties in the database
+        List<Properties> propertiesList = propertiesRepository.findAll();
+        assertThat(propertiesList).hasSize(databaseSizeBeforeUpdate);
+        Properties testProperties = propertiesList.get(propertiesList.size() - 1);
+        assertThat(testProperties.getName()).isEqualTo(DEFAULT_NAME);
+        assertThat(testProperties.getIsActive()).isEqualTo(DEFAULT_IS_ACTIVE);
+    }
+
+    @Test
+    @Transactional
+    void fullUpdatePropertiesWithPatch() throws Exception {
+        // Initialize the database
+        propertiesRepository.saveAndFlush(properties);
+
+        int databaseSizeBeforeUpdate = propertiesRepository.findAll().size();
+
+        // Update the properties using partial update
+        Properties partialUpdatedProperties = new Properties();
+        partialUpdatedProperties.setId(properties.getId());
+
+        partialUpdatedProperties.name(UPDATED_NAME).isActive(UPDATED_IS_ACTIVE);
+
+        restPropertiesMockMvc
+            .perform(
+                patch(ENTITY_API_URL_ID, partialUpdatedProperties.getId())
+                    .with(csrf())
+                    .contentType("application/merge-patch+json")
+                    .content(TestUtil.convertObjectToJsonBytes(partialUpdatedProperties))
+            )
+            .andExpect(status().isOk());
+
+        // Validate the Properties in the database
+        List<Properties> propertiesList = propertiesRepository.findAll();
+        assertThat(propertiesList).hasSize(databaseSizeBeforeUpdate);
+        Properties testProperties = propertiesList.get(propertiesList.size() - 1);
+        assertThat(testProperties.getName()).isEqualTo(UPDATED_NAME);
+        assertThat(testProperties.getIsActive()).isEqualTo(UPDATED_IS_ACTIVE);
+    }
+
+    @Test
+    @Transactional
+    void patchNonExistingProperties() throws Exception {
+        int databaseSizeBeforeUpdate = propertiesRepository.findAll().size();
+        properties.setId(count.incrementAndGet());
+
+        // Create the Properties
+        PropertiesDTO propertiesDTO = propertiesMapper.toDto(properties);
+
+        // If the entity doesn't have an ID, it will throw BadRequestAlertException
+        restPropertiesMockMvc
+            .perform(
+                patch(ENTITY_API_URL_ID, propertiesDTO.getId())
+                    .with(csrf())
+                    .contentType("application/merge-patch+json")
+                    .content(TestUtil.convertObjectToJsonBytes(propertiesDTO))
+            )
+            .andExpect(status().isBadRequest());
+
+        // Validate the Properties in the database
+        List<Properties> propertiesList = propertiesRepository.findAll();
+        assertThat(propertiesList).hasSize(databaseSizeBeforeUpdate);
+
+        // Validate the Properties in Elasticsearch
+        verify(mockPropertiesSearchRepository, times(0)).save(properties);
+    }
+
+    @Test
+    @Transactional
+    void patchWithIdMismatchProperties() throws Exception {
+        int databaseSizeBeforeUpdate = propertiesRepository.findAll().size();
+        properties.setId(count.incrementAndGet());
+
+        // Create the Properties
+        PropertiesDTO propertiesDTO = propertiesMapper.toDto(properties);
+
+        // If url ID doesn't match entity ID, it will throw BadRequestAlertException
+        restPropertiesMockMvc
+            .perform(
+                patch(ENTITY_API_URL_ID, count.incrementAndGet())
+                    .with(csrf())
+                    .contentType("application/merge-patch+json")
+                    .content(TestUtil.convertObjectToJsonBytes(propertiesDTO))
+            )
+            .andExpect(status().isBadRequest());
+
+        // Validate the Properties in the database
+        List<Properties> propertiesList = propertiesRepository.findAll();
+        assertThat(propertiesList).hasSize(databaseSizeBeforeUpdate);
+
+        // Validate the Properties in Elasticsearch
+        verify(mockPropertiesSearchRepository, times(0)).save(properties);
+    }
+
+    @Test
+    @Transactional
+    void patchWithMissingIdPathParamProperties() throws Exception {
+        int databaseSizeBeforeUpdate = propertiesRepository.findAll().size();
+        properties.setId(count.incrementAndGet());
+
+        // Create the Properties
+        PropertiesDTO propertiesDTO = propertiesMapper.toDto(properties);
+
+        // If url ID doesn't match entity ID, it will throw BadRequestAlertException
+        restPropertiesMockMvc
+            .perform(
+                patch(ENTITY_API_URL)
+                    .with(csrf())
+                    .contentType("application/merge-patch+json")
+                    .content(TestUtil.convertObjectToJsonBytes(propertiesDTO))
+            )
+            .andExpect(status().isMethodNotAllowed());
+
+        // Validate the Properties in the database
+        List<Properties> propertiesList = propertiesRepository.findAll();
+        assertThat(propertiesList).hasSize(databaseSizeBeforeUpdate);
+
+        // Validate the Properties in Elasticsearch
+        verify(mockPropertiesSearchRepository, times(0)).save(properties);
+    }
+
+    @Test
+    @Transactional
+    void deleteProperties() throws Exception {
         // Initialize the database
         propertiesRepository.saveAndFlush(properties);
 
         int databaseSizeBeforeDelete = propertiesRepository.findAll().size();
 
         // Delete the properties
-        restPropertiesMockMvc.perform(delete("/api/properties/{id}", properties.getId())
-            .accept(TestUtil.APPLICATION_JSON_UTF8))
+        restPropertiesMockMvc
+            .perform(delete(ENTITY_API_URL_ID, properties.getId()).with(csrf()).accept(MediaType.APPLICATION_JSON))
             .andExpect(status().isNoContent());
 
         // Validate the database contains one less item
@@ -306,55 +497,20 @@ public class PropertiesResourceIT {
 
     @Test
     @Transactional
-    public void searchProperties() throws Exception {
+    void searchProperties() throws Exception {
+        // Configure the mock search repository
         // Initialize the database
         propertiesRepository.saveAndFlush(properties);
         when(mockPropertiesSearchRepository.search(queryStringQuery("id:" + properties.getId())))
             .thenReturn(Collections.singletonList(properties));
+
         // Search the properties
-        restPropertiesMockMvc.perform(get("/api/_search/properties?query=id:" + properties.getId()))
+        restPropertiesMockMvc
+            .perform(get(ENTITY_SEARCH_API_URL + "?query=id:" + properties.getId()))
             .andExpect(status().isOk())
-            .andExpect(content().contentType(MediaType.APPLICATION_JSON_UTF8_VALUE))
+            .andExpect(content().contentType(MediaType.APPLICATION_JSON_VALUE))
             .andExpect(jsonPath("$.[*].id").value(hasItem(properties.getId().intValue())))
             .andExpect(jsonPath("$.[*].name").value(hasItem(DEFAULT_NAME)))
             .andExpect(jsonPath("$.[*].isActive").value(hasItem(DEFAULT_IS_ACTIVE.booleanValue())));
-    }
-
-    @Test
-    @Transactional
-    public void equalsVerifier() throws Exception {
-        TestUtil.equalsVerifier(Properties.class);
-        Properties properties1 = new Properties();
-        properties1.setId(1L);
-        Properties properties2 = new Properties();
-        properties2.setId(properties1.getId());
-        assertThat(properties1).isEqualTo(properties2);
-        properties2.setId(2L);
-        assertThat(properties1).isNotEqualTo(properties2);
-        properties1.setId(null);
-        assertThat(properties1).isNotEqualTo(properties2);
-    }
-
-    @Test
-    @Transactional
-    public void dtoEqualsVerifier() throws Exception {
-        TestUtil.equalsVerifier(PropertiesDTO.class);
-        PropertiesDTO propertiesDTO1 = new PropertiesDTO();
-        propertiesDTO1.setId(1L);
-        PropertiesDTO propertiesDTO2 = new PropertiesDTO();
-        assertThat(propertiesDTO1).isNotEqualTo(propertiesDTO2);
-        propertiesDTO2.setId(propertiesDTO1.getId());
-        assertThat(propertiesDTO1).isEqualTo(propertiesDTO2);
-        propertiesDTO2.setId(2L);
-        assertThat(propertiesDTO1).isNotEqualTo(propertiesDTO2);
-        propertiesDTO1.setId(null);
-        assertThat(propertiesDTO1).isNotEqualTo(propertiesDTO2);
-    }
-
-    @Test
-    @Transactional
-    public void testEntityFromId() {
-        assertThat(propertiesMapper.fromId(42L).getId()).isEqualTo(42);
-        assertThat(propertiesMapper.fromId(null)).isNull();
     }
 }

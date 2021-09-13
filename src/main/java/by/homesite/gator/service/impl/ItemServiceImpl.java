@@ -4,16 +4,19 @@ import static org.elasticsearch.index.query.QueryBuilders.matchQuery;
 import static org.elasticsearch.index.query.QueryBuilders.multiMatchQuery;
 import static org.elasticsearch.index.query.QueryBuilders.queryStringQuery;
 
-import by.homesite.gator.service.CategoryService;
-import by.homesite.gator.service.ItemService;
 import by.homesite.gator.domain.Item;
 import by.homesite.gator.repository.ItemRepository;
 import by.homesite.gator.repository.search.ItemSearchRepository;
+import by.homesite.gator.service.CategoryService;
+import by.homesite.gator.service.ItemService;
+import by.homesite.gator.service.ItemService;
 import by.homesite.gator.service.dto.ItemDTO;
 import by.homesite.gator.service.mapper.CategoryMapper;
 import by.homesite.gator.service.mapper.ItemMapper;
-import liquibase.util.StringUtils;
-
+import java.time.ZonedDateTime;
+import java.util.List;
+import java.util.Optional;
+import org.apache.commons.lang3.StringUtils;
 import org.elasticsearch.common.unit.Fuzziness;
 import org.elasticsearch.index.query.BoolQueryBuilder;
 import org.elasticsearch.index.query.MultiMatchQueryBuilder;
@@ -22,17 +25,12 @@ import org.elasticsearch.index.query.QueryBuilder;
 import org.elasticsearch.index.query.QueryBuilders;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
-
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
 import org.springframework.data.elasticsearch.core.query.NativeSearchQuery;
 import org.springframework.data.elasticsearch.core.query.NativeSearchQueryBuilder;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
-
-import java.time.ZonedDateTime;
-import java.util.List;
-import java.util.Optional;
 
 /**
  * Service Implementation for managing {@link Item}.
@@ -53,7 +51,13 @@ public class ItemServiceImpl implements ItemService {
 
     private final CategoryMapper categoryMapper;
 
-    public ItemServiceImpl(ItemRepository itemRepository, ItemMapper itemMapper, ItemSearchRepository itemSearchRepository, CategoryService categoryService, CategoryMapper categoryMapper) {
+    public ItemServiceImpl(
+        ItemRepository itemRepository,
+        ItemMapper itemMapper,
+        ItemSearchRepository itemSearchRepository,
+        CategoryService categoryService,
+        CategoryMapper categoryMapper
+    ) {
         this.itemRepository = itemRepository;
         this.itemMapper = itemMapper;
         this.itemSearchRepository = itemSearchRepository;
@@ -61,12 +65,6 @@ public class ItemServiceImpl implements ItemService {
         this.categoryMapper = categoryMapper;
     }
 
-    /**
-     * Save a item.
-     *
-     * @param itemDTO the entity to save.
-     * @return the persisted entity.
-     */
     @Override
     public ItemDTO save(ItemDTO itemDTO) {
         log.debug("Request to save Item : {}", itemDTO);
@@ -74,14 +72,36 @@ public class ItemServiceImpl implements ItemService {
         if (itemDTO.getCategoryId() != null) {
             item.setCategory(categoryMapper.toEntity(categoryService.findOne(itemDTO.getCategoryId()).get()));
         }
-        if (item.getCreatedAt() == null)
-            item.setCreatedAt(ZonedDateTime.now());
-        if (item.getUpdatedAt() == null)
-            item.setUpdatedAt(ZonedDateTime.now());
+        if (item.getCreatedAt() == null) item.setCreatedAt(ZonedDateTime.now());
+        if (item.getUpdatedAt() == null) item.setUpdatedAt(ZonedDateTime.now());
         item = itemRepository.save(item);
         ItemDTO result = itemMapper.toDto(item);
         itemSearchRepository.save(item);
         return result;
+    }
+
+    @Override
+    public Optional<ItemDTO> partialUpdate(ItemDTO itemDTO) {
+        log.debug("Request to partially update Item : {}", itemDTO);
+
+        return itemRepository
+            .findById(itemDTO.getId())
+            .map(
+                existingItem -> {
+                    itemMapper.partialUpdate(existingItem, itemDTO);
+
+                    return existingItem;
+                }
+            )
+            .map(itemRepository::save)
+            .map(
+                savedItem -> {
+                    itemSearchRepository.save(savedItem);
+
+                    return savedItem;
+                }
+            )
+            .map(itemMapper::toDto);
     }
 
     /**
@@ -94,10 +114,8 @@ public class ItemServiceImpl implements ItemService {
     @Transactional(readOnly = true)
     public Page<ItemDTO> findAll(Pageable pageable) {
         log.debug("Request to get all Items");
-        return itemRepository.findAll(pageable)
-            .map(itemMapper::toDto);
+        return itemRepository.findAll(pageable).map(itemMapper::toDto);
     }
-
 
     /**
      * Get one item by id.
@@ -109,8 +127,7 @@ public class ItemServiceImpl implements ItemService {
     @Transactional(readOnly = true)
     public Optional<ItemDTO> findOne(Long id) {
         log.debug("Request to get Item : {}", id);
-        return itemRepository.findById(id)
-            .map(itemMapper::toDto);
+        return itemRepository.findById(id).map(itemMapper::toDto);
     }
 
     /**
@@ -142,8 +159,7 @@ public class ItemServiceImpl implements ItemService {
 
         if (!StringUtils.isEmpty(query) && query.contains("nativeId:") && !"*".equals(type)) {
             inputQuery.append(" AND (").append(query).append(")");
-        }
-        else if (!StringUtils.isEmpty(query) && !"*".equals(type)) {
+        } else if (!StringUtils.isEmpty(query) && !"*".equals(type)) {
             inputQuery.append(" AND (title:").append(query).append(" OR description:").append(query).append(")");
         }
 
@@ -155,7 +171,7 @@ public class ItemServiceImpl implements ItemService {
             inputQuery.append(" AND (type:" + type.replaceAll(",", " OR type:") + ")");
         }
 
-       /* NativeSearchQueryBuilder searchQueryBuilder = new NativeSearchQueryBuilder();
+        /* NativeSearchQueryBuilder searchQueryBuilder = new NativeSearchQueryBuilder();
         BoolQueryBuilder boolQuery = new BoolQueryBuilder();
 
         boolQuery.must(matchQuery("active","true").operator(Operator.AND));
@@ -188,13 +204,13 @@ public class ItemServiceImpl implements ItemService {
 
         NativeSearchQuery searchQuery = searchQueryBuilder.build();*/
 
-        return itemSearchRepository.search(QueryBuilders.queryStringQuery(inputQuery.toString()).fuzziness(Fuzziness.ONE).fuzzyPrefixLength(3), pageable)
+        return itemSearchRepository
+            .search(QueryBuilders.queryStringQuery(inputQuery.toString()).fuzziness(Fuzziness.ONE).fuzzyPrefixLength(3), pageable)
             .map(itemMapper::toDto);
     }
 
     @Override
-    public void deleteOldItems(int days)
-    {
+    public void deleteOldItems(int days) {
         log.debug("Request to delete old items");
         List<Item> deletedItems = itemRepository.findOldItems(ZonedDateTime.now().minusDays(days));
         itemRepository.deleteOldItems(ZonedDateTime.now().minusDays(days));

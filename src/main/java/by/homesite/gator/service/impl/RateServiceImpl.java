@@ -1,25 +1,28 @@
 package by.homesite.gator.service.impl;
 
-import by.homesite.gator.parser.CurrencyParser;
-import by.homesite.gator.service.RateService;
 import by.homesite.gator.domain.Rate;
+import by.homesite.gator.parser.CurrencyParser;
 import by.homesite.gator.repository.RateRepository;
 import by.homesite.gator.repository.search.RateSearchRepository;
+import by.homesite.gator.service.RateService;
 import by.homesite.gator.service.dto.RateDTO;
 import by.homesite.gator.service.mapper.RateMapper;
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
-
-import org.springframework.stereotype.Service;
-import org.springframework.transaction.annotation.Transactional;
-
 import java.io.IOException;
 import java.time.ZonedDateTime;
-import java.util.*;
+import java.util.LinkedList;
+import java.util.List;
+import java.util.Map;
+import java.util.Optional;
 import java.util.stream.Collectors;
 import java.util.stream.StreamSupport;
-
-import static org.elasticsearch.index.query.QueryBuilders.*;
+import org.slf4j.Logger;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
+import org.slf4j.LoggerFactory;
+import org.springframework.stereotype.Service;
+import org.springframework.stereotype.Service;
+import org.springframework.transaction.annotation.Transactional;
+import org.springframework.transaction.annotation.Transactional;
 
 /**
  * Service Implementation for managing {@link Rate}.
@@ -28,11 +31,7 @@ import static org.elasticsearch.index.query.QueryBuilders.*;
 @Transactional
 public class RateServiceImpl implements RateService {
 
-    public static final Map<String, String> CURRENCIES = Map.of(
-        "usd", "$",
-        "rub", "₽",
-        "eur", "€"
-    );
+    public static final Map<String, String> CURRENCIES = Map.of("usd", "$", "rub", "₽", "eur", "€");
 
     private final Logger log = LoggerFactory.getLogger(RateServiceImpl.class);
 
@@ -43,19 +42,18 @@ public class RateServiceImpl implements RateService {
     private final RateSearchRepository rateSearchRepository;
     private final CurrencyParser currencyParser;
 
-    public RateServiceImpl(RateRepository rateRepository, RateMapper rateMapper, RateSearchRepository rateSearchRepository, CurrencyParser currencyParser) {
+    public RateServiceImpl(
+        RateRepository rateRepository,
+        RateMapper rateMapper,
+        RateSearchRepository rateSearchRepository,
+        CurrencyParser currencyParser
+    ) {
         this.rateRepository = rateRepository;
         this.rateMapper = rateMapper;
         this.rateSearchRepository = rateSearchRepository;
         this.currencyParser = currencyParser;
     }
 
-    /**
-     * Save a rate.
-     *
-     * @param rateDTO the entity to save.
-     * @return the persisted entity.
-     */
     @Override
     public RateDTO save(RateDTO rateDTO) {
         log.debug("Request to save Rate : {}", rateDTO);
@@ -64,6 +62,30 @@ public class RateServiceImpl implements RateService {
         RateDTO result = rateMapper.toDto(rate);
         rateSearchRepository.save(rate);
         return result;
+    }
+
+    @Override
+    public Optional<RateDTO> partialUpdate(RateDTO rateDTO) {
+        log.debug("Request to partially update Rate : {}", rateDTO);
+
+        return rateRepository
+            .findById(rateDTO.getId())
+            .map(
+                existingRate -> {
+                    rateMapper.partialUpdate(existingRate, rateDTO);
+
+                    return existingRate;
+                }
+            )
+            .map(rateRepository::save)
+            .map(
+                savedRate -> {
+                    rateSearchRepository.save(savedRate);
+
+                    return savedRate;
+                }
+            )
+            .map(rateMapper::toDto);
     }
 
     /**
@@ -75,38 +97,22 @@ public class RateServiceImpl implements RateService {
     @Transactional(readOnly = true)
     public List<RateDTO> findAll() {
         log.debug("Request to get all Rates");
-        return rateRepository.findAll().stream()
-            .map(rateMapper::toDto)
-            .collect(Collectors.toCollection(LinkedList::new));
+        return rateRepository.findAll().stream().map(rateMapper::toDto).collect(Collectors.toCollection(LinkedList::new));
     }
 
-
-    /**
-     * Get one rate by id.
-     *
-     * @param id the id of the entity.
-     * @return the entity.
-     */
     @Override
     @Transactional(readOnly = true)
     public Optional<RateDTO> findOne(Long id) {
         log.debug("Request to get Rate : {}", id);
-        return rateRepository.findById(id)
-            .map(rateMapper::toDto);
+        return rateRepository.findById(id).map(rateMapper::toDto);
     }
 
     @Override
     public Optional<RateDTO> findByCode(String code) {
         log.debug("Request to get Rate by code : {}", code);
-        return rateRepository.findOneByCode(code.toUpperCase())
-            .map(rateMapper::toDto);
+        return rateRepository.findOneByCode(code.toUpperCase()).map(rateMapper::toDto);
     }
 
-    /**
-     * Delete the rate by id.
-     *
-     * @param id the id of the entity.
-     */
     @Override
     public void delete(Long id) {
         log.debug("Request to delete Rate : {}", id);
@@ -115,10 +121,10 @@ public class RateServiceImpl implements RateService {
     }
 
     @Override
-    public void fetchRates()  {
+    public void fetchRates() {
         try {
             Map<String, String> rates = currencyParser.getCurrency(CURRENCIES.keySet());
-            for(String rate: rates.keySet()) {
+            for (String rate : rates.keySet()) {
                 Rate rateItem = rateRepository.findOneByCode(rate).orElse(new Rate());
                 rateItem.setCode(rate.toUpperCase());
                 rateItem.setRate(Float.parseFloat(rates.get(rate)));

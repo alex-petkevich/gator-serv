@@ -1,4 +1,5 @@
 package by.homesite.gator.service.dto;
+
 import java.io.Serializable;
 import java.util.Objects;
 
@@ -52,22 +53,23 @@ public class UserPropertiesDTO implements Serializable {
         if (this == o) {
             return true;
         }
-        if (o == null || getClass() != o.getClass()) {
+        if (!(o instanceof UserPropertiesDTO)) {
             return false;
         }
 
         UserPropertiesDTO userPropertiesDTO = (UserPropertiesDTO) o;
-        if (userPropertiesDTO.getId() == null || getId() == null) {
+        if (this.id == null) {
             return false;
         }
-        return Objects.equals(getId(), userPropertiesDTO.getId());
+        return Objects.equals(this.id, userPropertiesDTO.id);
     }
 
     @Override
     public int hashCode() {
-        return Objects.hashCode(getId());
+        return Objects.hash(this.id);
     }
 
+    // prettier-ignore
     @Override
     public String toString() {
         return "UserPropertiesDTO{" +

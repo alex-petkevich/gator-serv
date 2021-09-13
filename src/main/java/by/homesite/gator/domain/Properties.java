@@ -1,27 +1,26 @@
 package by.homesite.gator.domain;
-import org.hibernate.annotations.Cache;
-import org.hibernate.annotations.CacheConcurrencyStrategy;
 
+import java.io.Serializable;
 import javax.persistence.*;
 import javax.validation.constraints.*;
-
+import org.hibernate.annotations.Cache;
+import org.hibernate.annotations.CacheConcurrencyStrategy;
 import org.springframework.data.elasticsearch.annotations.FieldType;
-import java.io.Serializable;
 
 /**
  * A Properties.
  */
 @Entity
 @Table(name = "properties")
-@Cache(usage = CacheConcurrencyStrategy.NONSTRICT_READ_WRITE)
+@Cache(usage = CacheConcurrencyStrategy.READ_WRITE)
 @org.springframework.data.elasticsearch.annotations.Document(indexName = "properties")
 public class Properties implements Serializable {
 
     private static final long serialVersionUID = 1L;
 
     @Id
-    @GeneratedValue(strategy = GenerationType.IDENTITY)
-    @org.springframework.data.elasticsearch.annotations.Field(type = FieldType.Keyword)
+    @GeneratedValue(strategy = GenerationType.SEQUENCE, generator = "sequenceGenerator")
+    @SequenceGenerator(name = "sequenceGenerator")
     private Long id;
 
     @NotNull
@@ -32,7 +31,7 @@ public class Properties implements Serializable {
     @Column(name = "is_active")
     private Boolean isActive;
 
-    // jhipster-needle-entity-add-field - JHipster will add fields here, do not remove
+    // jhipster-needle-entity-add-field - JHipster will add fields here
     public Long getId() {
         return id;
     }
@@ -41,8 +40,13 @@ public class Properties implements Serializable {
         this.id = id;
     }
 
+    public Properties id(Long id) {
+        this.id = id;
+        return this;
+    }
+
     public String getName() {
-        return name;
+        return this.name;
     }
 
     public Properties name(String name) {
@@ -54,8 +58,8 @@ public class Properties implements Serializable {
         this.name = name;
     }
 
-    public Boolean isIsActive() {
-        return isActive;
+    public Boolean getIsActive() {
+        return this.isActive;
     }
 
     public Properties isActive(Boolean isActive) {
@@ -66,7 +70,8 @@ public class Properties implements Serializable {
     public void setIsActive(Boolean isActive) {
         this.isActive = isActive;
     }
-    // jhipster-needle-entity-add-getters-setters - JHipster will add getters and setters here, do not remove
+
+    // jhipster-needle-entity-add-getters-setters - JHipster will add getters and setters here
 
     @Override
     public boolean equals(Object o) {
@@ -81,15 +86,17 @@ public class Properties implements Serializable {
 
     @Override
     public int hashCode() {
-        return 31;
+        // see https://vladmihalcea.com/how-to-implement-equals-and-hashcode-using-the-jpa-entity-identifier/
+        return getClass().hashCode();
     }
 
+    // prettier-ignore
     @Override
     public String toString() {
         return "Properties{" +
             "id=" + getId() +
             ", name='" + getName() + "'" +
-            ", isActive='" + isIsActive() + "'" +
+            ", isActive='" + getIsActive() + "'" +
             "}";
     }
 }

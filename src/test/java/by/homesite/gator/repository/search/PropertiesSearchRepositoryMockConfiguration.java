@@ -12,5 +12,4 @@ public class PropertiesSearchRepositoryMockConfiguration {
 
     @MockBean
     private PropertiesSearchRepository mockPropertiesSearchRepository;
-
 }

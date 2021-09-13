@@ -1,12 +1,34 @@
 # gator
 
-Application to parse different classifieds boards. Easily customizable (just create your own by.homesite.parser implementation)
+This application was generated using JHipster 7.1.0, you can find documentation and help at [https://www.jhipster.tech/documentation-archive/v7.1.0](https://www.jhipster.tech/documentation-archive/v7.1.0).
 
 ## Development
 
-To start your application in the dev profile, simply run:
+To start your application in the dev profile, run:
 
-    ./mvnw
+```
+./mvnw
+```
+
+For further instructions on how to develop with JHipster, have a look at [Using JHipster in development][].
+
+### Using Angular CLI
+
+You can also use [Angular CLI][] to generate some custom client code.
+
+For example, the following command:
+
+```
+ng generate component my-component
+```
+
+will generate few files:
+
+```
+create src/main/webapp/app/my-component/my-component.component.html
+create src/main/webapp/app/my-component/my-component.component.ts
+update src/main/webapp/app/app.module.ts
+```
 
 ## Building for production
 
@@ -14,11 +36,15 @@ To start your application in the dev profile, simply run:
 
 To build the final jar and optimize the gator application for production, run:
 
-    ./mvnw -Pprod clean verify
+```
+./mvnw -Pprod clean verify
+```
 
 To ensure everything worked, run:
 
     java -jar target/*.jar
+
+Refer to [Using JHipster in production][] for more details.
 
 ### Packaging as war
 
@@ -35,6 +61,7 @@ To launch your application's tests, run:
 For more information, refer to the [Running tests page][].
 
 ## setting up as debian daemon
+
 mcedit /etc/systemd/system/gator.service
 
 [Unit]
@@ -53,7 +80,7 @@ WantedBy=multi-user.target
 
 ## Elasticsearch
 
-version 6.4.3 required (run under  java 8/10)
+version 6.4.3 required (run under java 8/10)
 
 ### Code quality
 
@@ -77,8 +104,6 @@ If you need to re-run the Sonar phase, please be sure to specify at least the `i
 ./mvnw initialize sonar:sonar
 ```
 
-or
-
 For more information, refer to the [Code quality page][].
 
 ## Using Docker to simplify development (optional)
@@ -87,20 +112,28 @@ You can use Docker to improve your JHipster development experience. A number of 
 
 For example, to start a mariadb database in a docker container, run:
 
-    docker-compose -f src/main/docker/mariadb.yml up -d
+```
+docker-compose -f src/main/docker/mariadb.yml up -d
+```
 
 To stop it and remove the container, run:
 
-    docker-compose -f src/main/docker/mariadb.yml down
+```
+docker-compose -f src/main/docker/mariadb.yml down
+```
 
 You can also fully dockerize your application and all the services that it depends on.
 To achieve this, first build a docker image of your app by running:
 
-    ./mvnw -Pprod verify jib:dockerBuild
+```
+./mvnw -Pprod verify jib:dockerBuild
+```
 
 Then run:
 
-    docker-compose -f src/main/docker/app.yml up -d
+```
+docker-compose -f src/main/docker/app.yml up -d
+```
 
 For more information refer to [Using Docker and Docker-Compose][], this page also contains information on the docker-compose sub-generator (`jhipster docker-compose`), which is able to generate docker configurations for one or several JHipster applications.
 
@@ -109,10 +142,10 @@ For more information refer to [Using Docker and Docker-Compose][], this page als
 To configure CI for your project, run the ci-cd sub-generator (`jhipster ci-cd`), this will let you generate configuration files for a number of Continuous Integration systems. Consult the [Setting up Continuous Integration][] page for more information.
 
 [jhipster homepage and latest documentation]: https://www.jhipster.tech
-[jhipster 6.2.0 archive]: https://www.jhipster.tech/documentation-archive/v6.2.0
-[using jhipster in development]: https://www.jhipster.tech/documentation-archive/v6.2.0/development/
-[using docker and docker-compose]: https://www.jhipster.tech/documentation-archive/v6.2.0/docker-compose
-[using jhipster in production]: https://www.jhipster.tech/documentation-archive/v6.2.0/production/
-[running tests page]: https://www.jhipster.tech/documentation-archive/v6.2.0/running-tests/
-[code quality page]: https://www.jhipster.tech/documentation-archive/v6.2.0/code-quality/
-[setting up continuous integration]: https://www.jhipster.tech/documentation-archive/v6.2.0/setting-up-ci/
+[jhipster 7.1.0 archive]: https://www.jhipster.tech/documentation-archive/v7.1.0
+[using jhipster in development]: https://www.jhipster.tech/documentation-archive/v7.1.0/development/
+[using docker and docker-compose]: https://www.jhipster.tech/documentation-archive/v7.1.0/docker-compose
+[using jhipster in production]: https://www.jhipster.tech/documentation-archive/v7.1.0/production/
+[running tests page]: https://www.jhipster.tech/documentation-archive/v7.1.0/running-tests/
+[code quality page]: https://www.jhipster.tech/documentation-archive/v7.1.0/code-quality/
+[setting up continuous integration]: https://www.jhipster.tech/documentation-archive/v7.1.0/setting-up-ci/

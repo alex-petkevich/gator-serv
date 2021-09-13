@@ -1,28 +1,26 @@
 package by.homesite.gator.domain;
-import com.fasterxml.jackson.annotation.JsonIgnoreProperties;
-import org.hibernate.annotations.Cache;
-import org.hibernate.annotations.CacheConcurrencyStrategy;
 
+import java.io.Serializable;
 import javax.persistence.*;
 import javax.validation.constraints.*;
-
+import org.hibernate.annotations.Cache;
+import org.hibernate.annotations.CacheConcurrencyStrategy;
 import org.springframework.data.elasticsearch.annotations.FieldType;
-import java.io.Serializable;
 
 /**
  * A Site.
  */
 @Entity
 @Table(name = "site")
-@Cache(usage = CacheConcurrencyStrategy.NONSTRICT_READ_WRITE)
+@Cache(usage = CacheConcurrencyStrategy.READ_WRITE)
 @org.springframework.data.elasticsearch.annotations.Document(indexName = "site")
 public class Site implements Serializable {
 
     private static final long serialVersionUID = 1L;
 
     @Id
-    @GeneratedValue(strategy = GenerationType.IDENTITY)
-    @org.springframework.data.elasticsearch.annotations.Field(type = FieldType.Keyword)
+    @GeneratedValue(strategy = GenerationType.SEQUENCE, generator = "sequenceGenerator")
+    @SequenceGenerator(name = "sequenceGenerator")
     private Long id;
 
     @Size(max = 255)
@@ -40,10 +38,9 @@ public class Site implements Serializable {
     private String name;
 
     @ManyToOne
-    @JsonIgnoreProperties("sites")
     private User user;
 
-    // jhipster-needle-entity-add-field - JHipster will add fields here, do not remove
+    // jhipster-needle-entity-add-field - JHipster will add fields here
     public Long getId() {
         return id;
     }
@@ -52,8 +49,13 @@ public class Site implements Serializable {
         this.id = id;
     }
 
+    public Site id(Long id) {
+        this.id = id;
+        return this;
+    }
+
     public String getTitle() {
-        return title;
+        return this.title;
     }
 
     public Site title(String title) {
@@ -66,7 +68,7 @@ public class Site implements Serializable {
     }
 
     public String getUrl() {
-        return url;
+        return this.url;
     }
 
     public Site url(String url) {
@@ -78,8 +80,8 @@ public class Site implements Serializable {
         this.url = url;
     }
 
-    public Boolean isActive() {
-        return active;
+    public Boolean getActive() {
+        return this.active;
     }
 
     public Site active(Boolean active) {
@@ -92,26 +94,25 @@ public class Site implements Serializable {
     }
 
     public User getUser() {
-        return user;
+        return this.user;
     }
 
     public Site user(User user) {
-        this.user = user;
+        this.setUser(user);
         return this;
     }
 
     public void setUser(User user) {
         this.user = user;
     }
-    // jhipster-needle-entity-add-getters-setters - JHipster will add getters and setters here, do not remove
 
-    public String getName()
-    {
+    // jhipster-needle-entity-add-getters-setters - JHipster will add getters and setters here
+
+    public String getName() {
         return name;
     }
 
-    public void setName(String name)
-    {
+    public void setName(String name) {
         this.name = name;
     }
 
@@ -128,16 +129,18 @@ public class Site implements Serializable {
 
     @Override
     public int hashCode() {
-        return 31;
+        // see https://vladmihalcea.com/how-to-implement-equals-and-hashcode-using-the-jpa-entity-identifier/
+        return getClass().hashCode();
     }
 
+    // prettier-ignore
     @Override
     public String toString() {
         return "Site{" +
             "id=" + getId() +
             ", title='" + getTitle() + "'" +
             ", url='" + getUrl() + "'" +
-            ", active='" + isActive() + "'" +
+            ", active='" + getActive() + "'" +
             "}";
     }
 }

@@ -1,8 +1,9 @@
 package by.homesite.gator.service.dto;
-import java.time.ZonedDateTime;
-import javax.validation.constraints.*;
+
 import java.io.Serializable;
+import java.time.ZonedDateTime;
 import java.util.Objects;
+import javax.validation.constraints.*;
 
 /**
  * A DTO for the {@link by.homesite.gator.domain.Item} entity.
@@ -188,9 +189,10 @@ public class ItemDTO implements Serializable {
 
     @Override
     public int hashCode() {
-        return Objects.hashCode(getId());
+        return Objects.hash(this.id);
     }
 
+    // prettier-ignore
     @Override
     public String toString() {
         return "ItemDTO{" +

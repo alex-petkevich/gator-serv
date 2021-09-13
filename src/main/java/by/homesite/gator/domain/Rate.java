@@ -1,29 +1,28 @@
 package by.homesite.gator.domain;
-import org.hibernate.annotations.Cache;
-import org.hibernate.annotations.CacheConcurrencyStrategy;
 
-import javax.persistence.*;
-
-import org.springframework.data.elasticsearch.annotations.FieldType;
 import java.io.Serializable;
 import java.math.BigDecimal;
 import java.time.Instant;
 import java.time.ZonedDateTime;
+import javax.persistence.*;
+import org.hibernate.annotations.Cache;
+import org.hibernate.annotations.CacheConcurrencyStrategy;
+import org.springframework.data.elasticsearch.annotations.FieldType;
 
 /**
  * A Rate.
  */
 @Entity
 @Table(name = "rate")
-@Cache(usage = CacheConcurrencyStrategy.NONSTRICT_READ_WRITE)
+@Cache(usage = CacheConcurrencyStrategy.READ_WRITE)
 @org.springframework.data.elasticsearch.annotations.Document(indexName = "rate")
 public class Rate implements Serializable {
 
     private static final long serialVersionUID = 1L;
 
     @Id
-    @GeneratedValue(strategy = GenerationType.IDENTITY)
-    @org.springframework.data.elasticsearch.annotations.Field(type = FieldType.Keyword)
+    @GeneratedValue(strategy = GenerationType.SEQUENCE, generator = "sequenceGenerator")
+    @SequenceGenerator(name = "sequenceGenerator")
     private Long id;
 
     @Column(name = "name")
@@ -73,7 +72,7 @@ public class Rate implements Serializable {
     }
 
     public String getCode() {
-        return code;
+        return this.code;
     }
 
     public Rate code(String code) {
@@ -158,18 +157,31 @@ public class Rate implements Serializable {
 
     @Override
     public int hashCode() {
-        return 31;
+        // see https://vladmihalcea.com/how-to-implement-equals-and-hashcode-using-the-jpa-entity-identifier/
+        return getClass().hashCode();
     }
 
     @Override
     public String toString() {
-        return "Rate{" +
-            "id=" + getId() +
-            ", idname='" + getName() + "'" +
-            ", code='" + getCode() + "'" +
-            ", mark='" + getMark() + "'" +
-            ", rate=" + getRate() +
-            ", active='" + getActive() + "'" +
-            "}";
+        return (
+            "Rate{" +
+            "id=" +
+            getId() +
+            ", idname='" +
+            getName() +
+            "'" +
+            ", code='" +
+            getCode() +
+            "'" +
+            ", mark='" +
+            getMark() +
+            "'" +
+            ", rate=" +
+            getRate() +
+            ", active='" +
+            getActive() +
+            "'" +
+            "}"
+        );
     }
 }

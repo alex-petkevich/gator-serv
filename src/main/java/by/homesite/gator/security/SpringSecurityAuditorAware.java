@@ -1,9 +1,7 @@
 package by.homesite.gator.security;
 
 import by.homesite.gator.config.Constants;
-
 import java.util.Optional;
-
 import org.springframework.data.domain.AuditorAware;
 import org.springframework.stereotype.Component;
 
