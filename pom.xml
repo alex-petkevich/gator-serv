@@ -1,6 +1,6 @@
 <?xml version="1.0" encoding="UTF-8"?>
-<project xmlns="https://maven.apache.org/POM/4.0.0" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
-         xsi:schemaLocation="https://maven.apache.org/POM/4.0.0 https://maven.apache.org/maven-v4_0_0.xsd">
+<project xmlns="http://maven.apache.org/POM/4.0.0" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+         xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 http://maven.apache.org/maven-v4_0_0.xsd">
     <modelVersion>4.0.0</modelVersion>
 
     <groupId>by.homesite.gator</groupId>
@@ -385,10 +385,6 @@
                 <artifactId>liquibase-maven-plugin</artifactId>
             </plugin>
             <plugin>
-                <groupId>org.springframework.boot</groupId>
-                <artifactId>spring-boot-maven-plugin</artifactId>
-            </plugin>
-            <plugin>
                 <groupId>com.google.cloud.tools</groupId>
                 <artifactId>jib-maven-plugin</artifactId>
             </plugin>
@@ -610,11 +606,20 @@
                     <configuration>
                         <changeLogFile>${project.basedir}/src/main/resources/config/liquibase/master.xml</changeLogFile>
                         <diffChangeLogFile>${project.basedir}/src/main/resources/config/liquibase/changelog/${maven.build.timestamp}_changelog.xml</diffChangeLogFile>
-                        <driver>org.mariadb.jdbc.Driver</driver>
+                        <!--<driver>org.mariadb.jdbc.Driver</driver>
                         <url>jdbc:mariadb://localhost:3306/gator?useLegacyDatetimeCode=false&amp;serverTimezone=UTC</url>
                         <defaultSchemaName>gator</defaultSchemaName>
                         <username>gator</username>
                         <password>tagortagor</password>
+                        <referenceUrl>hibernate:spring:by.homesite.gator.domain?dialect=org.hibernate.dialect.MariaDB10Dialectamp;hibernate.physical_naming_strategy=org.springframework.boot.orm.jpa.hibernate.SpringPhysicalNamingStrategy&amp;hibernate.implicit_naming_strategy=org.springframework.boot.orm.jpa.hibernate.SpringImplicitNamingStrategy</referenceUrl>
+                        <verbose>true</verbose>
+                        <logging>debug</logging>
+                        <contexts>!test</contexts>-->
+                        <driver>org.mariadb.jdbc.Driver</driver>
+                        <url>jdbc:mariadb://localhost:3306/gator?useLegacyDatetimeCode=false&serverTimezone=UTC</url>
+                        <defaultSchemaName>gator</defaultSchemaName>
+                        <username>gator</username>
+                        <password>tortortor</password>
                         <referenceUrl>hibernate:spring:by.homesite.gator.domain?dialect=org.hibernate.dialect.MariaDB10Dialectamp;hibernate.physical_naming_strategy=org.springframework.boot.orm.jpa.hibernate.SpringPhysicalNamingStrategy&amp;hibernate.implicit_naming_strategy=org.springframework.boot.orm.jpa.hibernate.SpringImplicitNamingStrategy</referenceUrl>
                         <verbose>true</verbose>
                         <logging>debug</logging>
@@ -897,17 +902,6 @@
                 <!-- default Spring profiles -->
                 <spring.profiles.active>prod${profile.api-docs}${profile.tls}${profile.no-liquibase}</spring.profiles.active>
             </properties>
-        </profile>
-        <profile>
-            <id>war</id>
-            <build>
-                <plugins>
-                    <plugin>
-                        <groupId>org.apache.maven.plugins</groupId>
-                        <artifactId>maven-war-plugin</artifactId>
-                    </plugin>
-                </plugins>
-            </build>
         </profile>
         <profile>
             <!--
