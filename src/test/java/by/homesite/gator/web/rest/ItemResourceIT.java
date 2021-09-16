@@ -224,7 +224,9 @@ public class ItemResourceIT {
         ItemDTO itemDTO = itemMapper.toDto(item);
 
         // An entity with an existing ID cannot be created, so this API call must fail
-        restItemMockMvc.perform(post("/api/items").content(TestUtil.convertObjectToJsonBytes(itemDTO))).andExpect(status().isBadRequest());
+        restItemMockMvc
+            .perform(post("/api/items").content(TestUtil.convertObjectToJsonBytes(itemDTO)).contentType(MediaType.APPLICATION_JSON))
+            .andExpect(status().isBadRequest());
 
         // Validate the Item in the database
         List<Item> itemList = itemRepository.findAll();
@@ -244,7 +246,9 @@ public class ItemResourceIT {
         // Create the Item, which fails.
         ItemDTO itemDTO = itemMapper.toDto(item);
 
-        restItemMockMvc.perform(post("/api/items").content(TestUtil.convertObjectToJsonBytes(itemDTO))).andExpect(status().isBadRequest());
+        restItemMockMvc
+            .perform(post("/api/items").contentType(MediaType.APPLICATION_JSON).content(TestUtil.convertObjectToJsonBytes(itemDTO)))
+            .andExpect(status().isBadRequest());
 
         List<Item> itemList = itemRepository.findAll();
         assertThat(itemList).hasSize(databaseSizeBeforeTest);
@@ -365,7 +369,9 @@ public class ItemResourceIT {
         ItemDTO itemDTO = itemMapper.toDto(item);
 
         // If the entity doesn't have an ID, it will throw BadRequestAlertException
-        restItemMockMvc.perform(put("/api/items").content(TestUtil.convertObjectToJsonBytes(itemDTO))).andExpect(status().isBadRequest());
+        restItemMockMvc
+            .perform(put("/api/items/0").content(TestUtil.convertObjectToJsonBytes(itemDTO)).contentType(MediaType.APPLICATION_JSON))
+            .andExpect(status().isBadRequest());
 
         // Validate the Item in the database
         List<Item> itemList = itemRepository.findAll();

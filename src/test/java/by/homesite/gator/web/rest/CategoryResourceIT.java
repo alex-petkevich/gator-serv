@@ -10,7 +10,9 @@ import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.
 
 import by.homesite.gator.IntegrationTest;
 import by.homesite.gator.domain.Category;
+import by.homesite.gator.domain.Site;
 import by.homesite.gator.repository.CategoryRepository;
+import by.homesite.gator.repository.SiteRepository;
 import by.homesite.gator.repository.search.CategorySearchRepository;
 import by.homesite.gator.service.dto.CategoryDTO;
 import by.homesite.gator.service.mapper.CategoryMapper;
@@ -58,6 +60,9 @@ class CategoryResourceIT {
 
     @Autowired
     private CategoryRepository categoryRepository;
+
+    @Autowired
+    private SiteRepository siteRepository;
 
     @Autowired
     private CategoryMapper categoryMapper;
@@ -109,6 +114,11 @@ class CategoryResourceIT {
     @Transactional
     void createCategory() throws Exception {
         int databaseSizeBeforeCreate = categoryRepository.findAll().size();
+
+        Site site = new Site().title(DEFAULT_NAME).url(DEFAULT_LINK).active(DEFAULT_ACTIVE);
+        category.setSite(site);
+        siteRepository.saveAndFlush(site);
+
         // Create the Category
         CategoryDTO categoryDTO = categoryMapper.toDto(category);
         restCategoryMockMvc
@@ -196,7 +206,7 @@ class CategoryResourceIT {
             .andExpect(jsonPath("$.[*].id").value(hasItem(category.getId().intValue())))
             .andExpect(jsonPath("$.[*].name").value(hasItem(DEFAULT_NAME)))
             .andExpect(jsonPath("$.[*].link").value(hasItem(DEFAULT_LINK)))
-            .andExpect(jsonPath("$.[*].active").value(hasItem(DEFAULT_ACTIVE.booleanValue())));
+            .andExpect(jsonPath("$.[*].active").value(hasItem(DEFAULT_ACTIVE)));
     }
 
     @Test
@@ -235,7 +245,12 @@ class CategoryResourceIT {
         Category updatedCategory = categoryRepository.findById(category.getId()).get();
         // Disconnect from session so that the updates on updatedCategory are not directly saved in db
         em.detach(updatedCategory);
-        updatedCategory.name(UPDATED_NAME).link(UPDATED_LINK).active(UPDATED_ACTIVE);
+        Site site = new Site();
+        site.setTitle("test");
+        site.setName("test");
+        siteRepository.saveAndFlush(site);
+
+        updatedCategory.name(UPDATED_NAME).link(UPDATED_LINK).active(UPDATED_ACTIVE).site(site);
         CategoryDTO categoryDTO = categoryMapper.toDto(updatedCategory);
 
         restCategoryMockMvc
