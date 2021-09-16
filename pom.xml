@@ -616,7 +616,7 @@
                         <logging>debug</logging>
                         <contexts>!test</contexts>-->
                         <driver>org.mariadb.jdbc.Driver</driver>
-                        <url>jdbc:mariadb://localhost:3306/gator?useLegacyDatetimeCode=false&serverTimezone=UTC</url>
+                        <url>jdbc:mariadb://localhost:3306/gator?useLegacyDatetimeCode=false&amp;serverTimezone=UTC</url>
                         <defaultSchemaName>gator</defaultSchemaName>
                         <username>gator</username>
                         <password>tortortor</password>
