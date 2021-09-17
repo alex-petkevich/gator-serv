@@ -148,7 +148,7 @@ jhipster:
   #   allow-credentials: true
   #   max-age: 1800
   mail:
-    from: gator@localhost
+    from: gator@homesite.by
   api-docs:
     default-include-pattern: ${server.servlet.context-path:}/api/.*
     management-include-pattern: ${server.servlet.context-path:}/management/.*
