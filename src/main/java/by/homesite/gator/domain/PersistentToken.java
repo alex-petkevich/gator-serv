@@ -36,7 +36,7 @@ public class PersistentToken implements Serializable {
     private LocalDate tokenDate;
 
     //an IPV6 address max length is 39 characters
-    @Size(min = 0, max = 39)
+    @Size(max = 39)
     @Column(name = "ip_address", length = 39)
     private String ipAddress;
 

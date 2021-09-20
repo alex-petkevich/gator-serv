@@ -1,18 +1,14 @@
 package by.homesite.gator.service;
 
-import java.util.List;
-import java.util.Optional;
-
 import by.homesite.gator.domain.Notification;
 import by.homesite.gator.service.dto.NotificationDTO;
-import by.homesite.gator.service.dto.UserNotificationsDTO;
+import java.util.List;
+import java.util.Optional;
 
 /**
  * Service Interface for managing {@link by.homesite.gator.domain.Notification}.
  */
-public interface NotificationService
-{
-
+public interface NotificationService {
     /**
      * Save a notification.
      *
@@ -27,7 +23,6 @@ public interface NotificationService
      * @return the list of entities.
      */
     List<NotificationDTO> findAll();
-
 
     /**
      * Get the "id" notification.

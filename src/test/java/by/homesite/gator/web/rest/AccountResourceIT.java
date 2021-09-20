@@ -19,7 +19,6 @@ import by.homesite.gator.security.AuthoritiesConstants;
 import by.homesite.gator.service.UserService;
 import by.homesite.gator.service.dto.AdminUserDTO;
 import by.homesite.gator.service.dto.PasswordChangeDTO;
-import by.homesite.gator.service.dto.UserDTO;
 import by.homesite.gator.web.rest.vm.KeyAndPasswordVM;
 import by.homesite.gator.web.rest.vm.ManagedUserVM;
 import java.time.Instant;

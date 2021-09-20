@@ -1,18 +1,15 @@
 package by.homesite.gator.service.mapper;
 
+import by.homesite.gator.domain.UserNotifications;
+import by.homesite.gator.service.dto.UserNotificationsDTO;
 import org.mapstruct.Mapper;
 import org.mapstruct.Mapping;
-
-import by.homesite.gator.domain.UserNotifications;
-import by.homesite.gator.domain.UserSearches;
-import by.homesite.gator.service.dto.UserNotificationsDTO;
 
 /**
  * Mapper for the entity {@link UserNotifications} and its DTO {@link UserNotificationsDTO}.
  */
-@Mapper(componentModel = "spring", uses = {NotificationMapper.class, UserMapper.class, UserSearchesMapper.class })
+@Mapper(componentModel = "spring", uses = { NotificationMapper.class, UserMapper.class, UserSearchesMapper.class })
 public interface UserNotificationsMapper extends EntityMapper<UserNotificationsDTO, UserNotifications> {
-
     @Mapping(source = "user.id", target = "userId")
     @Mapping(source = "notification.id", target = "notificationId")
     @Mapping(source = "notification.name", target = "notificationName")

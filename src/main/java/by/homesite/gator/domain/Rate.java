@@ -1,8 +1,6 @@
 package by.homesite.gator.domain;
 
 import java.io.Serializable;
-import java.math.BigDecimal;
-import java.time.Instant;
 import java.time.ZonedDateTime;
 import javax.persistence.*;
 import org.hibernate.annotations.Cache;

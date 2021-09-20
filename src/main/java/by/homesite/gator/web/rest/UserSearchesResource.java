@@ -39,7 +39,7 @@ public class UserSearchesResource {
     private String applicationName;
 
     private final UserSearchesService userSearchesService;
-    private UserRepository userRepository;
+    private final UserRepository userRepository;
 
     public UserSearchesResource(UserSearchesService userSearchesService, UserRepository userRepository) {
         this.userSearchesService = userSearchesService;

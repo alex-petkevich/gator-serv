@@ -14,9 +14,8 @@
 # ===================================================================
 
 spring:
-  profiles:
-    # Uncomment the following line to enable tests against production database type rather than H2, using Testcontainers
-    #active: testcontainers
+  # Uncomment the following line to enable tests against production database type rather than H2, using Testcontainers
+  #active: testcontainers
   application:
     name: gator
   datasource:
@@ -68,6 +67,9 @@ spring:
         size: 1
   thymeleaf:
     mode: HTML
+  config:
+    activate:
+      on-profile:
 
 server:
   port: 10344

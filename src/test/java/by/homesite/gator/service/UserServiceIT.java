@@ -7,13 +7,11 @@ import static org.mockito.Mockito.verify;
 import static org.mockito.Mockito.when;
 
 import by.homesite.gator.IntegrationTest;
-import by.homesite.gator.config.Constants;
 import by.homesite.gator.domain.PersistentToken;
 import by.homesite.gator.domain.User;
 import by.homesite.gator.repository.PersistentTokenRepository;
 import by.homesite.gator.repository.UserRepository;
 import by.homesite.gator.repository.search.UserSearchRepository;
-import by.homesite.gator.service.dto.AdminUserDTO;
 import java.time.Instant;
 import java.time.LocalDate;
 import java.time.LocalDateTime;
@@ -27,8 +25,6 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.mock.mockito.MockBean;
 import org.springframework.data.auditing.AuditingHandler;
 import org.springframework.data.auditing.DateTimeProvider;
-import org.springframework.data.domain.Page;
-import org.springframework.data.domain.PageRequest;
 import org.springframework.transaction.annotation.Transactional;
 import tech.jhipster.security.RandomUtil;
 

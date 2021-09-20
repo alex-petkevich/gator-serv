@@ -1,25 +1,10 @@
 package by.homesite.gator.service;
 
-import com.fasterxml.jackson.annotation.JsonIgnore;
-
 import by.homesite.gator.domain.*;
 import by.homesite.gator.repository.*;
 import by.homesite.gator.repository.search.*;
+import com.fasterxml.jackson.annotation.JsonIgnore;
 import io.micrometer.core.annotation.Timed;
-
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
-import org.springframework.data.domain.Page;
-import org.springframework.data.domain.PageRequest;
-import org.springframework.data.domain.Pageable;
-import org.springframework.data.elasticsearch.core.ElasticsearchOperations;
-import org.springframework.data.elasticsearch.repository.ElasticsearchRepository;
-import org.springframework.data.jpa.repository.JpaRepository;
-import org.springframework.scheduling.annotation.Async;
-import org.springframework.stereotype.Service;
-import org.springframework.transaction.annotation.Transactional;
-
-import javax.persistence.ManyToMany;
 import java.beans.IntrospectionException;
 import java.beans.PropertyDescriptor;
 import java.io.Serializable;
@@ -31,6 +16,18 @@ import java.util.Set;
 import java.util.concurrent.locks.Lock;
 import java.util.concurrent.locks.ReentrantLock;
 import java.util.stream.Collectors;
+import javax.persistence.ManyToMany;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
+import org.springframework.data.domain.Page;
+import org.springframework.data.domain.PageRequest;
+import org.springframework.data.domain.Pageable;
+import org.springframework.data.elasticsearch.core.ElasticsearchOperations;
+import org.springframework.data.elasticsearch.repository.ElasticsearchRepository;
+import org.springframework.data.jpa.repository.JpaRepository;
+import org.springframework.scheduling.annotation.Async;
+import org.springframework.stereotype.Service;
+import org.springframework.transaction.annotation.Transactional;
 
 @Service
 @Transactional(readOnly = true)
@@ -79,7 +76,8 @@ public class ElasticsearchIndexService {
         SiteSearchRepository siteSearchRepository,
         UserPropertiesRepository userPropertiesRepository,
         UserPropertiesSearchRepository userPropertiesSearchRepository,
-        ElasticsearchOperations elasticsearchTemplate) {
+        ElasticsearchOperations elasticsearchTemplate
+    ) {
         this.userRepository = userRepository;
         this.userSearchRepository = userSearchRepository;
         this.categoryRepository = categoryRepository;
@@ -116,29 +114,42 @@ public class ElasticsearchIndexService {
         }
     }
 
-    @SuppressWarnings("unchecked")
-    private <T, ID extends Serializable> void reindexForClass(Class<T> entityClass, JpaRepository<T, ID> jpaRepository,
-                                                              ElasticsearchRepository<T, ID> elasticsearchRepository) {
-        elasticsearchTemplate.deleteIndex(entityClass);
-        elasticsearchTemplate.createIndex(entityClass);
+    private <T, ID extends Serializable> void reindexForClass(
+        Class<T> entityClass,
+        JpaRepository<T, ID> jpaRepository,
+        ElasticsearchRepository<T, ID> elasticsearchRepository
+    ) {
+        //        elasticsearchTemplate.deleteIndex(entityClass);
+        //       elasticsearchTemplate.createIndex(entityClass);
+        //        elasticsearchTemplate.putMapping(entityClass);
+        elasticsearchTemplate.indexOps(entityClass).delete();
+        elasticsearchTemplate.indexOps(entityClass).create();
 
-        elasticsearchTemplate.putMapping(entityClass);
+        elasticsearchTemplate.indexOps(entityClass).putMapping();
+
         if (jpaRepository.count() > 0) {
             // if a JHipster entity field is the owner side of a many-to-many relationship, it should be loaded manually
-            List<Method> relationshipGetters = Arrays.stream(entityClass.getDeclaredFields())
+            List<Method> relationshipGetters = Arrays
+                .stream(entityClass.getDeclaredFields())
                 .filter(field -> field.getType().equals(Set.class))
                 .filter(field -> field.getAnnotation(ManyToMany.class) != null)
                 .filter(field -> field.getAnnotation(ManyToMany.class).mappedBy().isEmpty())
                 .filter(field -> field.getAnnotation(JsonIgnore.class) == null)
-                .map(field -> {
-                    try {
-                        return new PropertyDescriptor((String)field.getName(), entityClass).getReadMethod();
-                    } catch (IntrospectionException e) {
-                        log.error("Error retrieving getter for class {}, field {}. Field will NOT be indexed",
-                            entityClass.getSimpleName(), field.getName(), e);
-                        return null;
+                .map(
+                    field -> {
+                        try {
+                            return new PropertyDescriptor(field.getName(), entityClass).getReadMethod();
+                        } catch (IntrospectionException e) {
+                            log.error(
+                                "Error retrieving getter for class {}, field {}. Field will NOT be indexed",
+                                entityClass.getSimpleName(),
+                                field.getName(),
+                                e
+                            );
+                            return null;
+                        }
                     }
-                })
+                )
                 .filter(Objects::nonNull)
                 .collect(Collectors.toList());
 
@@ -147,19 +158,23 @@ public class ElasticsearchIndexService {
                 Pageable page = PageRequest.of(i, size);
                 log.info("Indexing page {} of {}, size {}", i, jpaRepository.count() / size, size);
                 Page<T> results = jpaRepository.findAll(page);
-                results.map(result -> {
-                    // if there are any relationships to load, do it now
-                    relationshipGetters.forEach(method -> {
-                        try {
-                            // eagerly load the relationship set
-                            ((Set) method.invoke(result)).size();
-                        } catch (Exception ex) {
-                            log.error(ex.getMessage());
-                        }
-                    });
-                    return result;
-                });
-                results.getContent().forEach(elasticsearchRepository::save);
+                results.map(
+                    result -> {
+                        // if there are any relationships to load, do it now
+                        relationshipGetters.forEach(
+                            method -> {
+                                try {
+                                    // eagerly load the relationship set
+                                    ((Set) method.invoke(result)).size();
+                                } catch (Exception ex) {
+                                    log.error(ex.getMessage());
+                                }
+                            }
+                        );
+                        return result;
+                    }
+                );
+                elasticsearchRepository.saveAll(results.getContent());
             }
         }
         log.info("Elasticsearch: Indexed all rows for {}", entityClass.getSimpleName());

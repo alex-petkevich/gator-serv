@@ -24,11 +24,11 @@ public class Site implements Serializable {
     private Long id;
 
     @Size(max = 255)
-    @Column(name = "title", length = 255)
+    @Column(name = "title")
     private String title;
 
     @Size(max = 255)
-    @Column(name = "url", length = 255)
+    @Column(name = "url")
     private String url;
 
     @Column(name = "active")

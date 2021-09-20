@@ -7,5 +7,5 @@ import org.mapstruct.*;
 /**
  * Mapper for the entity {@link Properties} and its DTO {@link PropertiesDTO}.
  */
-@Mapper(componentModel = "spring", uses = {})
+@Mapper(componentModel = "spring")
 public interface PropertiesMapper extends EntityMapper<PropertiesDTO, Properties> {}

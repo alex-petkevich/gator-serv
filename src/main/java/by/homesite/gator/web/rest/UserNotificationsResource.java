@@ -45,7 +45,7 @@ public class UserNotificationsResource {
 
     private final UserSearchesService userSearchesService;
     private final NotificationService notificationService;
-    private UserRepository userRepository;
+    private final UserRepository userRepository;
 
     public UserNotificationsResource(
         UserNotificationsService userNotificationsService,

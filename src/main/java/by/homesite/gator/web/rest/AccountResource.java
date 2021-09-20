@@ -9,12 +9,12 @@ import by.homesite.gator.service.MailService;
 import by.homesite.gator.service.UserService;
 import by.homesite.gator.service.dto.AdminUserDTO;
 import by.homesite.gator.service.dto.PasswordChangeDTO;
-import by.homesite.gator.service.dto.UserDTO;
 import by.homesite.gator.web.rest.errors.*;
 import by.homesite.gator.web.rest.vm.KeyAndPasswordVM;
 import by.homesite.gator.web.rest.vm.ManagedUserVM;
 import java.io.UnsupportedEncodingException;
 import java.net.URLDecoder;
+import java.nio.charset.StandardCharsets;
 import java.util.*;
 import javax.servlet.http.HttpServletRequest;
 import javax.validation.Valid;
@@ -87,7 +87,7 @@ public class AccountResource {
     @GetMapping("/activate")
     public void activateAccount(@RequestParam(value = "key") String key) {
         Optional<User> user = userService.activateRegistration(key);
-        if (!user.isPresent()) {
+        if (user.isEmpty()) {
             throw new AccountResourceException("No user was found for this activation key");
         }
     }
@@ -135,7 +135,7 @@ public class AccountResource {
             throw new EmailAlreadyUsedException();
         }
         Optional<User> user = userRepository.findOneByLogin(userLogin);
-        if (!user.isPresent()) {
+        if (user.isEmpty()) {
             throw new AccountResourceException("User could not be found");
         }
         userService.updateUser(
@@ -196,19 +196,19 @@ public class AccountResource {
      */
     @DeleteMapping("/account/sessions/{series}")
     public void invalidateSession(@PathVariable String series) throws UnsupportedEncodingException {
-        String decodedSeries = URLDecoder.decode(series, "UTF-8");
+        String decodedSeries = URLDecoder.decode(series, StandardCharsets.UTF_8);
         SecurityUtils
             .getCurrentUserLogin()
             .flatMap(userRepository::findOneByLogin)
-            .ifPresent(
+            .flatMap(
                 u ->
                     persistentTokenRepository
                         .findByUser(u)
                         .stream()
                         .filter(persistentToken -> StringUtils.equals(persistentToken.getSeries(), decodedSeries))
                         .findAny()
-                        .ifPresent(t -> persistentTokenRepository.deleteById(decodedSeries))
-            );
+            )
+            .ifPresent(t -> persistentTokenRepository.deleteById(decodedSeries));
     }
 
     /**
@@ -242,7 +242,7 @@ public class AccountResource {
         }
         Optional<User> user = userService.completePasswordReset(keyAndPassword.getNewPassword(), keyAndPassword.getKey());
 
-        if (!user.isPresent()) {
+        if (user.isEmpty()) {
             throw new AccountResourceException("No user was found for this reset key");
         }
     }

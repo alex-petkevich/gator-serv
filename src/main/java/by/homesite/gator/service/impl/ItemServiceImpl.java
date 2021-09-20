@@ -1,14 +1,9 @@
 package by.homesite.gator.service.impl;
 
-import static org.elasticsearch.index.query.QueryBuilders.matchQuery;
-import static org.elasticsearch.index.query.QueryBuilders.multiMatchQuery;
-import static org.elasticsearch.index.query.QueryBuilders.queryStringQuery;
-
 import by.homesite.gator.domain.Item;
 import by.homesite.gator.repository.ItemRepository;
 import by.homesite.gator.repository.search.ItemSearchRepository;
 import by.homesite.gator.service.CategoryService;
-import by.homesite.gator.service.ItemService;
 import by.homesite.gator.service.ItemService;
 import by.homesite.gator.service.dto.ItemDTO;
 import by.homesite.gator.service.mapper.CategoryMapper;
@@ -18,17 +13,11 @@ import java.util.List;
 import java.util.Optional;
 import org.apache.commons.lang3.StringUtils;
 import org.elasticsearch.common.unit.Fuzziness;
-import org.elasticsearch.index.query.BoolQueryBuilder;
-import org.elasticsearch.index.query.MultiMatchQueryBuilder;
-import org.elasticsearch.index.query.Operator;
-import org.elasticsearch.index.query.QueryBuilder;
 import org.elasticsearch.index.query.QueryBuilders;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
-import org.springframework.data.elasticsearch.core.query.NativeSearchQuery;
-import org.springframework.data.elasticsearch.core.query.NativeSearchQueryBuilder;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
@@ -164,11 +153,11 @@ public class ItemServiceImpl implements ItemService {
         }
 
         if (!StringUtils.isEmpty(category) && !"0".equals(category)) {
-            inputQuery.append(" AND (category.id:" + category.replaceAll(",", " OR category.id:") + ")");
+            inputQuery.append(" AND (category.id:").append(category.replaceAll(",", " OR category.id:")).append(")");
         }
 
         if (!StringUtils.isEmpty(type) && !"undefined".equals(type)) {
-            inputQuery.append(" AND (type:" + type.replaceAll(",", " OR type:") + ")");
+            inputQuery.append(" AND (type:").append(type.replaceAll(",", " OR type:")).append(")");
         }
 
         /* NativeSearchQueryBuilder searchQueryBuilder = new NativeSearchQueryBuilder();

@@ -22,7 +22,6 @@ import javax.persistence.EntityManager;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.ExtendWith;
-import org.mockito.Mock;
 import org.mockito.junit.jupiter.MockitoExtension;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.autoconfigure.web.servlet.AutoConfigureMockMvc;
@@ -50,8 +49,8 @@ class PropertiesResourceIT {
     private static final String ENTITY_API_URL_ID = ENTITY_API_URL + "/{id}";
     private static final String ENTITY_SEARCH_API_URL = "/api/_search/properties";
 
-    private static Random random = new Random();
-    private static AtomicLong count = new AtomicLong(random.nextInt() + (2 * Integer.MAX_VALUE));
+    private static final Random random = new Random();
+    private static final AtomicLong count = new AtomicLong(random.nextInt() + (2 * Integer.MAX_VALUE));
 
     @Autowired
     private PropertiesRepository propertiesRepository;
@@ -191,7 +190,7 @@ class PropertiesResourceIT {
             .andExpect(content().contentType(MediaType.APPLICATION_JSON_VALUE))
             .andExpect(jsonPath("$.[*].id").value(hasItem(properties.getId().intValue())))
             .andExpect(jsonPath("$.[*].name").value(hasItem(DEFAULT_NAME)))
-            .andExpect(jsonPath("$.[*].isActive").value(hasItem(DEFAULT_IS_ACTIVE.booleanValue())));
+            .andExpect(jsonPath("$.[*].isActive").value(hasItem(DEFAULT_IS_ACTIVE)));
     }
 
     @Test
@@ -207,7 +206,7 @@ class PropertiesResourceIT {
             .andExpect(content().contentType(MediaType.APPLICATION_JSON_VALUE))
             .andExpect(jsonPath("$.id").value(properties.getId().intValue()))
             .andExpect(jsonPath("$.name").value(DEFAULT_NAME))
-            .andExpect(jsonPath("$.isActive").value(DEFAULT_IS_ACTIVE.booleanValue()));
+            .andExpect(jsonPath("$.isActive").value(DEFAULT_IS_ACTIVE));
     }
 
     @Test
@@ -511,6 +510,6 @@ class PropertiesResourceIT {
             .andExpect(content().contentType(MediaType.APPLICATION_JSON_VALUE))
             .andExpect(jsonPath("$.[*].id").value(hasItem(properties.getId().intValue())))
             .andExpect(jsonPath("$.[*].name").value(hasItem(DEFAULT_NAME)))
-            .andExpect(jsonPath("$.[*].isActive").value(hasItem(DEFAULT_IS_ACTIVE.booleanValue())));
+            .andExpect(jsonPath("$.[*].isActive").value(hasItem(DEFAULT_IS_ACTIVE)));
     }
 }

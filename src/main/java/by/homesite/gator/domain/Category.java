@@ -26,7 +26,7 @@ public class Category implements Serializable {
 
     @NotNull
     @Size(max = 255)
-    @Column(name = "name", length = 255, nullable = false)
+    @Column(name = "name", nullable = false)
     private String name;
 
     @Column(name = "link")

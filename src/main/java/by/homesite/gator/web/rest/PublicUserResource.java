@@ -6,7 +6,6 @@ import by.homesite.gator.repository.search.UserSearchRepository;
 import by.homesite.gator.service.UserService;
 import by.homesite.gator.service.dto.UserDTO;
 import java.util.*;
-import java.util.Collections;
 import java.util.stream.Collectors;
 import java.util.stream.StreamSupport;
 import org.slf4j.Logger;
@@ -25,8 +24,14 @@ import tech.jhipster.web.util.PaginationUtil;
 @RequestMapping("/api")
 public class PublicUserResource {
 
-    private static final List<String> ALLOWED_ORDERED_PROPERTIES = Collections.unmodifiableList(
-        Arrays.asList("id", "login", "firstName", "lastName", "email", "activated", "langKey")
+    private static final List<String> ALLOWED_ORDERED_PROPERTIES = List.of(
+        "id",
+        "login",
+        "firstName",
+        "lastName",
+        "email",
+        "activated",
+        "langKey"
     );
 
     private final Logger log = LoggerFactory.getLogger(PublicUserResource.class);

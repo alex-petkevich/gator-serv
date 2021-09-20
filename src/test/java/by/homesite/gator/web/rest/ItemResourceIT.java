@@ -1,10 +1,7 @@
 package by.homesite.gator.web.rest;
 
 import static by.homesite.gator.web.rest.TestUtil.createFormattingConversionService;
-import static by.homesite.gator.web.rest.TestUtil.sameInstant;
 import static org.assertj.core.api.Assertions.assertThat;
-import static org.elasticsearch.index.query.QueryBuilders.queryStringQuery;
-import static org.hamcrest.Matchers.hasItem;
 import static org.mockito.Mockito.*;
 import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.*;
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.*;
@@ -21,7 +18,6 @@ import java.time.Instant;
 import java.time.ZoneId;
 import java.time.ZoneOffset;
 import java.time.ZonedDateTime;
-import java.util.Collections;
 import java.util.List;
 import javax.persistence.EntityManager;
 import org.junit.jupiter.api.BeforeEach;
@@ -29,8 +25,6 @@ import org.junit.jupiter.api.Test;
 import org.mockito.MockitoAnnotations;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.context.SpringBootTest;
-import org.springframework.data.domain.PageImpl;
-import org.springframework.data.domain.PageRequest;
 import org.springframework.data.web.PageableHandlerMethodArgumentResolver;
 import org.springframework.http.MediaType;
 import org.springframework.http.converter.json.MappingJackson2HttpMessageConverter;

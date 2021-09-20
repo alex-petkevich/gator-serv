@@ -1,7 +1,5 @@
 package by.homesite.gator.web.rest;
 
-import static org.elasticsearch.index.query.QueryBuilders.*;
-
 import by.homesite.gator.repository.ItemRepository;
 import by.homesite.gator.service.ItemService;
 import by.homesite.gator.service.dto.ItemDTO;
@@ -11,7 +9,6 @@ import java.net.URISyntaxException;
 import java.util.List;
 import java.util.Objects;
 import java.util.Optional;
-import java.util.stream.StreamSupport;
 import javax.validation.Valid;
 import javax.validation.constraints.NotNull;
 import org.slf4j.Logger;
@@ -20,7 +17,6 @@ import org.springframework.beans.factory.annotation.Value;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
 import org.springframework.http.HttpHeaders;
-import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 import org.springframework.web.servlet.support.ServletUriComponentsBuilder;
@@ -79,13 +75,12 @@ public class ItemResource {
      * @return the {@link ResponseEntity} with status {@code 200 (OK)} and with body the updated itemDTO,
      * or with status {@code 400 (Bad Request)} if the itemDTO is not valid,
      * or with status {@code 500 (Internal Server Error)} if the itemDTO couldn't be updated.
-     * @throws URISyntaxException if the Location URI syntax is incorrect.
      */
     @PutMapping("/items/{id}")
     public ResponseEntity<ItemDTO> updateItem(
         @PathVariable(value = "id", required = false) final Long id,
         @Valid @RequestBody ItemDTO itemDTO
-    ) throws URISyntaxException {
+    ) {
         log.debug("REST request to update Item : {}, {}", id, itemDTO);
         if (itemDTO.getId() == null) {
             throw new BadRequestAlertException("Invalid id", ENTITY_NAME, "idnull");
@@ -114,13 +109,12 @@ public class ItemResource {
      * or with status {@code 400 (Bad Request)} if the itemDTO is not valid,
      * or with status {@code 404 (Not Found)} if the itemDTO is not found,
      * or with status {@code 500 (Internal Server Error)} if the itemDTO couldn't be updated.
-     * @throws URISyntaxException if the Location URI syntax is incorrect.
      */
     @PatchMapping(value = "/items/{id}", consumes = "application/merge-patch+json")
     public ResponseEntity<ItemDTO> partialUpdateItem(
         @PathVariable(value = "id", required = false) final Long id,
         @NotNull @RequestBody ItemDTO itemDTO
-    ) throws URISyntaxException {
+    ) {
         log.debug("REST request to partial update Item partially : {}, {}", id, itemDTO);
         if (itemDTO.getId() == null) {
             throw new BadRequestAlertException("Invalid id", ENTITY_NAME, "idnull");

@@ -22,7 +22,6 @@ import javax.persistence.EntityManager;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.ExtendWith;
-import org.mockito.Mock;
 import org.mockito.junit.jupiter.MockitoExtension;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.autoconfigure.web.servlet.AutoConfigureMockMvc;
@@ -55,8 +54,8 @@ class SiteResourceIT {
     private static final String ENTITY_API_URL_ID = ENTITY_API_URL + "/{id}";
     private static final String ENTITY_SEARCH_API_URL = "/api/_search/sites";
 
-    private static Random random = new Random();
-    private static AtomicLong count = new AtomicLong(random.nextInt() + (2 * Integer.MAX_VALUE));
+    private static final Random random = new Random();
+    private static final AtomicLong count = new AtomicLong(random.nextInt() + (2 * Integer.MAX_VALUE));
 
     @Autowired
     private SiteRepository siteRepository;
@@ -175,7 +174,7 @@ class SiteResourceIT {
             .andExpect(jsonPath("$.[*].id").value(hasItem(site.getId().intValue())))
             .andExpect(jsonPath("$.[*].title").value(hasItem(DEFAULT_TITLE)))
             .andExpect(jsonPath("$.[*].url").value(hasItem(DEFAULT_URL)))
-            .andExpect(jsonPath("$.[*].active").value(hasItem(DEFAULT_ACTIVE.booleanValue())));
+            .andExpect(jsonPath("$.[*].active").value(hasItem(DEFAULT_ACTIVE)));
     }
 
     @Test
@@ -192,7 +191,7 @@ class SiteResourceIT {
             .andExpect(jsonPath("$.id").value(site.getId().intValue()))
             .andExpect(jsonPath("$.title").value(DEFAULT_TITLE))
             .andExpect(jsonPath("$.url").value(DEFAULT_URL))
-            .andExpect(jsonPath("$.active").value(DEFAULT_ACTIVE.booleanValue()));
+            .andExpect(jsonPath("$.active").value(DEFAULT_ACTIVE));
     }
 
     @Test
@@ -499,6 +498,6 @@ class SiteResourceIT {
             .andExpect(jsonPath("$.[*].id").value(hasItem(site.getId().intValue())))
             .andExpect(jsonPath("$.[*].title").value(hasItem(DEFAULT_TITLE)))
             .andExpect(jsonPath("$.[*].url").value(hasItem(DEFAULT_URL)))
-            .andExpect(jsonPath("$.[*].active").value(hasItem(DEFAULT_ACTIVE.booleanValue())));
+            .andExpect(jsonPath("$.[*].active").value(hasItem(DEFAULT_ACTIVE)));
     }
 }

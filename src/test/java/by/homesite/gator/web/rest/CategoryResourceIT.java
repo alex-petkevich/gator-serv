@@ -24,7 +24,6 @@ import javax.persistence.EntityManager;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.ExtendWith;
-import org.mockito.Mock;
 import org.mockito.junit.jupiter.MockitoExtension;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.autoconfigure.web.servlet.AutoConfigureMockMvc;
@@ -55,8 +54,8 @@ class CategoryResourceIT {
     private static final String ENTITY_API_URL_ID = ENTITY_API_URL + "/{id}";
     private static final String ENTITY_SEARCH_API_URL = "/api/_search/categories";
 
-    private static Random random = new Random();
-    private static AtomicLong count = new AtomicLong(random.nextInt() + (2 * Integer.MAX_VALUE));
+    private static final Random random = new Random();
+    private static final AtomicLong count = new AtomicLong(random.nextInt() + (2 * Integer.MAX_VALUE));
 
     @Autowired
     private CategoryRepository categoryRepository;
@@ -90,8 +89,7 @@ class CategoryResourceIT {
      * if they test an entity which requires the current entity.
      */
     public static Category createEntity(EntityManager em) {
-        Category category = new Category().name(DEFAULT_NAME).link(DEFAULT_LINK).active(DEFAULT_ACTIVE);
-        return category;
+        return new Category().name(DEFAULT_NAME).link(DEFAULT_LINK).active(DEFAULT_ACTIVE);
     }
 
     /**
@@ -101,8 +99,7 @@ class CategoryResourceIT {
      * if they test an entity which requires the current entity.
      */
     public static Category createUpdatedEntity(EntityManager em) {
-        Category category = new Category().name(UPDATED_NAME).link(UPDATED_LINK).active(UPDATED_ACTIVE);
-        return category;
+        return new Category().name(UPDATED_NAME).link(UPDATED_LINK).active(UPDATED_ACTIVE);
     }
 
     @BeforeEach
@@ -223,7 +220,7 @@ class CategoryResourceIT {
             .andExpect(jsonPath("$.id").value(category.getId().intValue()))
             .andExpect(jsonPath("$.name").value(DEFAULT_NAME))
             .andExpect(jsonPath("$.link").value(DEFAULT_LINK))
-            .andExpect(jsonPath("$.active").value(DEFAULT_ACTIVE.booleanValue()));
+            .andExpect(jsonPath("$.active").value(DEFAULT_ACTIVE));
     }
 
     @Test
@@ -538,6 +535,6 @@ class CategoryResourceIT {
             .andExpect(jsonPath("$.[*].id").value(hasItem(category.getId().intValue())))
             .andExpect(jsonPath("$.[*].name").value(hasItem(DEFAULT_NAME)))
             .andExpect(jsonPath("$.[*].link").value(hasItem(DEFAULT_LINK)))
-            .andExpect(jsonPath("$.[*].active").value(hasItem(DEFAULT_ACTIVE.booleanValue())));
+            .andExpect(jsonPath("$.[*].active").value(hasItem(DEFAULT_ACTIVE)));
     }
 }

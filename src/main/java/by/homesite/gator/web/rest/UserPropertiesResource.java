@@ -1,7 +1,5 @@
 package by.homesite.gator.web.rest;
 
-import static org.elasticsearch.index.query.QueryBuilders.*;
-
 import by.homesite.gator.repository.UserPropertiesRepository;
 import by.homesite.gator.service.UserPropertiesService;
 import by.homesite.gator.service.dto.UserPropertiesDTO;
@@ -11,7 +9,6 @@ import java.net.URISyntaxException;
 import java.util.List;
 import java.util.Objects;
 import java.util.Optional;
-import java.util.stream.StreamSupport;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Value;

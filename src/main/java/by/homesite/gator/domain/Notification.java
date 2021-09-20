@@ -1,10 +1,10 @@
 package by.homesite.gator.domain;
 
+import com.fasterxml.jackson.annotation.JsonIgnore;
 import java.io.Serializable;
 import java.util.HashSet;
 import java.util.Objects;
 import java.util.Set;
-
 import javax.persistence.Column;
 import javax.persistence.Entity;
 import javax.persistence.GeneratedValue;
@@ -14,13 +14,10 @@ import javax.persistence.OneToMany;
 import javax.persistence.Table;
 import javax.validation.constraints.NotNull;
 import javax.validation.constraints.Size;
-
 import org.hibernate.annotations.BatchSize;
 import org.hibernate.annotations.Cache;
 import org.hibernate.annotations.CacheConcurrencyStrategy;
 import org.springframework.data.elasticsearch.annotations.FieldType;
-
-import com.fasterxml.jackson.annotation.JsonIgnore;
 
 /**
  * A Category.
@@ -39,7 +36,7 @@ public class Notification implements Serializable {
 
     @NotNull
     @Size(max = 255)
-    @Column(name = "name", length = 255, nullable = false)
+    @Column(name = "name", nullable = false)
     private String name;
 
     @Column(name = "title")
@@ -101,42 +98,29 @@ public class Notification implements Serializable {
         this.isActive = isActive;
     }
 
-    public Set<UserNotifications> getUsersNotifications()
-    {
+    public Set<UserNotifications> getUsersNotifications() {
         return usersNotifications;
     }
 
-    public void setUsersNotifications(Set<UserNotifications> usersNotifications)
-    {
+    public void setUsersNotifications(Set<UserNotifications> usersNotifications) {
         this.usersNotifications = usersNotifications;
     }
 
     @Override
-    public boolean equals(Object o)
-    {
-        if (this == o)
-            return true;
-        if (o == null || getClass() != o.getClass())
-            return false;
+    public boolean equals(Object o) {
+        if (this == o) return true;
+        if (o == null || getClass() != o.getClass()) return false;
         Notification that = (Notification) o;
-        return id.equals(that.id) && name.equals(that.name) && Objects.equals(title, that.title) && Objects.equals(isActive,
-            that.isActive);
+        return id.equals(that.id) && name.equals(that.name) && Objects.equals(title, that.title) && Objects.equals(isActive, that.isActive);
     }
 
     @Override
-    public int hashCode()
-    {
+    public int hashCode() {
         return Objects.hash(id, name, title, isActive);
     }
 
     @Override
-    public String toString()
-    {
-        return "Notification{" +
-            "id=" + id +
-            ", name='" + name + '\'' +
-            ", title='" + title + '\'' +
-            ", active=" + isActive +
-            '}';
+    public String toString() {
+        return "Notification{" + "id=" + id + ", name='" + name + '\'' + ", title='" + title + '\'' + ", active=" + isActive + '}';
     }
 }

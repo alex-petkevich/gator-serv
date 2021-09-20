@@ -1,7 +1,5 @@
 package by.homesite.gator.web.rest;
 
-import static org.elasticsearch.index.query.QueryBuilders.*;
-
 import by.homesite.gator.repository.CategoryRepository;
 import by.homesite.gator.service.CategoryService;
 import by.homesite.gator.service.dto.CategoryDTO;
@@ -11,7 +9,6 @@ import java.net.URISyntaxException;
 import java.util.List;
 import java.util.Objects;
 import java.util.Optional;
-import java.util.stream.StreamSupport;
 import javax.validation.Valid;
 import javax.validation.constraints.NotNull;
 import org.slf4j.Logger;
@@ -73,13 +70,12 @@ public class CategoryResource {
      * @return the {@link ResponseEntity} with status {@code 200 (OK)} and with body the updated categoryDTO,
      * or with status {@code 400 (Bad Request)} if the categoryDTO is not valid,
      * or with status {@code 500 (Internal Server Error)} if the categoryDTO couldn't be updated.
-     * @throws URISyntaxException if the Location URI syntax is incorrect.
      */
     @PutMapping("/categories/{id}")
     public ResponseEntity<CategoryDTO> updateCategory(
         @PathVariable(value = "id", required = false) final Long id,
         @Valid @RequestBody CategoryDTO categoryDTO
-    ) throws URISyntaxException {
+    ) {
         log.debug("REST request to update Category : {}, {}", id, categoryDTO);
         if (categoryDTO.getId() == null) {
             throw new BadRequestAlertException("Invalid id", ENTITY_NAME, "idnull");
@@ -108,13 +104,12 @@ public class CategoryResource {
      * or with status {@code 400 (Bad Request)} if the categoryDTO is not valid,
      * or with status {@code 404 (Not Found)} if the categoryDTO is not found,
      * or with status {@code 500 (Internal Server Error)} if the categoryDTO couldn't be updated.
-     * @throws URISyntaxException if the Location URI syntax is incorrect.
      */
     @PatchMapping(value = "/categories/{id}", consumes = "application/merge-patch+json")
     public ResponseEntity<CategoryDTO> partialUpdateCategory(
         @PathVariable(value = "id", required = false) final Long id,
         @NotNull @RequestBody CategoryDTO categoryDTO
-    ) throws URISyntaxException {
+    ) {
         log.debug("REST request to partial update Category partially : {}, {}", id, categoryDTO);
         if (categoryDTO.getId() == null) {
             throw new BadRequestAlertException("Invalid id", ENTITY_NAME, "idnull");

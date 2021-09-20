@@ -1,8 +1,8 @@
 package by.homesite.gator.domain;
 
+import com.fasterxml.jackson.annotation.JsonIgnoreProperties;
 import java.io.Serializable;
 import java.util.Objects;
-
 import javax.persistence.Column;
 import javax.persistence.Entity;
 import javax.persistence.GeneratedValue;
@@ -10,12 +10,8 @@ import javax.persistence.GenerationType;
 import javax.persistence.Id;
 import javax.persistence.ManyToOne;
 import javax.persistence.Table;
-
 import org.hibernate.annotations.Cache;
 import org.hibernate.annotations.CacheConcurrencyStrategy;
-import org.springframework.data.elasticsearch.annotations.FieldType;
-
-import com.fasterxml.jackson.annotation.JsonIgnoreProperties;
 
 /**
  * A UserProperties.
@@ -75,13 +71,11 @@ public class UserSearches implements Serializable {
         this.user = user;
     }
 
-    public String getPayload()
-    {
+    public String getPayload() {
         return payload;
     }
 
-    public void setPayload(String payload)
-    {
+    public void setPayload(String payload) {
         this.payload = payload;
     }
 
@@ -91,30 +85,20 @@ public class UserSearches implements Serializable {
     }
 
     @Override
-    public boolean equals(Object o)
-    {
-        if (this == o)
-            return true;
-        if (o == null || getClass() != o.getClass())
-            return false;
+    public boolean equals(Object o) {
+        if (this == o) return true;
+        if (o == null || getClass() != o.getClass()) return false;
         UserSearches that = (UserSearches) o;
         return id.equals(that.id) && name.equals(that.name) && Objects.equals(payload, that.payload);
     }
 
     @Override
-    public int hashCode()
-    {
+    public int hashCode() {
         return Objects.hash(id, name, payload);
     }
 
     @Override
-    public String toString()
-    {
-        return "UserSearches{" +
-            "id=" + id +
-            ", name='" + name + '\'' +
-            ", payload='" + payload + '\'' +
-            ", user=" + user +
-            '}';
+    public String toString() {
+        return "UserSearches{" + "id=" + id + ", name='" + name + '\'' + ", payload='" + payload + '\'' + ", user=" + user + '}';
     }
 }

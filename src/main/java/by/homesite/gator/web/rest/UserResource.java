@@ -1,7 +1,5 @@
 package by.homesite.gator.web.rest;
 
-import static org.elasticsearch.index.query.QueryBuilders.*;
-
 import by.homesite.gator.config.Constants;
 import by.homesite.gator.domain.User;
 import by.homesite.gator.repository.UserRepository;
@@ -15,9 +13,6 @@ import by.homesite.gator.web.rest.errors.LoginAlreadyUsedException;
 import java.net.URI;
 import java.net.URISyntaxException;
 import java.util.*;
-import java.util.Collections;
-import java.util.stream.Collectors;
-import java.util.stream.StreamSupport;
 import javax.validation.Valid;
 import javax.validation.constraints.Pattern;
 import org.slf4j.Logger;
@@ -64,20 +59,18 @@ import tech.jhipster.web.util.ResponseUtil;
 @RequestMapping("/api/admin")
 public class UserResource {
 
-    private static final List<String> ALLOWED_ORDERED_PROPERTIES = Collections.unmodifiableList(
-        Arrays.asList(
-            "id",
-            "login",
-            "firstName",
-            "lastName",
-            "email",
-            "activated",
-            "langKey",
-            "createdBy",
-            "createdDate",
-            "lastModifiedBy",
-            "lastModifiedDate"
-        )
+    private static final List<String> ALLOWED_ORDERED_PROPERTIES = List.of(
+        "id",
+        "login",
+        "firstName",
+        "lastName",
+        "email",
+        "activated",
+        "langKey",
+        "createdBy",
+        "createdDate",
+        "lastModifiedBy",
+        "lastModifiedDate"
     );
 
     private final Logger log = LoggerFactory.getLogger(UserResource.class);

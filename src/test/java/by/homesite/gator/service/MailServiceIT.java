@@ -1,7 +1,6 @@
 package by.homesite.gator.service;
 
 import static org.assertj.core.api.Assertions.*;
-import static org.mockito.ArgumentMatchers.any;
 import static org.mockito.Mockito.*;
 
 import by.homesite.gator.IntegrationTest;
@@ -14,6 +13,7 @@ import java.io.InputStreamReader;
 import java.net.URI;
 import java.net.URL;
 import java.nio.charset.Charset;
+import java.nio.charset.StandardCharsets;
 import java.util.Properties;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
@@ -218,7 +218,7 @@ class MailServiceIT {
             URL resource = this.getClass().getClassLoader().getResource(propertyFilePath);
             File file = new File(new URI(resource.getFile()).getPath());
             Properties properties = new Properties();
-            properties.load(new InputStreamReader(new FileInputStream(file), Charset.forName("UTF-8")));
+            properties.load(new InputStreamReader(new FileInputStream(file), StandardCharsets.UTF_8));
 
             String emailTitle = (String) properties.get("email.test.title");
             assertThat(message.getSubject()).isEqualTo(emailTitle);
