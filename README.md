@@ -1,6 +1,8 @@
-# gator
+# GATor (Global Ads aggregaTor)
 
-This application was generated using JHipster 7.1.0, you can find documentation and help at [https://www.jhipster.tech/documentation-archive/v7.1.0](https://www.jhipster.tech/documentation-archive/v7.1.0).
+Application to parse different classifieds boards. Easily customizable (just create your own by.homesite.parser implementation)
+
+This this the backed server (http://gator.homesite.by as a demo).
 
 ## Development
 
@@ -8,26 +10,6 @@ To start your application in the dev profile, run:
 
 ```
 ./mvnw
-```
-
-For further instructions on how to develop with JHipster, have a look at [Using JHipster in development][].
-
-### Using Angular CLI
-
-You can also use [Angular CLI][] to generate some custom client code.
-
-For example, the following command:
-
-```
-ng generate component my-component
-```
-
-will generate few files:
-
-```
-create src/main/webapp/app/my-component/my-component.component.html
-create src/main/webapp/app/my-component/my-component.component.ts
-update src/main/webapp/app/app.module.ts
 ```
 
 ## Building for production
@@ -44,8 +26,6 @@ To ensure everything worked, run:
 
     java -jar target/*.jar
 
-Refer to [Using JHipster in production][] for more details.
-
 ### Packaging as war
 
 To package your application as a war in order to deploy it to an application server, run:
@@ -57,8 +37,6 @@ To package your application as a war in order to deploy it to an application ser
 To launch your application's tests, run:
 
     ./mvnw verify
-
-For more information, refer to the [Running tests page][].
 
 ## setting up as debian daemon
 
@@ -80,7 +58,7 @@ WantedBy=multi-user.target
 
 ## Elasticsearch
 
-version 6.4.3 required (run under java 8/10)
+version 7.1.0 required (run under java 11)
 
 ### Code quality
 
@@ -103,8 +81,6 @@ If you need to re-run the Sonar phase, please be sure to specify at least the `i
 ```
 ./mvnw initialize sonar:sonar
 ```
-
-For more information, refer to the [Code quality page][].
 
 ## Using Docker to simplify development (optional)
 
@@ -134,18 +110,3 @@ Then run:
 ```
 docker-compose -f src/main/docker/app.yml up -d
 ```
-
-For more information refer to [Using Docker and Docker-Compose][], this page also contains information on the docker-compose sub-generator (`jhipster docker-compose`), which is able to generate docker configurations for one or several JHipster applications.
-
-## Continuous Integration (optional)
-
-To configure CI for your project, run the ci-cd sub-generator (`jhipster ci-cd`), this will let you generate configuration files for a number of Continuous Integration systems. Consult the [Setting up Continuous Integration][] page for more information.
-
-[jhipster homepage and latest documentation]: https://www.jhipster.tech
-[jhipster 7.1.0 archive]: https://www.jhipster.tech/documentation-archive/v7.1.0
-[using jhipster in development]: https://www.jhipster.tech/documentation-archive/v7.1.0/development/
-[using docker and docker-compose]: https://www.jhipster.tech/documentation-archive/v7.1.0/docker-compose
-[using jhipster in production]: https://www.jhipster.tech/documentation-archive/v7.1.0/production/
-[running tests page]: https://www.jhipster.tech/documentation-archive/v7.1.0/running-tests/
-[code quality page]: https://www.jhipster.tech/documentation-archive/v7.1.0/code-quality/
-[setting up continuous integration]: https://www.jhipster.tech/documentation-archive/v7.1.0/setting-up-ci/
